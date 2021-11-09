@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Verifiable Credentials ReSpec Test</title>
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c' class='remove'></script>
+    <script src="./dist/main.js" class="remove"></script>
+    <script type="text/javascript">
+async function exampleProofs() {
+  const {
+    Ed25519VerificationKey2020,
+    Ed25519Signature2020,
+    documentLoader,
+    vc
+  } = window.respecVc;
+
+  // generate base keypair and signature suite
+  const keyPair = await Ed25519VerificationKey2020.generate({
+    id: 'https://example.com/credentials/1872/keys/1',
+    controller: 'https://example.com/credentials/1872'
+  });
+  const suite = new Ed25519Signature2020({
+    key: keyPair
+  });
+  suite.verificationMethod = 'https://example.edu/issuers/565049/keys/1';
+
+  // process every example that needs a vc-proof
+  const vcProofExamples = document.querySelectorAll(".vc-proof");
+  for(const example of vcProofExamples) {
+    // extract and sign the example
+    const originalText = example.innerHTML;
+    const credential = JSON.parse(example.innerText);
+    const verifiableCredential =
+      await vc.issue({credential, suite, documentLoader});
+
+    // set up the unsigned button action
+    const unsignedButton = document.createElement('button');
+    unsignedButton.innerText = 'Unsigned';
+    unsignedButton.onclick = () => {
+      example.innerHTML = originalText;
+    };
+
+    // set up the signed proof button action
+    const signedProofButton = document.createElement('button');
+    signedProofButton.innerText = 'Signed (proof)';
+    signedProofButton.onclick = () => {
+      example.innerText = JSON.stringify(verifiableCredential, null, 2)
+        .match(/.{1,75}/g).join('\n');
+    };
+
+    // set up the signed JWT button action
+    const signedJwtButton = document.createElement('button');
+    signedJwtButton.innerText = 'Signed (JWT)';
+    signedJwtButton.onclick = () => {
+      example.innerText = btoa(JSON.stringify(verifiableCredential) +
+        JSON.stringify(verifiableCredential)).match(/.{1,75}/g).join('\n');
+    };
+
+    // prepend the buttons before the preformatted example
+    example.before(unsignedButton);
+    example.before(signedProofButton);
+    example.before(signedJwtButton);
+  }
+}
+    </script>
+    <script type="text/javascript" class="remove">
+      var respecConfig = {
+        group: "vc",
+        specStatus: "base",
+        subtitle: "Test of ReSpec VC",
+        doJsonLd: true,
+        includePermalinks: false,
+        editors: [
+          { name: "Manu Sporny", url: "https://www.linkedin.com/in/manusporny/",
+            company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/"}
+        ],
+        authors:
+        [
+          { name: "Manu Sporny", url: "http://digitalbazaar.com/",
+            company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/"}
+        ],
+        maxTocLevel: 2,
+        inlineCSS: true,
+        postProcess: [exampleProofs]
+      };
+    </script>
+  </head>
+  <body>
+    <section id="abstract">
+      <p>Hello respec-vc!</p>
+    </section>
+    <section>
+      <h1>Examples</h1>
+      <p>Here is a signing example</p>
+      <pre class="example vc-proof" title="A Verifiable Credential example">
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1"
+  ],
+  "id": "https://example.com/credentials/1872",
+  "type": ["VerifiableCredential", "AlumniCredential"],
+  "issuer": "https://example.edu/issuers/565049",
+  "issuanceDate": "2010-01-01T19:23:24Z",
+  "credentialSubject": {
+    "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+    "alumniOf": "Example University"
+  }
+}
+      </pre>
+    </section>
+  </body>
+</html>
