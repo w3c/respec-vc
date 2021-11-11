@@ -73,24 +73,31 @@ async function createVcExamples() {
     // set up the unsigned button action
     const unsignedButton = document.createElement('button');
     unsignedButton.innerText = 'Credential';
-    unsignedButton.onclick = () => {
-      example.innerHTML = originalText;
-    };
+    unsignedButton.setAttribute(
+      'onclick', 'window.displayVcExample(this, \'credential\');');
+    example.classList.remove('vc');
+    example.classList.add('credential');
 
     // set up the signed proof button action
     const signedProofButton = document.createElement('button');
     signedProofButton.innerText = 'Verifiable Credential (with proof)';
-    signedProofButton.onclick = () => {
-      example.innerText = JSON.stringify(verifiableCredentialProof, null, 2)
-        .match(/.{1,75}/g).join('\n');
-    };
+    signedProofButton.setAttribute(
+      'onclick', 'window.displayVcExample(this, \'vc-proof\');');
+    const preProof = document.createElement('pre');
+    preProof.classList.add('vc-proof');
+    preProof.style.display = 'none';
+    preProof.innerText = JSON.stringify(verifiableCredentialProof, null, 2)
+      .match(/.{1,75}/g).join('\n');
 
     // set up the signed JWT button action
     const signedJwtButton = document.createElement('button');
     signedJwtButton.innerText = 'Verifiable Credential (as JWT)';
-    signedJwtButton.onclick = () => {
-      example.innerText = verifiableCredentialJwt.match(/.{1,75}/g).join('\n');
-    };
+    signedJwtButton.setAttribute(
+      'onclick', 'window.displayVcExample(this, \'vc-jwt\');');
+    const preJwt = document.createElement('pre');
+    preJwt.classList.add('vc-jwt');
+    preJwt.style.display = 'none';
+    preJwt.innerText = verifiableCredentialJwt.match(/.{1,75}/g).join('\n');
 
     // set up the tab separator
     const tabSeparator = document.createElement('div');
@@ -104,6 +111,10 @@ async function createVcExamples() {
     example.before(signedProofButton);
     example.before(signedJwtButton);
     example.before(tabSeparator);
+
+    // append the examples
+    example.after(preJwt);
+    example.after(preProof);
   }
 }
 
