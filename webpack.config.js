@@ -1,5 +1,6 @@
 module.exports = [{
   mode: 'development',
   entry: './index.js',
-  plugins: []
+  plugins: [],
+  watch: true
 }];
