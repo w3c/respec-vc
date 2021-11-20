@@ -22,14 +22,34 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
   throw new Error(`Document loader unable to load URL "${url}".`);
 });
 
-async function attachJwt({credential, iss, jwk}) {
-  const jwt = new jose.SignJWT({vc: credential})
-    .setProtectedHeader({ alg: 'ES256' })
-    .setIssuedAt()
-    .setIssuer(iss)
+// convert an XML Schema v1.` Datetime value to a UNIX timestamp
+function xmlDateTimeToUnixTimestamp(xmlDateTime) {
+  if(xmlDateTime === null) {
+    return null;
+  }
+
+  return Date.parse(xmlDateTime)/1000;
+}
+
+async function transformToJwt({credential, kid, jwk}) {
+  const header = {alg: 'ES256', typ: 'JWT'};
+  const payload = {
+    exp: xmlDateTimeToUnixTimestamp(vc.expirationDate),
+    iss: credential.issuer,
+    nbf: xmlDateTimeToUnixTimestamp(vc.issuanceDate),
+    jti: credential.id,
+    sub: credential.credentialSubject.id,
+    vc: credential
+  };
+  let description = '---------------- JWT header ---------------\n' +
+    JSON.stringify(header, null, 2);
+  description += '\n\n--------------- JWT payload ---------------\n' +
+    JSON.stringify(payload, null, 2);
+  const jwt = await new jose.SignJWT(payload)
+    .setProtectedHeader(header)
     .sign(jwk.privateKey);
 
-  return jwt;
+  return description + '\n\n--------------- JWT ---------------\n\n' + jwt;
 };
 
 async function attachProof({credential, suite}) {
@@ -48,8 +68,7 @@ async function createVcExamples() {
   // process every example that needs a vc-proof
   const vcProofExamples = document.querySelectorAll(".vc");
   for(const example of vcProofExamples) {
-    const verificationMethod =
-      example.getAttribute('data-vc-verification-method');
+    const verificationMethod = example.getAttribute('data-vc-vm');
     suite.verificationMethod =
       verificationMethod || 'did:key:' + keyPair.publicKey;
 
@@ -66,9 +85,28 @@ async function createVcExamples() {
       continue;
     }
 
-    const verifiableCredentialProof = await attachProof({credential, suite});
-    const verifiableCredentialJwt =
-      await attachJwt({credential, iss: suite.verificationMethod, jwk});
+    // attach the proof
+    let verifiableCredentialProof;
+    try {
+      verifiableCredentialProof = await attachProof({credential, suite});
+    } catch(e) {
+      console.error(
+        'respec-vc error: Failed to attach proof to Verifiable Credential.',
+        e, example.innerText);
+      continue;
+    }
+
+    // convert to a JWT
+    let verifiableCredentialJwt;
+    try {
+      verifiableCredentialJwt = await transformToJwt({
+        credential, kid: suite.verificationMethod, jwk});
+    } catch(e) {
+      console.error(
+        'respec-vc error: Failed to convert Credential to JWT.',
+        e, example.innerText);
+      continue;
+    }
 
     // set up the unsigned button action
     const unsignedButton = document.createElement('button');
