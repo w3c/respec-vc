@@ -24,23 +24,36 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
 
 // convert an XML Schema v1.` Datetime value to a UNIX timestamp
 function xmlDateTimeToUnixTimestamp(xmlDateTime) {
-  if(xmlDateTime === null) {
-    return null;
+  if(!xmlDateTime) {
+    return undefined;
   }
 
   return Date.parse(xmlDateTime)/1000;
 }
 
+// transform the input credential to a JWT
 async function transformToJwt({credential, kid, jwk}) {
   const header = {alg: 'ES256', typ: 'JWT'};
   const payload = {
-    exp: xmlDateTimeToUnixTimestamp(vc.expirationDate),
-    iss: credential.issuer,
-    nbf: xmlDateTimeToUnixTimestamp(vc.issuanceDate),
-    jti: credential.id,
-    sub: credential.credentialSubject.id,
     vc: credential
   };
+  if(credential.expirationDate) {
+    payload.exp = xmlDateTimeToUnixTimestamp(credential.expirationDate);
+  }
+  if(credential.issuer) {
+    payload.iss = credential.issuer;
+  }
+  if(credential.issuanceDate) {
+    payload.nbf = xmlDateTimeToUnixTimestamp(credential.issuanceDate);
+  }
+  if(credential.id) {
+    payload.jti = credential.id;
+  }
+  if(credential.credentialSubject.id) {
+    payload.sub = credential.credentialSubject.id;
+  }
+
+  // create the JWT description
   let description = '---------------- JWT header ---------------\n' +
     JSON.stringify(header, null, 2);
   description += '\n\n--------------- JWT payload ---------------\n' +
