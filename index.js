@@ -70,6 +70,68 @@ async function attachProof({credential, suite}) {
   return vc.issue({credential: credentialCopy, suite, documentLoader});
 };
 
+function addVcExampleStyles() {
+  const exampleStyles = document.createElement('style');
+
+  exampleStyles.innerText += `.example .tab {
+    background-color: rgba(0, 0, 0, 0.05);
+    border: solid gray thin;
+    border-radius: 4px 4px 0px 0px;
+    border-color: #574b0f;
+    padding: 4px;
+    cursor: default;
+    margin: 4px;
+  }`;
+  exampleStyles.innerText += `.example .tab.selected {
+    background-color: inherit;
+    border-bottom: solid #fcfaee thin;
+  }`;
+  exampleStyles.innerText += `.example .tab:hover {
+    color: #034575;
+    background-color: #e0cb52;
+  }`;
+  exampleStyles.innerText += `.example .tab-separator {
+    background: gray;
+    height: 1px;
+    border: 1px;
+  }`;
+
+  document.getElementsByTagName('head')[0].appendChild(exampleStyles);
+}
+
+function addVcExampleScripts() {
+  const exampleScripts = document.createElement('script');
+  exampleScripts.type = 'text/javascript';
+  exampleScripts.text += `
+  /**
+   * Displays a Verifiable Credential example given an element that contains
+   * PRE tags and an elementClass to match against and display.
+   */
+  function displayVcExample(element, elementClass) {
+    // find all SPAN.tab sibling elements in an example block
+    const tabs = element.parentElement.querySelectorAll('.tab');
+    // highlight the currently clicked on tab
+    for(tab of tabs) {
+      tab.classList.remove('selected');
+    }
+    element.classList.add('selected');
+
+    // find all PRE sibling elements in an example block
+    const examples = element.parentElement.querySelectorAll('pre');
+    // display the provided elementClass, hide all other PRE blocks
+    for(example of examples) {
+      if(example.classList.contains(elementClass)) {
+        example.style.display = 'block';
+      } else {
+        example.style.display = 'none';
+      }
+    }
+  }
+
+  window.displayVcExample = displayVcExample;
+  `;
+  document.getElementsByTagName('head')[0].appendChild(exampleScripts);
+}
 async function createVcExamples() {
   // generate base keypair and signature suite
   const keyPair = await Ed25519VerificationKey2020.generate();
@@ -77,6 +139,12 @@ async function createVcExamples() {
     key: keyPair
   });
   const jwk = await jose.generateKeyPair('ES256');
+
+  // add scripts for examples
+  addVcExampleScripts();
+
+  // add styles for examples
+  addVcExampleStyles();
 
   // process every example that needs a vc-proof
   const vcProofExamples = document.querySelectorAll(".vc");
@@ -122,7 +190,7 @@ async function createVcExamples() {
     }
 
     // set up tab style
-    const tabStyle = "background-color: rgba(224,203,82,0.15); border: solid gray thin; border-radius: 4px 4px 0px 0px; border-color: #574b0f; padding: 4px; cursor: default; margin: 4px";
+    const tabStyle = "";
 
     const tabRow = document.createElement('div');
     tabRow.setAttribute('style', 'padding: 5px;');
@@ -130,6 +198,7 @@ async function createVcExamples() {
     // set up the unsigned button action
     const unsignedTab = document.createElement('span');
     unsignedTab.setAttribute('style', tabStyle);
+    unsignedTab.setAttribute('class', 'tab selected');
     unsignedTab.innerText = 'Credential';
     unsignedTab.setAttribute(
       'onclick', 'window.displayVcExample(this, \'credential\');');
@@ -140,6 +209,7 @@ async function createVcExamples() {
     const signedProofTab = document.createElement('span');
     signedProofTab.innerText = 'Verifiable Credential (with proof)';
     signedProofTab.setAttribute('style', tabStyle);
+    signedProofTab.setAttribute('class', 'tab');
     signedProofTab.setAttribute(
       'onclick', 'window.displayVcExample(this, \'vc-proof\');');
     const preProof = document.createElement('pre');
@@ -151,6 +221,7 @@ async function createVcExamples() {
     // set up the signed JWT button action
     const signedJwtTab = document.createElement('span');
     signedJwtTab.innerText = 'Verifiable Credential (as JWT)';
+    signedJwtTab.setAttribute('class', 'tab');
     signedJwtTab.setAttribute('style', tabStyle);
     signedJwtTab.setAttribute(
       'onclick', 'window.displayVcExample(this, \'vc-jwt\');');
@@ -161,9 +232,7 @@ async function createVcExamples() {
 
     // set up the tab separator
     const tabSeparator = document.createElement('div');
-    tabSeparator.style.background = 'gray';
-    tabSeparator.style.height = '1px';
-    tabSeparator.style.border = '1px';
+    tabSeparator.setAttribute('class', 'tab-separator');
 
     // prepend the buttons before the preformatted example
     example.before(tabRow);
