@@ -73,7 +73,8 @@ async function attachProof({credential, suite}) {
 function addVcExampleStyles() {
   const exampleStyles = document.createElement('style');
 
-  exampleStyles.innerText += `.example .tab {
+  exampleStyles.innerHTML += `
+  .example .tab {
     background-color: rgba(0, 0, 0, 0.05);
     border: solid gray thin;
     border-radius: 4px 4px 0px 0px;
@@ -81,16 +82,19 @@ function addVcExampleStyles() {
     padding: 4px;
     cursor: default;
     margin: 4px;
-  }`;
-  exampleStyles.innerText += `.example .tab.selected {
+  }
+
+  .example .tab.selected {
     background-color: inherit;
     border-bottom: solid #fcfaee thin;
-  }`;
-  exampleStyles.innerText += `.example .tab:hover {
+  }
+
+  .example .tab:hover {
     color: #034575;
     background-color: #e0cb52;
-  }`;
-  exampleStyles.innerText += `.example .tab-separator {
+  }
+
+  .example .tab-separator {
     background: gray;
     height: 1px;
     border: 1px;
