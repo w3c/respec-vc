@@ -121,18 +121,26 @@ async function createVcExamples() {
       continue;
     }
 
+    // set up tab style
+    const tabStyle = "background-color: rgba(224,203,82,0.15); border: solid gray thin; border-radius: 4px 4px 0px 0px; border-color: #574b0f; padding: 4px; cursor: default; margin: 4px";
+
+    const tabRow = document.createElement('div');
+    tabRow.setAttribute('style', 'padding: 5px;');
+
     // set up the unsigned button action
-    const unsignedButton = document.createElement('button');
-    unsignedButton.innerText = 'Credential';
-    unsignedButton.setAttribute(
+    const unsignedTab = document.createElement('span');
+    unsignedTab.setAttribute('style', tabStyle);
+    unsignedTab.innerText = 'Credential';
+    unsignedTab.setAttribute(
       'onclick', 'window.displayVcExample(this, \'credential\');');
     example.classList.remove('vc');
     example.classList.add('credential');
 
     // set up the signed proof button action
-    const signedProofButton = document.createElement('button');
-    signedProofButton.innerText = 'Verifiable Credential (with proof)';
-    signedProofButton.setAttribute(
+    const signedProofTab = document.createElement('span');
+    signedProofTab.innerText = 'Verifiable Credential (with proof)';
+    signedProofTab.setAttribute('style', tabStyle);
+    signedProofTab.setAttribute(
       'onclick', 'window.displayVcExample(this, \'vc-proof\');');
     const preProof = document.createElement('pre');
     preProof.classList.add('vc-proof');
@@ -141,9 +149,10 @@ async function createVcExamples() {
       .match(/.{1,75}/g).join('\n');
 
     // set up the signed JWT button action
-    const signedJwtButton = document.createElement('button');
-    signedJwtButton.innerText = 'Verifiable Credential (as JWT)';
-    signedJwtButton.setAttribute(
+    const signedJwtTab = document.createElement('span');
+    signedJwtTab.innerText = 'Verifiable Credential (as JWT)';
+    signedJwtTab.setAttribute('style', tabStyle);
+    signedJwtTab.setAttribute(
       'onclick', 'window.displayVcExample(this, \'vc-jwt\');');
     const preJwt = document.createElement('pre');
     preJwt.classList.add('vc-jwt');
@@ -155,12 +164,12 @@ async function createVcExamples() {
     tabSeparator.style.background = 'gray';
     tabSeparator.style.height = '1px';
     tabSeparator.style.border = '1px';
-    tabSeparator.style.margin = '-2px 0px';
 
     // prepend the buttons before the preformatted example
-    example.before(unsignedButton);
-    example.before(signedProofButton);
-    example.before(signedJwtButton);
+    example.before(tabRow);
+    example.before(unsignedTab);
+    example.before(signedProofTab);
+    example.before(signedJwtTab);
     example.before(tabSeparator);
 
     // append the examples
