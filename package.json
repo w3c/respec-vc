@@ -19,7 +19,7 @@
   "dependencies": {
     "@digitalbazaar/ed25519-signature-2020": "^3.0.0",
     "@digitalbazaar/ed25519-verification-key-2020": "^3.2.0",
-    "@digitalbazaar/vc": "^2.0.0",
+    "@digitalbazaar/vc": "^2.1.0",
     "ed25519-signature-2020-context": "^1.1.0",
     "jose": "^4.2.1"
   },
