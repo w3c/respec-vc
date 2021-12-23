@@ -139,6 +139,11 @@ function addVcExampleScripts() {
   `;
   document.getElementsByTagName('head')[0].appendChild(exampleScripts);
 }
+
+function addContext(url, context) {
+  contexts[url] = context;
+}
+
 async function createVcExamples() {
   // generate base keypair and signature suite
   const keyPair = await Ed25519VerificationKey2020.generate();
@@ -256,5 +261,6 @@ async function createVcExamples() {
 
 // setup exports on window
 window.respecVc = {
+  addContext,
   createVcExamples
 }
