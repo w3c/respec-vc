@@ -57,6 +57,9 @@ async function transformToJwt({credential, kid, jwk}) {
   let description = '---------------- JWT header ---------------\n' +
     JSON.stringify(header, null, 2);
   description += '\n\n--------------- JWT payload ---------------\n' +
+    '// NOTE: The example below uses a valid VC-JWT serialization\n' +
+    '//       that duplicates the iss, nbf, jti, and sub fields in the\n' +
+    '//       Verifiable Credential (vc) field.\n\n' +
     JSON.stringify(payload, null, 2);
   const jwt = await new jose.SignJWT(payload)
     .setProtectedHeader(header)
