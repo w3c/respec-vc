@@ -77,68 +77,67 @@ function addVcExampleStyles() {
   const exampleStyles = document.createElement('style');
 
   exampleStyles.innerHTML += `
-  .example .tab {
-    background-color: rgba(0, 0, 0, 0.05);
-    border: solid gray thin;
-    border-radius: 4px 4px 0px 0px;
-    border-color: #574b0f;
-    padding: 4px;
-    cursor: default;
-    margin: 4px;
+  .vc-tabbed {
+    overflow-x: hidden;
+    margin: 0 0;
   }
 
-  .example .tab.selected {
-    background-color: inherit;
-    border-bottom: solid #fcfaee thin;
+  .vc-tabbed [type="radio"] {
+    display: none;
   }
 
-  .example .tab:hover {
-    color: #034575;
-    background-color: #e0cb52;
+  .vc-tabs {
+    display: flex;
+    align-items: stretch;
+    list-style: none;
+    padding: 0;
+    border-bottom: 1px solid #ccc;
   }
 
-  .example .tab-separator {
-    background: gray;
-    height: 1px;
-    border: 1px;
+  li.vc-tab {
+    margin: unset;
+  }
+
+  .vc-tab > label {
+    display: block;
+    margin-bottom: -1px;
+    padding: .4em .5em;
+    border: 1px solid #ccc;
+    border-top-right-radius: .4em;
+    border-top-left-radius: .4em;
+    background: #eee;
+    color: #666;
+    cursor: pointer;	
+    transition: all 0.3s;
+  }
+  .vc-tab:hover label {
+    border-left-color: #333;
+    border-top-color: #333;
+    border-right-color: #333;
+    color: #333;
+  }
+  
+  .vc-tab-content {
+    display: none;
+  }
+
+  .vc-tabbed [type="radio"]:nth-of-type(1):checked ~ .vc-tabs .vc-tab:nth-of-type(1) label,
+  .vc-tabbed [type="radio"]:nth-of-type(2):checked ~ .vc-tabs .vc-tab:nth-of-type(2) label,
+  .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tabs .vc-tab:nth-of-type(3) label {
+    border-bottom-color: #fff;
+    background: #fff;
+    color: #222;
+  }
+  
+  .vc-tabbed [type="radio"]:nth-of-type(1):checked ~ .vc-tab-content:nth-of-type(1),
+  .vc-tabbed [type="radio"]:nth-of-type(2):checked ~ .vc-tab-content:nth-of-type(2),
+  .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tab-content:nth-of-type(3) {
+    display: block;
   }`;
 
   document.getElementsByTagName('head')[0].appendChild(exampleStyles);
 }
 
-function addVcExampleScripts() {
-  const exampleScripts = document.createElement('script');
-  exampleScripts.type = 'text/javascript';
-  exampleScripts.text += `
-  /**
-   * Displays a Verifiable Credential example given an element that contains
-   * PRE tags and an elementClass to match against and display.
-   */
-  function displayVcExample(element, elementClass) {
-    // find all SPAN.tab sibling elements in an example block
-    const tabs = element.parentElement.querySelectorAll('.tab');
-    // highlight the currently clicked on tab
-    for(tab of tabs) {
-      tab.classList.remove('selected');
-    }
-    element.classList.add('selected');
-
-    // find all PRE sibling elements in an example block
-    const examples = element.parentElement.querySelectorAll('pre');
-    // display the provided elementClass, hide all other PRE blocks
-    for(example of examples) {
-      if(example.classList.contains(elementClass)) {
-        example.style.display = 'block';
-      } else {
-        example.style.display = 'none';
-      }
-    }
-  }
-
-  window.displayVcExample = displayVcExample;
-  `;
-  document.getElementsByTagName('head')[0].appendChild(exampleScripts);
-}
 async function createVcExamples() {
   // generate base keypair and signature suite
   const keyPair = await Ed25519VerificationKey2020.generate();
@@ -147,15 +146,14 @@ async function createVcExamples() {
   });
   const jwk = await jose.generateKeyPair('ES256');
 
-  // add scripts for examples
-  addVcExampleScripts();
-
   // add styles for examples
   addVcExampleStyles();
 
   // process every example that needs a vc-proof
   const vcProofExamples = document.querySelectorAll(".vc");
+  let vcProofExampleIndex = 0;
   for(const example of vcProofExamples) {
+    vcProofExampleIndex++;
     const verificationMethod = example.getAttribute('data-vc-vm');
     suite.verificationMethod =
       verificationMethod || 'did:key:' + keyPair.publicKey;
@@ -196,61 +194,74 @@ async function createVcExamples() {
       continue;
     }
 
-    // set up tab style
-    const tabStyle = "";
+    // set up the tabbed content
+    const tabbedContent = document.createElement('div');
+    tabbedContent.setAttribute('class', 'vc-tabbed');
 
-    const tabRow = document.createElement('div');
-    tabRow.setAttribute('style', 'padding: 5px;');
+    // set up the unsigned button
+    const unsignedTabBtn = document.createElement('input');
+    unsignedTabBtn.setAttribute('type', 'radio');
+    unsignedTabBtn.setAttribute('id', `vc-tab${vcProofExampleIndex}1`);
+    unsignedTabBtn.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
+    unsignedTabBtn.setAttribute('checked', 'checked');
+    tabbedContent.appendChild(unsignedTabBtn);
 
-    // set up the unsigned button action
-    const unsignedTab = document.createElement('span');
-    unsignedTab.setAttribute('style', tabStyle);
-    unsignedTab.setAttribute('class', 'tab selected');
-    unsignedTab.innerText = 'Credential';
-    unsignedTab.setAttribute(
-      'onclick', 'window.displayVcExample(this, \'credential\');');
-    example.classList.remove('vc');
-    example.classList.add('credential');
+    // set up the signed proof button
+    const signedProofTabBtn = document.createElement('input');
+    signedProofTabBtn.setAttribute('type', 'radio');
+    signedProofTabBtn.setAttribute('id', `vc-tab${vcProofExampleIndex}2`);
+    signedProofTabBtn.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
+    tabbedContent.appendChild(signedProofTabBtn);
 
-    // set up the signed proof button action
-    const signedProofTab = document.createElement('span');
-    signedProofTab.innerText = 'Verifiable Credential (with proof)';
-    signedProofTab.setAttribute('style', tabStyle);
-    signedProofTab.setAttribute('class', 'tab');
-    signedProofTab.setAttribute(
-      'onclick', 'window.displayVcExample(this, \'vc-proof\');');
-    const preProof = document.createElement('pre');
-    preProof.classList.add('vc-proof');
-    preProof.style.display = 'none';
-    preProof.innerText = JSON.stringify(verifiableCredentialProof, null, 2)
-      .match(/.{1,75}/g).join('\n');
+    // set up the signed JWT button
+    const signedJwtTabBtn = document.createElement('input');
+    signedJwtTabBtn.setAttribute('type', 'radio');
+    signedJwtTabBtn.setAttribute('id', `vc-tab${vcProofExampleIndex}3`);
+    signedJwtTabBtn.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
+    tabbedContent.appendChild(signedJwtTabBtn);
 
-    // set up the signed JWT button action
-    const signedJwtTab = document.createElement('span');
-    signedJwtTab.innerText = 'Verifiable Credential (as JWT)';
-    signedJwtTab.setAttribute('class', 'tab');
-    signedJwtTab.setAttribute('style', tabStyle);
-    signedJwtTab.setAttribute(
-      'onclick', 'window.displayVcExample(this, \'vc-jwt\');');
-    const preJwt = document.createElement('pre');
-    preJwt.classList.add('vc-jwt');
-    preJwt.style.display = 'none';
-    preJwt.innerText = verifiableCredentialJwt.match(/.{1,75}/g).join('\n');
+    // set up the tab labels
+    const tabLabels = document.createElement("ul");
+    tabLabels.setAttribute('class', 'vc-tabs');
+    tabbedContent.appendChild(tabLabels);
 
-    // set up the tab separator
-    const tabSeparator = document.createElement('div');
-    tabSeparator.setAttribute('class', 'tab-separator');
+    const unsignedLabel = document.createElement("li");
+    unsignedLabel.setAttribute('class', 'vc-tab');
+    unsignedLabel.innerHTML = `<label for='${unsignedTabBtn.getAttribute('id')}'>Credential</label>`;
+    tabLabels.appendChild(unsignedLabel)
 
-    // prepend the buttons before the preformatted example
-    example.before(tabRow);
-    example.before(unsignedTab);
-    example.before(signedProofTab);
-    example.before(signedJwtTab);
-    example.before(tabSeparator);
+    const signedProofLabel = document.createElement("li");
+    signedProofLabel.setAttribute('class', 'vc-tab');
+    signedProofLabel.innerHTML = `<label for='${signedProofTabBtn.getAttribute('id')}'>Verifiable Credential (with proof)</label>`;
+    tabLabels.appendChild(signedProofLabel)
 
-    // append the examples
-    example.after(preJwt);
-    example.after(preProof);
+    const signedJwtLabel = document.createElement("li");
+    signedJwtLabel.setAttribute('class', 'vc-tab');
+    signedJwtLabel.innerHTML = `<label for='${signedJwtTabBtn.getAttribute('id')}'>Verifiable Credential (as JWT)</label>`;
+    tabLabels.appendChild(signedJwtLabel)
+
+    // append the tabbed content
+
+    const container = example.parentNode;
+    const unsignedContent = document.createElement('div');
+    unsignedContent.setAttribute('class', 'vc-tab-content');
+    // Move the credential example to the unsigned tab
+    unsignedContent.append(example);
+    tabbedContent.appendChild(unsignedContent);
+
+    const signedProofContent = document.createElement('div');
+    signedProofContent.setAttribute('class', 'vc-tab-content');
+    signedProofContent.innerHTML = `<pre>${JSON.stringify(verifiableCredentialProof, null, 2).match(/.{1,75}/g).join('\n')}</pre>`;
+    tabbedContent.appendChild(signedProofContent);
+
+    const signedJwtContent = document.createElement('div');
+    signedJwtContent.setAttribute('class', 'vc-tab-content');
+    signedJwtContent.innerHTML = `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`;
+    tabbedContent.appendChild(signedJwtContent);
+
+    // replace the original example with the tabbed content
+
+    container.append(tabbedContent);
   }
 }
 
