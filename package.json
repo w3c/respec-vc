@@ -17,15 +17,15 @@
   },
   "homepage": "https://github.com/w3c/respec-vc#readme",
   "dependencies": {
-    "@digitalbazaar/ed25519-signature-2020": "^3.0.0",
-    "@digitalbazaar/ed25519-verification-key-2020": "^3.2.0",
-    "@digitalbazaar/vc": "^2.1.0",
+    "@digitalbazaar/ed25519-signature-2020": "^5.0.0",
+    "@digitalbazaar/ed25519-verification-key-2020": "^4.1.0",
+    "@digitalbazaar/vc": "^5.0.0",
     "ed25519-signature-2020-context": "^1.1.0",
-    "jose": "^4.2.1"
+    "jose": "^4.11.2"
   },
   "devDependencies": {
-    "http-server": "^13.0.0",
-    "webpack": "^5.50.0",
-    "webpack-cli": "^4.7.2"
+    "http-server": "^14.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^5.0.0"
   }
 }

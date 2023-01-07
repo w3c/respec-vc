@@ -1,14 +1,27 @@
-import vc from '@digitalbazaar/vc';
-import contexts from '@digitalbazaar/vc/lib/contexts';
+import {issue} from '@digitalbazaar/vc';
 import {extendContextLoader} from 'jsonld-signatures';
 import ed25519Context from 'ed25519-signature-2020-context';
 import * as jose from 'jose';
 import {Ed25519VerificationKey2020} from
   '@digitalbazaar/ed25519-verification-key-2020';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
+import odrlv1Context from './contexts/odrl/v1'
+import vcv1Context from './contexts/credentials/v1'
+import vcv1ExamplesContext from './contexts/credentials/examples/v1'
+import vcv2Context from './contexts/credentials/v2'
+import vcv2ExamplesContext from './contexts/credentials/examples/v2'
 
+// setup base VC contexts
+const contexts = {};
+contexts['https://www.w3.org/ns/odrl.jsonld'] = odrlv1Context;
+contexts['https://www.w3.org/2018/credentials/v1'] = vcv1Context;
+contexts['https://www.w3.org/2018/credentials/examples/v1'] =
+  vcv1ExamplesContext;
+contexts['https://www.w3.org/ns/credentials/v2'] = vcv2Context;
+contexts['https://www.w3.org/ns/credentials/examples/v2'] = vcv2ExamplesContext;
 // append 2020 signature suite to cached contexts
 contexts[ed25519Context.CONTEXT_URL] = ed25519Context.CONTEXT;
+
 // setup static document loader
 const documentLoader = extendContextLoader(async function documentLoader(url) {
   const context = contexts[url];
@@ -70,7 +83,7 @@ async function transformToJwt({credential, kid, jwk}) {
 
 async function attachProof({credential, suite}) {
   const credentialCopy = JSON.parse(JSON.stringify(credential));
-  return vc.issue({credential: credentialCopy, suite, documentLoader});
+  return issue({credential: credentialCopy, suite, documentLoader});
 };
 
 function addVcExampleStyles() {
