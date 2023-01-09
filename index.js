@@ -1,26 +1,22 @@
-import {issue} from '@digitalbazaar/vc';
+import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {extendContextLoader} from 'jsonld-signatures';
 import ed25519Context from 'ed25519-signature-2020-context';
+import * as examples1Context from '@digitalbazaar/credentials-examples-context';
 import * as jose from 'jose';
+import * as odrlContext from '@digitalbazaar/odrl-context';
+import examples2Context from './contexts/credentials/examples/v2';
 import {Ed25519VerificationKey2020} from
   '@digitalbazaar/ed25519-verification-key-2020';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
-import odrlv1Context from './contexts/odrl/v1'
-import vcv1Context from './contexts/credentials/v1'
-import vcv1ExamplesContext from './contexts/credentials/examples/v1'
-import vcv2Context from './contexts/credentials/v2'
-import vcv2ExamplesContext from './contexts/credentials/examples/v2'
 
-// setup base VC contexts
+// setup contexts used by respec-vc
 const contexts = {};
-contexts['https://www.w3.org/ns/odrl.jsonld'] = odrlv1Context;
-contexts['https://www.w3.org/2018/credentials/v1'] = vcv1Context;
-contexts['https://www.w3.org/2018/credentials/examples/v1'] =
-  vcv1ExamplesContext;
-contexts['https://www.w3.org/ns/credentials/v2'] = vcv2Context;
-contexts['https://www.w3.org/ns/credentials/examples/v2'] = vcv2ExamplesContext;
-// append 2020 signature suite to cached contexts
-contexts[ed25519Context.CONTEXT_URL] = ed25519Context.CONTEXT;
+for(const item of [odrlContext, ed25519Context, examples1Context]) {
+  for(const [url, context] of item.contexts) {
+    contexts[url] = context;
+  }
+}
+contexts['https://www.w3.org/ns/credentials/examples/v2'] = examples2Context;
 
 // setup static document loader
 const documentLoader = extendContextLoader(async function documentLoader(url) {
@@ -32,7 +28,7 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
       document: context
     };
   }
-  throw new Error(`Document loader unable to load URL "${url}".`);
+  return defaultDocumentLoader(url);
 });
 
 // convert an XML Schema v1.` Datetime value to a UNIX timestamp
