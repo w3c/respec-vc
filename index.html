@@ -48,9 +48,9 @@ pre .comment {
       <p>This is a test of the respec-vc plugin.</p>
     </section>
     <section>
-      <h1>Examples</h1>
+      <h1>Verifiable Credential v2.0</h1>
       <p>Here is a signing example</p>
-      <pre class="example nohighlight vc" title="A Verifiable Credential example"
+      <pre class="example nohighlight vc" title="A Verifiable Credentials 2.0 Example"
         data-vc-vm='https://university.example/registrar/keys/1'>
 {
   <span class='comment'>// set the context, which establishes the special terms we will be using
@@ -86,5 +86,46 @@ pre .comment {
 }
       </pre>
     </section>
+
+    <section>
+      <h1>Verifiable Credential v1.0</h1>
+      <p>Here is a signing example</p>
+      <pre class="example nohighlight vc" title="A Verifiable Credentials 1.0 Example"
+        data-vc-vm='https://university.example/registrar/keys/1'>
+{
+  <span class='comment'>// set the context, which establishes the special terms we will be using
+  // such as 'issuer' and 'alumniOf'.</span>
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1"
+  ],
+  <span class='comment'>// specify the identifier for the credential</span>
+  "id": "http://example.edu/credentials/1872",
+  <span class='comment'>// the credential types, which declare what data to expect in the credential</span>
+  "type": ["VerifiableCredential", "AlumniCredential"],
+  <span class='comment'>// the entity that issued the credential</span>
+  "issuer": "https://example.edu/issuers/565049",
+  <span class='comment'>// when the credential was issued</span>
+  "issued": "2010-01-01T19:23:24Z",
+  <span class='comment'>// claims about the subjects of the credential</span>
+  "credentialSubject": {
+    <span class='comment'>// identifier for the only subject of the credential</span>
+    "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+    <span class='comment'>// assertion about the only subject of the credential</span>
+    "alumniOf": {
+      "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+      "name": [{
+        "@value": "Example University",
+        "@language": "en"
+      }, {
+        "@value": "Université Exemple",
+        "@language": "fr"
+      }]
+    }
+  }
+}
+      </pre>
+    </section>
+
   </body>
 </html>
