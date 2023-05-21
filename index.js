@@ -22,53 +22,22 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
   throw new Error(`Document loader unable to load URL "${url}".`);
 });
 
-// convert an XML Schema v1.` Datetime value to a UNIX timestamp
-function xmlDateTimeToUnixTimestamp(xmlDateTime) {
-  if(!xmlDateTime) {
-    return undefined;
-  }
-
-  return Date.parse(xmlDateTime)/1000;
-}
-
 // transform the input credential to a JWT
-async function transformToJwt({credential, kid, jwk}) {
-  const header = {alg: 'ES256', typ: 'JWT'};
-  const payload = {
-    vc: credential
-  };
-  if(credential.expirationDate) {
-    payload.exp = xmlDateTimeToUnixTimestamp(credential.expirationDate);
-  }
-  if(credential.issuer) {
-    payload.iss = credential.issuer;
-  }
-  if(credential.issuanceDate) {
-    payload.nbf = xmlDateTimeToUnixTimestamp(credential.issuanceDate);
-  }
-  if(credential.id) {
-    payload.jti = credential.id;
-  }
-  if(credential.credentialSubject.id) {
-    payload.sub = credential.credentialSubject.id;
-  }
-
+async function issueAsJsonWebToken({credential, kid, jwk}) {
+  const header = {alg: 'ES384', typ: 'vc+ld+jwt', iss: 'did:example:123', kid, cty: 'vc+ld+json'};
+  const payload = credential;
   // create the JWT description
-  let description = '---------------- JWT header ---------------\n' +
+  let description = '---------------- Decoded Protected Header ---------------\n' +
     JSON.stringify(header, null, 2);
-  description += '\n\n--------------- JWT payload ---------------\n' +
-    '// NOTE: The example below uses a valid VC-JWT serialization\n' +
-    '//       that duplicates the iss, nbf, jti, and sub fields in the\n' +
-    '//       Verifiable Credential (vc) field.\n\n' +
+  description += '\n\n--------------- Decoded Claimset ---------------\n' +
     JSON.stringify(payload, null, 2);
   const jwt = await new jose.SignJWT(payload)
     .setProtectedHeader(header)
     .sign(jwk.privateKey);
-
-  return description + '\n\n--------------- JWT ---------------\n\n' + jwt;
+  return description + '\n\n--------------- Compact Encoded JSON Web Token ---------------\n\n' + jwt;
 };
 
-async function attachProof({credential, suite}) {
+async function issueAsDataIntegrityProof({credential, suite}) {
   const credentialCopy = JSON.parse(JSON.stringify(credential));
   return vc.issue({credential: credentialCopy, suite, documentLoader});
 };
@@ -148,7 +117,7 @@ async function createVcExamples() {
   const suite = new Ed25519Signature2020({
     key: keyPair
   });
-  const jwk = await jose.generateKeyPair('ES256');
+  const jwk = await jose.generateKeyPair('ES384');
 
   // add styles for examples
   addVcExampleStyles();
@@ -160,7 +129,7 @@ async function createVcExamples() {
     vcProofExampleIndex++;
     const verificationMethod = example.getAttribute('data-vc-vm');
     suite.verificationMethod =
-      verificationMethod || 'did:key:' + keyPair.publicKey;
+      verificationMethod || 'did:example:123#key-0';
 
     // extract and sign the example
     const originalText = example.innerHTML;
@@ -178,7 +147,7 @@ async function createVcExamples() {
     // attach the proof
     let verifiableCredentialProof;
     try {
-      verifiableCredentialProof = await attachProof({credential, suite});
+      verifiableCredentialProof = await issueAsDataIntegrityProof({credential, suite});
     } catch(e) {
       console.error(
         'respec-vc error: Failed to attach proof to Verifiable Credential.',
@@ -189,8 +158,8 @@ async function createVcExamples() {
     // convert to a JWT
     let verifiableCredentialJwt;
     try {
-      verifiableCredentialJwt = await transformToJwt({
-        credential, kid: suite.verificationMethod, jwk});
+      verifiableCredentialJwt = await issueAsJsonWebToken({
+        credential, kid: '#0', jwk});
     } catch(e) {
       console.error(
         'respec-vc error: Failed to convert Credential to JWT.',
@@ -231,17 +200,17 @@ async function createVcExamples() {
 
     const unsignedLabel = document.createElement("li");
     unsignedLabel.setAttribute('class', 'vc-tab');
-    unsignedLabel.innerHTML = `<label for='${unsignedTabBtn.getAttribute('id')}'>Credential</label>`;
+    unsignedLabel.innerHTML = `<label for='${unsignedTabBtn.getAttribute('id')}'>Claims & Metadata</label>`;
     tabLabels.appendChild(unsignedLabel)
 
     const signedProofLabel = document.createElement("li");
     signedProofLabel.setAttribute('class', 'vc-tab');
-    signedProofLabel.innerHTML = `<label for='${signedProofTabBtn.getAttribute('id')}'>Verifiable Credential (with proof)</label>`;
+    signedProofLabel.innerHTML = `<label for='${signedProofTabBtn.getAttribute('id')}'>With Data Integrity Proof</label>`;
     tabLabels.appendChild(signedProofLabel)
 
     const signedJwtLabel = document.createElement("li");
     signedJwtLabel.setAttribute('class', 'vc-tab');
-    signedJwtLabel.innerHTML = `<label for='${signedJwtTabBtn.getAttribute('id')}'>Verifiable Credential (as JWT)</label>`;
+    signedJwtLabel.innerHTML = `<label for='${signedJwtTabBtn.getAttribute('id')}'>As JSON Web Token</label>`;
     tabLabels.appendChild(signedJwtLabel)
 
     // append the tabbed content

@@ -4,7 +4,11 @@
     <title>Verifiable Credentials ReSpec Test</title>
     <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>
     <script src='https://www.w3.org/Tools/respec/respec-w3c' class='remove'></script>
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    </script>
     <script src="./dist/main.js" class="remove"></script>
+    
     <script type="text/javascript" class="remove">
       var respecConfig = {
         group: "vc",
@@ -14,12 +18,16 @@
         includePermalinks: false,
         editors: [
           { name: "Manu Sporny", url: "https://www.linkedin.com/in/manusporny/",
-            company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/"}
+            company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/"},
+          { name: "Orie Steele", url: "https://www.linkedin.com/in/or13b/",
+            company: "Transmute", companyURL: "http://transmute.industries/"}
         ],
         authors:
         [
           { name: "Manu Sporny", url: "http://digitalbazaar.com/",
-            company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/"}
+            company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/"},
+          { name: "Orie Steele", url: "https://www.linkedin.com/in/or13b/",
+            company: "Transmute", companyURL: "http://transmute.industries/"}
         ],
         maxTocLevel: 2,
         inlineCSS: true,
@@ -79,6 +87,80 @@ pre .comment {
   }
 }
       </pre>
+      <section>
+        <h2>Verifiable Credential Graph</h2>
+        <code class="mermaid">
+          graph 
+              subgraph 0 [&nbsp Verifiable Credential  &nbsp ]
+                  n4("Metadata")
+                  n5("Claim(s)")
+                  n6("Proof(s)")
+            end
+              
+              subgraph 1 [&nbsp JSON Web Token &nbsp ]
+                  n1("Header")
+                  n2("Claimset")
+                  n3("Signature")
+            end
+          
+              subgraph 7 [&nbsp Verifiable Credential &nbsp ]
+                  subgraph 2 [&nbsp Credential Graph &nbsp ]
+                      subgraph 3 [&nbsp Metadata &nbsp ]
+                          n7("AlumniCredential")
+                          n8("Credential 123")
+                          n9("ExampleUniversity")
+                          n10("2023-05-21T19:16:35.495Z")
+                      end
+                      subgraph 4 [&nbsp Claims &nbsp ]
+                          n11("Pat")
+                          n12("ExampleUniversity")
+                      end
+                  end
+                  subgraph 6 [&nbsp Proof Graph &nbsp ]
+                      n18("Signature 456")
+                      n19("DataIntegrityProof")
+                      n20("2023-05-21T20:09:37.988Z")
+                      n21("zu4oey5q...eV6")
+                      n22("Example University Public Key 7")
+                  end
+            end
+              
+              
+              subgraph 5 [&nbsp Protected Header &nbsp ]
+                  n13("iss: did:example:123")
+                  n14("kid: #key-42")
+                  n15("alg: ES384")
+                  n16("typ: vc+ld+jwt")
+                  n17("cty: vc+ld+json")
+            end
+              
+            0 -- &nbsp as &nbsp  --> 1
+              0 -- &nbsp with &nbsp  --> 6
+              2 -- &nbsp proof &nbsp  --> 6
+          
+              n8 -- type --> n7
+              n8 -- validFrom --> n10
+              n8 -- issuer --> n9
+              n8 -- subject --> n11
+              n11 -- AlumniOf --> n12
+              n2 --> 2
+              n1 --> 5
+          
+              n18 -- type --> n19
+              n18 -- created --> n20
+              n18 -- proofValue --> n21
+              n18 -- verificationMethod --> n22
+          
+          class n1,n4,n7,n8,n9,n10,n13,n14,n15,n16,n17 RedNode;
+          class n2,n5,n11,n12 YellowNode;
+          class n3,n6,n18,n19,n20,n21,n22 GreenNode;
+          
+          classDef RedNode text-align: center, color:#000, fill:#DDAABB, stroke:#000, stroke-width:1px;
+          classDef YellowNode color:#000, fill:#FFEE99, stroke:#000, stroke-width:1px;
+          classDef GreenNode color:#000, fill:#BBDDAA, stroke:#000, stroke-width:1px;
+        </code>
+      </section>
+      
     </section>
   </body>
 </html>
