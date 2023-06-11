@@ -240,17 +240,17 @@ async function createVcExamples() {
 
     const unsignedLabel = document.createElement("li");
     unsignedLabel.setAttribute('class', 'vc-tab');
-    unsignedLabel.innerHTML = `<label for='${unsignedTabBtn.getAttribute('id')}'>Credential</label>`;
+    unsignedLabel.innerHTML = `<label for='${unsignedTabBtn.getAttribute('id')}'>Verifiable Credential</label>`;
     tabLabels.appendChild(unsignedLabel)
 
     const signedProofLabel = document.createElement("li");
     signedProofLabel.setAttribute('class', 'vc-tab');
-    signedProofLabel.innerHTML = `<label for='${signedProofTabBtn.getAttribute('id')}'>Verifiable Credential (with proof)</label>`;
+    signedProofLabel.innerHTML = `<label for='${signedProofTabBtn.getAttribute('id')}'>Secured with Data Integrity</label>`;
     tabLabels.appendChild(signedProofLabel)
 
     const signedJwtLabel = document.createElement("li");
     signedJwtLabel.setAttribute('class', 'vc-tab');
-    signedJwtLabel.innerHTML = `<label for='${signedJwtTabBtn.getAttribute('id')}'>Verifiable Credential (as JWT)</label>`;
+    signedJwtLabel.innerHTML = `<label for='${signedJwtTabBtn.getAttribute('id')}'>Secured with VC-JWT</label>`;
     tabLabels.appendChild(signedJwtLabel)
 
     // append the tabbed content
