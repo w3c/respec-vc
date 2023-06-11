@@ -215,7 +215,7 @@ async function createVcExamples() {
     const unsignedTab = document.createElement('span');
     unsignedTab.setAttribute('style', tabStyle);
     unsignedTab.setAttribute('class', 'tab selected');
-    unsignedTab.innerText = 'Credential';
+    unsignedTab.innerText = 'Verifiable Credential';
     unsignedTab.setAttribute(
       'onclick', 'window.displayVcExample(this, \'credential\');');
     example.classList.remove('vc');
@@ -223,7 +223,7 @@ async function createVcExamples() {
 
     // set up the signed proof button action
     const signedProofTab = document.createElement('span');
-    signedProofTab.innerText = 'Verifiable Credential (with proof)';
+    signedProofTab.innerText = 'Secured with Data Integrity';
     signedProofTab.setAttribute('style', tabStyle);
     signedProofTab.setAttribute('class', 'tab');
     signedProofTab.setAttribute(
@@ -236,7 +236,7 @@ async function createVcExamples() {
 
     // set up the signed JWT button action
     const signedJwtTab = document.createElement('span');
-    signedJwtTab.innerText = 'Verifiable Credential (as JWT)';
+    signedJwtTab.innerText = 'Secured with VC-JWT';
     signedJwtTab.setAttribute('class', 'tab');
     signedJwtTab.setAttribute('style', tabStyle);
     signedJwtTab.setAttribute(
