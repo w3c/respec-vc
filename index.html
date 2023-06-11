@@ -61,7 +61,7 @@ pre .comment {
   <span class='comment'>// specify the identifier for the credential</span>
   "id": "http://example.edu/credentials/1872",
   <span class='comment'>// the credential types, which declare what data to expect in the credential</span>
-  "type": ["VerifiableCredential", "AlumniCredential"],
+  "type": ["VerifiableCredential", "ExampleAlumniCredential"],
   <span class='comment'>// the entity that issued the credential</span>
   "issuer": "https://example.edu/issuers/565049",
   <span class='comment'>// when the credential was issued</span>
@@ -73,13 +73,7 @@ pre .comment {
     <span class='comment'>// assertion about the only subject of the credential</span>
     "alumniOf": {
       "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
-      "name": [{
-        "value": "Example University",
-        "lang": "en"
-      }, {
-        "value": "Université Exemple",
-        "lang": "fr"
-      }]
+      "name": "Example University"
     }
   }
 }
