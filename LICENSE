@@ -1,6 +1,21 @@
+respec-vc: https://github.com/w3c/respec-vc
+
+Copyright © 2022-2023 Digital Bazaar, Inc and the World Wide Web Consortium.
+All Rights Reserved.
+
+This work is distributed under the W3C® Software and Document License [1] in the
+hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+[1] https://www.w3.org/Consortium/Legal/copyright-software
+
+--------
+
+This software is also available under the following license:
+
 BSD 3-Clause License
 
-Copyright (c) 2021, Digital Bazaar, Inc.
+Copyright (c) 2022-2023, Digital Bazaar, Inc. and the World Wide Web Consortium
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
