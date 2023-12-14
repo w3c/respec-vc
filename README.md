@@ -20,7 +20,7 @@ tabs seen in the image below):
 To use this extension, include the following line in your ReSpec file:
 
 ```html
-<script class="remove" src="https://cdn.jsdelivr.net/gh/w3c/respec-vc@1.0.0/dist/main.js"></script>
+<script class="remove" src="https://cdn.jsdelivr.net/gh/w3c/respec-vc@2.0.1/dist/main.js"></script>
 ```
 
 Note that there might be releases later than the one listed above. 
