@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/digitalbazaar/respec-vc.git"
+    "url": "git+https://github.com/w3c/respec-vc.git"
   },
   "author": "",
   "license": "",
   "bugs": {
-    "url": "https://github.com/digitalbazaar/respec-vc/issues"
+    "url": "https://github.com/w3c/respec-vc/issues"
   },
-  "homepage": "https://github.com/digitalbazaar/respec-vc#readme",
+  "homepage": "https://github.com/w3c/respec-vc#readme",
   "dependencies": {
     "@digitalbazaar/ed25519-signature-2020": "^3.0.0",
     "@digitalbazaar/ed25519-verification-key-2020": "^3.2.0",
