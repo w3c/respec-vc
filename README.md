@@ -1,15 +1,15 @@
 # Verifiable Credentials for ReSpec
 
-This ReSpec extension enhances the 
-[Verifiable Credential](https://www.w3.org/TR/vc-data-model/) 
+This ReSpec extension enhances the
+[Verifiable Credential](https://www.w3.org/TR/vc-data-model/)
 examples in your specification.
 
-The [Verifiable Credentials](https://www.w3.org/TR/vc-data-model/) 
-extension to the [ReSpec](https://respec.org/docs/#abstract) 
-document authoring environment enables authors to express simple 
-examples of [credentials](https://www.w3.org/TR/vc-data-model/#abstract) 
-in their specification which are then enhanced by this extension to 
-show the digitally signed forms of the credential. An example of the 
+The [Verifiable Credentials](https://www.w3.org/TR/vc-data-model/)
+extension to the [ReSpec](https://respec.org/docs/#abstract)
+document authoring environment enables authors to express simple
+examples of [credentials](https://www.w3.org/TR/vc-data-model/#abstract)
+in their specification which are then enhanced by this extension to
+show the digitally signed forms of the credential. An example of the
 output of this extension is provided below (this extension adds the
 tabs seen in the image below):
 
@@ -23,14 +23,14 @@ To use this extension, include the following line in your ReSpec file:
 <script class="remove" src="https://cdn.jsdelivr.net/gh/w3c/respec-vc@2.0.1/dist/main.js"></script>
 ```
 
-Note that there might be releases later than the one listed above. 
-Check this repository's [tags](https://github.com/digitalbazaar/respec-vc/tags) 
+Note that there might be releases later than the one listed above.
+Check this repository's [tags](https://github.com/digitalbazaar/respec-vc/tags)
 for all known releases.
 
 # ReSpec Markup
 
 To use this extension, you must add the `vc` class to your examples
-and optionally provide a digital proof verification method (e.g., 
+and optionally provide a digital proof verification method (e.g.,
 a URL to a public key) via the `data-vc-vm` attribute.
 
 ```html
