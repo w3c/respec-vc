@@ -55,3 +55,11 @@ a URL to a public key) via the `data-vc-vm` attribute.
 }
 </pre>
 ```
+
+# Development
+
+```sh
+$ npm i
+$ npm run build # build and watch index.js changes
+$ npm run start # serve this directory
+```
