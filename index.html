@@ -47,10 +47,46 @@ pre .comment {
       <p>This is a test of the respec-vc plugin.</p>
     </section>
     <section>
-      <h1>Examples</h1>
+      <h1>Basic Example</h1>
       <p>Here is a signing example</p>
       <pre class="example nohighlight vc" title="A Verifiable Credential example"
         data-vc-vm='https://university.example/registrar/keys/1'>
+{
+  <span class='comment'>// set the context, which establishes the special terms we will be using
+  // such as 'issuer' and 'alumniOf'.</span>
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://www.w3.org/ns/credentials/examples/v2"
+  ],
+  <span class='comment'>// specify the identifier for the credential</span>
+  "id": "http://example.edu/credentials/1872",
+  <span class='comment'>// the credential types, which declare what data to expect in the credential</span>
+  "type": ["VerifiableCredential", "ExampleAlumniCredential"],
+  <span class='comment'>// the entity that issued the credential</span>
+  "issuer": "https://example.edu/issuers/565049",
+  <span class='comment'>// when the credential was issued</span>
+  "validFrom": "2010-01-01T19:23:24Z",
+  <span class='comment'>// claims about the subjects of the credential</span>
+  "credentialSubject": {
+    <span class='comment'>// identifier for the only subject of the credential</span>
+    "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+    <span class='comment'>// assertion about the only subject of the credential</span>
+    "alumniOf": {
+      "id": "did:example:c276e12ec21ebfeb1f712ebc6f1",
+      "name": "Example University"
+    }
+  }
+}
+      </pre>
+    </section>
+
+    <section>
+      <h1>Only Certain Tabs Example</h1>
+      <p>This example shows use of <code>data-vc-tabs</code> for filtering which
+      tabs are displayed.</p>
+      <pre class="example nohighlight vc" title="A Verifiable Credential example"
+        data-vc-vm='https://example.edu/issuers/565049/keys/1'
+        data-vc-tabs="unsigned vc-jwt">
 {
   <span class='comment'>// set the context, which establishes the special terms we will be using
   // such as 'issuer' and 'alumniOf'.</span>
