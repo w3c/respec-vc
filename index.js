@@ -8,6 +8,10 @@ import examples2Context from './contexts/credentials/examples/v2';
 import {Ed25519VerificationKey2020} from
   '@digitalbazaar/ed25519-verification-key-2020';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
+import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
+import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
+import {cryptosuite as eddsaRdfc2022CryptoSuite} from
+  '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 
 // setup contexts used by respec-vc
 const contexts = {};
@@ -132,7 +136,8 @@ function addVcExampleStyles() {
 
   .vc-tabbed [type="radio"]:nth-of-type(1):checked ~ .vc-tabs .vc-tab:nth-of-type(1) label,
   .vc-tabbed [type="radio"]:nth-of-type(2):checked ~ .vc-tabs .vc-tab:nth-of-type(2) label,
-  .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tabs .vc-tab:nth-of-type(3) label {
+  .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tabs .vc-tab:nth-of-type(3) label,
+  .vc-tabbed [type="radio"]:nth-of-type(4):checked ~ .vc-tabs .vc-tab:nth-of-type(4) label {
     border-bottom-color: #fff;
     background: #fff;
     color: #222;
@@ -140,7 +145,8 @@ function addVcExampleStyles() {
 
   .vc-tabbed [type="radio"]:nth-of-type(1):checked ~ .vc-tab-content:nth-of-type(1),
   .vc-tabbed [type="radio"]:nth-of-type(2):checked ~ .vc-tab-content:nth-of-type(2),
-  .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tab-content:nth-of-type(3) {
+  .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tab-content:nth-of-type(3),
+  .vc-tabbed [type="radio"]:nth-of-type(4):checked ~ .vc-tab-content:nth-of-type(4) {
     display: block;
   }`;
 
@@ -154,6 +160,7 @@ function addContext(url, context) {
 async function createVcExamples() {
   // generate base keypair and signature suite
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020.generate();
+  const keyPairEd25519Multikey = await Ed25519Multikey.from(keyPairEd25519VerificationKey2020);
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
     key: keyPairEd25519VerificationKey2020
   });
@@ -172,7 +179,7 @@ async function createVcExamples() {
       || 'did:key:' + keyPairEd25519VerificationKey2020.publicKey;
 
     const tabTypes = example.dataset?.vcTabs
-      || ['Ed25519Signature2020', 'vc-jwt'];
+      || ['Ed25519Signature2020', 'eddsa-rdfc-2022', 'vc-jwt'];
 
     // extract and parse the example as JSON
     const originalText = example.innerHTML;
@@ -192,6 +199,23 @@ async function createVcExamples() {
     try {
       verifiableCredentialProofEd25519Signature2020 = await attachProof({credential,
         suite: suiteEd25519Signature2020});
+    } catch(e) {
+      console.error(
+        'respec-vc error: Failed to attach proof to Verifiable Credential.',
+        e, example.innerText);
+      continue;
+    }
+
+    // attach the Ed25519Multikey proof
+    const suiteEd25519Multikey = new DataIntegrityProof({
+      signer: keyPairEd25519Multikey.signer(), cryptosuite: eddsaRdfc2022CryptoSuite
+    });
+    suiteEd25519Multikey.verificationMethod = example.dataset?.vcVm
+      || 'did:key:' + keyPairEd25519Multikey.publicKey;
+    let verifiableCredentialProofEd25519Multikey;
+    try {
+      verifiableCredentialProofEd25519Multikey = await attachProof({credential,
+        suite: suiteEd25519Multikey});
     } catch(e) {
       console.error(
         'respec-vc error: Failed to attach proof to Verifiable Credential.',
@@ -247,8 +271,13 @@ async function createVcExamples() {
 
     if (tabTypes.indexOf('Ed25519Signature2020') > -1) {
       // set up the signed proof button
-      addTab('Ed25519Signature2020', 'Secured with Data Integrity',
+      addTab('Ed25519Signature2020', 'Secured with Data Integrity (Ed25519Signature2020)',
         `<pre>${JSON.stringify(verifiableCredentialProofEd25519Signature2020, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
+    }
+    if (tabTypes.indexOf('eddsa-rdfc-2022') > -1) {
+      // set up the signed proof button
+      addTab('eddsa-rdfc-2022', 'Secured with Data Integrity (eddsa-rdfc-2022)',
+        `<pre>${JSON.stringify(verifiableCredentialProofEd25519Multikey, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
     }
     if (tabTypes.indexOf('vc-jwt') > -1) {
       // set up the signed JWT button
