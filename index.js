@@ -167,11 +167,12 @@ async function createVcExamples() {
   let vcProofExampleIndex = 0;
   for(const example of vcProofExamples) {
     vcProofExampleIndex++;
+
     const verificationMethod = example.getAttribute('data-vc-vm');
     suite.verificationMethod =
       verificationMethod || 'did:key:' + keyPair.publicKey;
 
-    // extract and sign the example
+    // extract and parse the example as JSON
     const originalText = example.innerHTML;
     let credential = {};
     try {
@@ -211,70 +212,51 @@ async function createVcExamples() {
     const tabbedContent = document.createElement('div');
     tabbedContent.setAttribute('class', 'vc-tabbed');
 
-    // set up the unsigned button
-    const unsignedTabBtn = document.createElement('input');
-    unsignedTabBtn.setAttribute('type', 'radio');
-    unsignedTabBtn.setAttribute('id', `vc-tab${vcProofExampleIndex}1`);
-    unsignedTabBtn.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
-    unsignedTabBtn.setAttribute('checked', 'checked');
-    tabbedContent.appendChild(unsignedTabBtn);
-
-    // set up the signed proof button
-    const signedProofTabBtn = document.createElement('input');
-    signedProofTabBtn.setAttribute('type', 'radio');
-    signedProofTabBtn.setAttribute('id', `vc-tab${vcProofExampleIndex}2`);
-    signedProofTabBtn.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
-    tabbedContent.appendChild(signedProofTabBtn);
-
-    // set up the signed JWT button
-    const signedJwtTabBtn = document.createElement('input');
-    signedJwtTabBtn.setAttribute('type', 'radio');
-    signedJwtTabBtn.setAttribute('id', `vc-tab${vcProofExampleIndex}3`);
-    signedJwtTabBtn.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
-    tabbedContent.appendChild(signedJwtTabBtn);
-
     // set up the tab labels
     const tabLabels = document.createElement("ul");
     tabLabels.setAttribute('class', 'vc-tabs');
     tabbedContent.appendChild(tabLabels);
 
-    const unsignedLabel = document.createElement("li");
-    unsignedLabel.setAttribute('class', 'vc-tab');
-    unsignedLabel.innerHTML = `<label for='${unsignedTabBtn.getAttribute('id')}'>Verifiable Credential</label>`;
-    tabLabels.appendChild(unsignedLabel)
+    function addTab(suffix, labelText, contentHTML) {
+      const button = document.createElement('input');
+      button.setAttribute('type', 'radio');
+      button.setAttribute('id', `vc-tab${vcProofExampleIndex}${suffix}`);
+      button.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
+      if (tabbedContent.firstChild.tagName === 'INPUT') {
+        // place this one last of the inputs
+        [...tabbedContent.querySelectorAll('input')].pop().after(button);
+      } else {
+        console.log('first');
+        tabbedContent.prepend(button);
+      }
 
-    const signedProofLabel = document.createElement("li");
-    signedProofLabel.setAttribute('class', 'vc-tab');
-    signedProofLabel.innerHTML = `<label for='${signedProofTabBtn.getAttribute('id')}'>Secured with Data Integrity</label>`;
-    tabLabels.appendChild(signedProofLabel)
+      const label = document.createElement("li");
+      label.setAttribute('class', 'vc-tab');
+      label.innerHTML = `<label for='${button.getAttribute('id')}'>${labelText}</label>`;
+      tabLabels.appendChild(label);
 
-    const signedJwtLabel = document.createElement("li");
-    signedJwtLabel.setAttribute('class', 'vc-tab');
-    signedJwtLabel.innerHTML = `<label for='${signedJwtTabBtn.getAttribute('id')}'>Secured with VC-JWT</label>`;
-    tabLabels.appendChild(signedJwtLabel)
+      const content = document.createElement('div');
+      content.setAttribute('class', 'vc-tab-content');
+      content.innerHTML = contentHTML;
+      tabbedContent.appendChild(content);
+    }
+    // set up the unsigned button
+    addTab('unsigned', 'Verifiable Credential', example.outerHTML);
+    // set up the signed proof button
+    addTab('Ed25519Signature2020', 'Secured with Data Integrity',
+      `<pre>${JSON.stringify(verifiableCredentialProof, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
+    // set up the signed JWT button
+    addTab('vc-jwt', 'Secured with VC-JWT',
+      `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`);
 
     // append the tabbed content
 
-    const container = example.parentNode;
-    const unsignedContent = document.createElement('div');
-    unsignedContent.setAttribute('class', 'vc-tab-content');
-    // Move the credential example to the unsigned tab
-    unsignedContent.append(example);
-    tabbedContent.appendChild(unsignedContent);
-
-    const signedProofContent = document.createElement('div');
-    signedProofContent.setAttribute('class', 'vc-tab-content');
-    signedProofContent.innerHTML = `<pre>${JSON.stringify(verifiableCredentialProof, null, 2).match(/.{1,75}/g).join('\n')}</pre>`;
-    tabbedContent.appendChild(signedProofContent);
-
-    const signedJwtContent = document.createElement('div');
-    signedJwtContent.setAttribute('class', 'vc-tab-content');
-    signedJwtContent.innerHTML = `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`;
-    tabbedContent.appendChild(signedJwtContent);
-
     // replace the original example with the tabbed content
-
+    const container = example.parentNode;
+    // set first radio as checked
+    tabbedContent.querySelector('input').toggleAttribute('checked');
     container.append(tabbedContent);
+    example.remove();
   }
 }
 
