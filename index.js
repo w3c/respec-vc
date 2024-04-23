@@ -116,7 +116,7 @@ function addVcExampleStyles() {
     border-top-left-radius: .4em;
     background: #eee;
     color: #666;
-    cursor: pointer;	
+    cursor: pointer;
     transition: all 0.3s;
   }
   .vc-tab:hover label {
@@ -125,7 +125,7 @@ function addVcExampleStyles() {
     border-right-color: #333;
     color: #333;
   }
-  
+
   .vc-tab-content {
     display: none;
   }
@@ -137,7 +137,7 @@ function addVcExampleStyles() {
     background: #fff;
     color: #222;
   }
-  
+
   .vc-tabbed [type="radio"]:nth-of-type(1):checked ~ .vc-tab-content:nth-of-type(1),
   .vc-tabbed [type="radio"]:nth-of-type(2):checked ~ .vc-tab-content:nth-of-type(2),
   .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tab-content:nth-of-type(3) {
@@ -168,6 +168,7 @@ async function createVcExamples() {
   for(const example of vcProofExamples) {
     vcProofExampleIndex++;
 
+    const verificationMethod = example.getAttribute('data-vc-vm');
     suite.verificationMethod =
       example.dataset?.vcVm || 'did:key:' + keyPair.publicKey;
 
@@ -228,7 +229,6 @@ async function createVcExamples() {
         // place this one last of the inputs
         [...tabbedContent.querySelectorAll('input')].pop().after(button);
       } else {
-        console.log('first');
         tabbedContent.prepend(button);
       }
 
@@ -244,17 +244,12 @@ async function createVcExamples() {
     }
     // set up the unsigned button
     addTab('unsigned', 'Verifiable Credential', example.outerHTML);
-
-    if (tabTypes.indexOf('Ed25519Signature2020') > -1) {
-      // set up the signed proof button
-      addTab('Ed25519Signature2020', 'Secured with Data Integrity',
-        `<pre>${JSON.stringify(verifiableCredentialProof, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
-    }
-    if (tabTypes.indexOf('vc-jwt') > -1) {
-      // set up the signed JWT button
-      addTab('vc-jwt', 'Secured with VC-JWT',
-        `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`);
-    }
+    // set up the signed proof button
+    addTab('Ed25519Signature2020', 'Secured with Data Integrity',
+      `<pre>${JSON.stringify(verifiableCredentialProof, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
+    // set up the signed JWT button
+    addTab('vc-jwt', 'Secured with VC-JWT',
+      `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`);
 
     // append the tabbed content
 
