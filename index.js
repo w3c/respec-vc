@@ -175,7 +175,7 @@ async function createVcExamples() {
   for(const example of vcProofExamples) {
     vcProofExampleIndex++;
 
-    suiteEd25519Signature2020.verificationMethod = example.dataset?.vcVm
+    const verificationMethod = example.dataset?.vcVm
       || 'did:key:' + keyPairEd25519VerificationKey2020.publicKey;
 
     const tabTypes = example.dataset?.vcTabs
@@ -196,6 +196,7 @@ async function createVcExamples() {
 
     // attach the Ed25519Signature2020 proof
     let verifiableCredentialProofEd25519Signature2020;
+    suiteEd25519Signature2020.verificationMethod = verificationMethod;
     try {
       verifiableCredentialProofEd25519Signature2020 = await attachProof({credential,
         suite: suiteEd25519Signature2020});
@@ -210,8 +211,7 @@ async function createVcExamples() {
     const suiteEd25519Multikey = new DataIntegrityProof({
       signer: keyPairEd25519Multikey.signer(), cryptosuite: eddsaRdfc2022CryptoSuite
     });
-    suiteEd25519Multikey.verificationMethod = example.dataset?.vcVm
-      || 'did:key:' + keyPairEd25519Multikey.publicKey;
+    suiteEd25519Multikey.verificationMethod = verificationMethod;
     let verifiableCredentialProofEd25519Multikey;
     try {
       verifiableCredentialProofEd25519Multikey = await attachProof({credential,
@@ -227,7 +227,7 @@ async function createVcExamples() {
     let verifiableCredentialJwt;
     try {
       verifiableCredentialJwt = await transformToJwt({
-        credential, kid: suiteEd25519Signature2020.verificationMethod, jwk});
+        credential, kid: verificationMethod, jwk});
     } catch(e) {
       console.error(
         'respec-vc error: Failed to convert Credential to JWT.',
