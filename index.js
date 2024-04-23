@@ -164,6 +164,9 @@ async function createVcExamples() {
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
     key: keyPairEd25519VerificationKey2020
   });
+  const suiteEd25519Multikey = new DataIntegrityProof({
+    signer: keyPairEd25519Multikey.signer(), cryptosuite: eddsaRdfc2022CryptoSuite
+  });
   const jwk = await jose.generateKeyPair('ES256');
 
   // add styles for examples
@@ -208,11 +211,8 @@ async function createVcExamples() {
     }
 
     // attach the Ed25519Multikey proof
-    const suiteEd25519Multikey = new DataIntegrityProof({
-      signer: keyPairEd25519Multikey.signer(), cryptosuite: eddsaRdfc2022CryptoSuite
-    });
-    suiteEd25519Multikey.verificationMethod = verificationMethod;
     let verifiableCredentialProofEd25519Multikey;
+    suiteEd25519Multikey.verificationMethod = verificationMethod;
     try {
       verifiableCredentialProofEd25519Multikey = await attachProof({credential,
         suite: suiteEd25519Multikey});
