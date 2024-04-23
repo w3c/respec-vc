@@ -18,7 +18,7 @@
   "homepage": "https://github.com/w3c/respec-vc#readme",
   "dependencies": {
     "@digitalbazaar/credentials-examples-context": "digitalbazaar/credentials-examples-context#main",
-    "@digitalbazaar/ed25519-signature-2020": "^5.0.0",
+    "@digitalbazaar/ed25519-signature-2020": "^5.2.0",
     "@digitalbazaar/ed25519-verification-key-2020": "^4.1.0",
     "@digitalbazaar/odrl-context": "digitalbazaar/odrl-context#main",
     "@digitalbazaar/vc": "digitalbazaar/vc#update-vc-2.0",
