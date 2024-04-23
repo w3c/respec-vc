@@ -168,9 +168,8 @@ async function createVcExamples() {
   for(const example of vcProofExamples) {
     vcProofExampleIndex++;
 
-    const verificationMethod = example.getAttribute('data-vc-vm');
     suite.verificationMethod =
-      verificationMethod || 'did:key:' + keyPair.publicKey;
+      example.dataset?.vcVm || 'did:key:' + keyPair.publicKey;
 
     // extract and parse the example as JSON
     const originalText = example.innerHTML;
