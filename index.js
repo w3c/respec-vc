@@ -197,32 +197,6 @@ async function createVcExamples() {
       continue;
     }
 
-    // attach the Ed25519Signature2020 proof
-    let verifiableCredentialProofEd25519Signature2020;
-    suiteEd25519Signature2020.verificationMethod = verificationMethod;
-    try {
-      verifiableCredentialProofEd25519Signature2020 = await attachProof({credential,
-        suite: suiteEd25519Signature2020});
-    } catch(e) {
-      console.error(
-        'respec-vc error: Failed to attach proof to Verifiable Credential.',
-        e, example.innerText);
-      continue;
-    }
-
-    // attach the Ed25519Multikey proof
-    let verifiableCredentialProofEd25519Multikey;
-    suiteEd25519Multikey.verificationMethod = verificationMethod;
-    try {
-      verifiableCredentialProofEd25519Multikey = await attachProof({credential,
-        suite: suiteEd25519Multikey});
-    } catch(e) {
-      console.error(
-        'respec-vc error: Failed to attach proof to Verifiable Credential.',
-        e, example.innerText);
-      continue;
-    }
-
     // convert to a JWT
     let verifiableCredentialJwt;
     try {
@@ -266,19 +240,39 @@ async function createVcExamples() {
       content.innerHTML = contentHTML;
       tabbedContent.appendChild(content);
     }
+
+    /*
+     * Add a Data Integrity based proof example tab
+     * @global string verificationMethod
+     * @param object suite
+     */
+    async function addProofTab(suite) {
+      let verifiableCredentialProof;
+      suite.verificationMethod = verificationMethod;
+      const label = suite?.cryptosuite || suite.type;
+
+      // attach the proof
+      try {
+        verifiableCredentialProof = await attachProof({credential, suite});
+        addTab(label, `Secured with Data Integrity (${label})`,
+          `<pre>${JSON.stringify(verifiableCredentialProof, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
+      } catch(e) {
+        console.error(
+          'respec-vc error: Failed to attach proof to Verifiable Credential.',
+          e, example.innerText);
+      }
+    }
+
     // set up the unsigned button
     addTab('unsigned', 'Verifiable Credential', example.outerHTML);
 
-    if (tabTypes.indexOf('Ed25519Signature2020') > -1) {
-      // set up the signed proof button
-      addTab('Ed25519Signature2020', 'Secured with Data Integrity (Ed25519Signature2020)',
-        `<pre>${JSON.stringify(verifiableCredentialProofEd25519Signature2020, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
+    if (tabTypes.indexOf(suiteEd25519Signature2020.type) > -1) {
+      await addProofTab(suiteEd25519Signature2020);
     }
-    if (tabTypes.indexOf('eddsa-rdfc-2022') > -1) {
-      // set up the signed proof button
-      addTab('eddsa-rdfc-2022', 'Secured with Data Integrity (eddsa-rdfc-2022)',
-        `<pre>${JSON.stringify(verifiableCredentialProofEd25519Multikey, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
+    if (tabTypes.indexOf(suiteEd25519Multikey.cryptosuite) > -1) {
+      await addProofTab(suiteEd25519Multikey);
     }
+
     if (tabTypes.indexOf('vc-jwt') > -1) {
       // set up the signed JWT button
       addTab('vc-jwt', 'Secured with VC-JWT',
