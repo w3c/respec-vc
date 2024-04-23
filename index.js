@@ -153,9 +153,9 @@ function addContext(url, context) {
 
 async function createVcExamples() {
   // generate base keypair and signature suite
-  const keyPair = await Ed25519VerificationKey2020.generate();
-  const suite = new Ed25519Signature2020({
-    key: keyPair
+  const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020.generate();
+  const suiteEd25519Signature2020 = new Ed25519Signature2020({
+    key: keyPairEd25519VerificationKey2020
   });
   const jwk = await jose.generateKeyPair('ES256');
 
@@ -168,9 +168,8 @@ async function createVcExamples() {
   for(const example of vcProofExamples) {
     vcProofExampleIndex++;
 
-    const verificationMethod = example.getAttribute('data-vc-vm');
-    suite.verificationMethod =
-      example.dataset?.vcVm || 'did:key:' + keyPair.publicKey;
+    suiteEd25519Signature2020.verificationMethod = example.dataset?.vcVm
+      || 'did:key:' + keyPairEd25519VerificationKey2020.publicKey;
 
     const tabTypes = example.dataset?.vcTabs
       || ['Ed25519Signature2020', 'vc-jwt'];
@@ -188,10 +187,11 @@ async function createVcExamples() {
       continue;
     }
 
-    // attach the proof
-    let verifiableCredentialProof;
+    // attach the Ed25519Signature2020 proof
+    let verifiableCredentialProofEd25519Signature2020;
     try {
-      verifiableCredentialProof = await attachProof({credential, suite});
+      verifiableCredentialProofEd25519Signature2020 = await attachProof({credential,
+        suite: suiteEd25519Signature2020});
     } catch(e) {
       console.error(
         'respec-vc error: Failed to attach proof to Verifiable Credential.',
@@ -203,7 +203,7 @@ async function createVcExamples() {
     let verifiableCredentialJwt;
     try {
       verifiableCredentialJwt = await transformToJwt({
-        credential, kid: suite.verificationMethod, jwk});
+        credential, kid: suiteEd25519Signature2020.verificationMethod, jwk});
     } catch(e) {
       console.error(
         'respec-vc error: Failed to convert Credential to JWT.',
@@ -244,12 +244,17 @@ async function createVcExamples() {
     }
     // set up the unsigned button
     addTab('unsigned', 'Verifiable Credential', example.outerHTML);
-    // set up the signed proof button
-    addTab('Ed25519Signature2020', 'Secured with Data Integrity',
-      `<pre>${JSON.stringify(verifiableCredentialProof, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
-    // set up the signed JWT button
-    addTab('vc-jwt', 'Secured with VC-JWT',
-      `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`);
+
+    if (tabTypes.indexOf('Ed25519Signature2020') > -1) {
+      // set up the signed proof button
+      addTab('Ed25519Signature2020', 'Secured with Data Integrity',
+        `<pre>${JSON.stringify(verifiableCredentialProofEd25519Signature2020, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
+    }
+    if (tabTypes.indexOf('vc-jwt') > -1) {
+      // set up the signed JWT button
+      addTab('vc-jwt', 'Secured with VC-JWT',
+        `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`);
+    }
 
     // append the tabbed content
 
