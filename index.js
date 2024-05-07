@@ -159,13 +159,16 @@ function addContext(url, context) {
 
 async function createVcExamples() {
   // generate base keypair and signature suite
-  const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020.generate();
-  const keyPairEd25519Multikey = await Ed25519Multikey.from(keyPairEd25519VerificationKey2020);
+  const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
+    .generate();
+  const keyPairEd25519Multikey = await Ed25519Multikey
+    .from(keyPairEd25519VerificationKey2020);
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
     key: keyPairEd25519VerificationKey2020
   });
   const suiteEd25519Multikey = new DataIntegrityProof({
-    signer: keyPairEd25519Multikey.signer(), cryptosuite: eddsaRdfc2022CryptoSuite
+    signer: keyPairEd25519Multikey.signer(),
+    cryptosuite: eddsaRdfc2022CryptoSuite
   });
   const jwk = await jose.generateKeyPair('ES256');
 
@@ -232,7 +235,8 @@ async function createVcExamples() {
 
       const label = document.createElement('li');
       label.setAttribute('class', 'vc-tab');
-      label.innerHTML = `<label for='${button.getAttribute('id')}'>${labelText}</label>`;
+      label.innerHTML =
+        `<label for='${button.getAttribute('id')}'>${labelText}</label>`;
       tabLabels.appendChild(label);
 
       const content = document.createElement('div');
@@ -255,7 +259,8 @@ async function createVcExamples() {
       try {
         verifiableCredentialProof = await attachProof({credential, suite});
         addTab(label, `Secured with Data Integrity (${label})`,
-          `<pre>${JSON.stringify(verifiableCredentialProof, null, 2).match(/.{1,75}/g).join('\n')}</pre>`);
+          `<pre>${JSON.stringify(verifiableCredentialProof, null, 2)
+            .match(/.{1,75}/g).join('\n')}</pre>`);
       } catch(e) {
         console.error(
           'respec-vc error: Failed to attach proof to Verifiable Credential.',
