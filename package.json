@@ -18,8 +18,11 @@
   "homepage": "https://github.com/w3c/respec-vc#readme",
   "dependencies": {
     "@digitalbazaar/credentials-examples-context": "digitalbazaar/credentials-examples-context#main",
+    "@digitalbazaar/data-integrity": "^2.1.0",
+    "@digitalbazaar/ed25519-multikey": "^1.1.0",
     "@digitalbazaar/ed25519-signature-2020": "^5.2.0",
     "@digitalbazaar/ed25519-verification-key-2020": "^4.1.0",
+    "@digitalbazaar/eddsa-rdfc-2022-cryptosuite": "^1.0.1",
     "@digitalbazaar/odrl-context": "digitalbazaar/odrl-context#main",
     "@digitalbazaar/vc": "digitalbazaar/vc#update-vc-2.0",
     "ed25519-signature-2020-context": "^1.1.0",
