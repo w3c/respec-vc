@@ -41,7 +41,7 @@ function xmlDateTimeToUnixTimestamp(xmlDateTime) {
     return undefined;
   }
 
-  return Date.parse(xmlDateTime)/1000;
+  return Date.parse(xmlDateTime) / 1000;
 }
 
 // transform the input credential to a JWT
@@ -79,12 +79,12 @@ async function transformToJwt({credential, kid, jwk}) {
     .sign(jwk.privateKey);
 
   return description + '\n\n--------------- JWT ---------------\n\n' + jwt;
-};
+}
 
 async function attachProof({credential, suite}) {
   const credentialCopy = JSON.parse(JSON.stringify(credential));
   return issue({credential: credentialCopy, suite, documentLoader});
-};
+}
 
 function addVcExampleStyles() {
   const exampleStyles = document.createElement('style');
@@ -173,16 +173,16 @@ async function createVcExamples() {
   addVcExampleStyles();
 
   // process every example that needs a vc-proof
-  const vcProofExamples = document.querySelectorAll(".vc");
+  const vcProofExamples = document.querySelectorAll('.vc');
   let vcProofExampleIndex = 0;
   for(const example of vcProofExamples) {
     vcProofExampleIndex++;
 
-    const verificationMethod = example.dataset?.vcVm
-      || 'did:key:' + keyPairEd25519VerificationKey2020.publicKey;
+    const verificationMethod = example.dataset?.vcVm ||
+      'did:key:' + keyPairEd25519VerificationKey2020.publicKey;
 
-    const tabTypes = example.dataset?.vcTabs
-      || ['Ed25519Signature2020', 'eddsa-rdfc-2022', 'vc-jwt'];
+    const tabTypes = example.dataset?.vcTabs ||
+      ['Ed25519Signature2020', 'eddsa-rdfc-2022', 'vc-jwt'];
 
     // extract and parse the example as JSON
     const originalText = example.innerHTML;
@@ -214,7 +214,7 @@ async function createVcExamples() {
     tabbedContent.setAttribute('class', 'vc-tabbed');
 
     // set up the tab labels
-    const tabLabels = document.createElement("ul");
+    const tabLabels = document.createElement('ul');
     tabLabels.setAttribute('class', 'vc-tabs');
     tabbedContent.appendChild(tabLabels);
 
@@ -223,14 +223,14 @@ async function createVcExamples() {
       button.setAttribute('type', 'radio');
       button.setAttribute('id', `vc-tab${vcProofExampleIndex}${suffix}`);
       button.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
-      if (tabbedContent.firstChild.tagName === 'INPUT') {
+      if(tabbedContent.firstChild.tagName === 'INPUT') {
         // place this one last of the inputs
         [...tabbedContent.querySelectorAll('input')].pop().after(button);
       } else {
         tabbedContent.prepend(button);
       }
 
-      const label = document.createElement("li");
+      const label = document.createElement('li');
       label.setAttribute('class', 'vc-tab');
       label.innerHTML = `<label for='${button.getAttribute('id')}'>${labelText}</label>`;
       tabLabels.appendChild(label);
@@ -266,14 +266,14 @@ async function createVcExamples() {
     // set up the unsigned button
     addTab('unsigned', 'Verifiable Credential', example.outerHTML);
 
-    if (tabTypes.indexOf(suiteEd25519Signature2020.type) > -1) {
+    if(tabTypes.indexOf(suiteEd25519Signature2020.type) > -1) {
       await addProofTab(suiteEd25519Signature2020);
     }
-    if (tabTypes.indexOf(suiteEd25519Multikey.cryptosuite) > -1) {
+    if(tabTypes.indexOf(suiteEd25519Multikey.cryptosuite) > -1) {
       await addProofTab(suiteEd25519Multikey);
     }
 
-    if (tabTypes.indexOf('vc-jwt') > -1) {
+    if(tabTypes.indexOf('vc-jwt') > -1) {
       // set up the signed JWT button
       addTab('vc-jwt', 'Secured with VC-JWT',
         `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`);
@@ -294,4 +294,4 @@ async function createVcExamples() {
 window.respecVc = {
   addContext,
   createVcExamples
-}
+};
