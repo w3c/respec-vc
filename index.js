@@ -1,17 +1,17 @@
-import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
-import {extendContextLoader} from 'jsonld-signatures';
-import ed25519Context from 'ed25519-signature-2020-context';
+import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
 import * as examples1Context from '@digitalbazaar/credentials-examples-context';
 import * as jose from 'jose';
 import * as odrlContext from '@digitalbazaar/odrl-context';
-import examples2Context from './contexts/credentials/examples/v2';
+import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
+import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
+import ed25519Context from 'ed25519-signature-2020-context';
+import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {Ed25519VerificationKey2020} from
   '@digitalbazaar/ed25519-verification-key-2020';
-import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
-import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
-import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
 import {cryptosuite as eddsaRdfc2022CryptoSuite} from
   '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
+import examples2Context from './contexts/credentials/examples/v2';
+import {extendContextLoader} from 'jsonld-signatures';
 
 // setup contexts used by respec-vc
 const contexts = {};
