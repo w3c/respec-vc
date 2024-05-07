@@ -1,7 +1,11 @@
+import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
+import * as ecdsaSd2023Cryptosuite
+  from '@digitalbazaar/ecdsa-sd-2023-cryptosuite';
 import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
 import * as examples1Context from '@digitalbazaar/credentials-examples-context';
 import * as jose from 'jose';
 import * as odrlContext from '@digitalbazaar/odrl-context';
+import {AssertionProofPurpose, extendContextLoader} from 'jsonld-signatures';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
@@ -11,7 +15,6 @@ import {Ed25519VerificationKey2020} from
 import {cryptosuite as eddsaRdfc2022CryptoSuite} from
   '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
-import {extendContextLoader} from 'jsonld-signatures';
 
 // setup contexts used by respec-vc
 const contexts = {};
@@ -83,7 +86,12 @@ async function transformToJwt({credential, kid, jwk}) {
 
 async function attachProof({credential, suite}) {
   const credentialCopy = JSON.parse(JSON.stringify(credential));
-  return issue({credential: credentialCopy, suite, documentLoader});
+  const options = {credential: credentialCopy, suite, documentLoader};
+  if(suite.cryptosuite === 'ecdsa-rdfc-2023') {
+    options.purposes = new AssertionProofPurpose();
+
+  }
+  return issue(options);
 }
 
 function addVcExampleStyles() {
@@ -158,7 +166,18 @@ function addContext(url, context) {
 }
 
 async function createVcExamples() {
-  // generate base keypair and signature suite
+  // generate base keypair and signature suites
+  // ecdsa-sd-2023
+  const keyPairEcdsaMultikeyKeyPair = await EcdsaMultikey
+    .generate({curve: 'P-256'});
+  const keyPairEcdsaMultiKey = await EcdsaMultikey
+    .from({...keyPairEcdsaMultikeyKeyPair});
+  const {createSignCryptosuite} = ecdsaSd2023Cryptosuite;
+  const suiteEcdsaMultiKey = new DataIntegrityProof({
+    signer: keyPairEcdsaMultiKey.signer(),
+    cryptosuite: createSignCryptosuite()
+  });
+  // Ed25519Signature2020
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
     .generate();
   const keyPairEd25519Multikey = await Ed25519Multikey
@@ -166,10 +185,12 @@ async function createVcExamples() {
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
     key: keyPairEd25519VerificationKey2020
   });
+  // eddsa-rdfc-2022
   const suiteEd25519Multikey = new DataIntegrityProof({
     signer: keyPairEd25519Multikey.signer(),
     cryptosuite: eddsaRdfc2022CryptoSuite
   });
+  // vc-jwt
   const jwk = await jose.generateKeyPair('ES256');
 
   // add styles for examples
@@ -185,7 +206,7 @@ async function createVcExamples() {
       'did:key:' + keyPairEd25519VerificationKey2020.publicKey;
 
     const tabTypes = example.dataset?.vcTabs ||
-      ['Ed25519Signature2020', 'eddsa-rdfc-2022', 'vc-jwt'];
+      ['ecdsa-sd-2023', 'Ed25519Signature2020', 'eddsa-rdfc-2022', 'vc-jwt'];
 
     // extract and parse the example as JSON
     let credential = {};
@@ -275,6 +296,9 @@ async function createVcExamples() {
     }
     if(tabTypes.indexOf(suiteEd25519Multikey.cryptosuite) > -1) {
       await addProofTab(suiteEd25519Multikey);
+    }
+    if(tabTypes.indexOf(suiteEcdsaMultiKey.cryptosuite) > -1) {
+      await addProofTab(suiteEcdsaMultiKey);
     }
 
     if(tabTypes.indexOf('vc-jwt') > -1) {
