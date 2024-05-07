@@ -188,7 +188,6 @@ async function createVcExamples() {
       ['Ed25519Signature2020', 'eddsa-rdfc-2022', 'vc-jwt'];
 
     // extract and parse the example as JSON
-    const originalText = example.innerHTML;
     let credential = {};
     try {
       let exampleText = example.innerText;
