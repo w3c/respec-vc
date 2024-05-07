@@ -30,6 +30,8 @@
     "jose": "^5.2.4"
   },
   "devDependencies": {
+    "@digitalbazaar/ecdsa-multikey": "^1.7.0",
+    "@digitalbazaar/ecdsa-sd-2023-cryptosuite": "^3.2.1",
     "eslint": "^8.57.0",
     "eslint-config-digitalbazaar": "^5.2.0",
     "eslint-plugin-jsdoc": "^48.2.3",
