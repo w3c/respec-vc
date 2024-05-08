@@ -208,7 +208,7 @@ async function createVcExamples() {
   for(const example of vcProofExamples) {
     vcProofExampleIndex++;
 
-    const verificationMethod = example.dataset?.vcVm ||
+    let verificationMethod = example.dataset?.vcVm ||
       'did:key:' + keyPairEd25519VerificationKey2020.publicKeyMultibase;
 
     const tabTypes = example.dataset?.vcTabs || TAB_TYPES;
@@ -277,8 +277,14 @@ async function createVcExamples() {
      */
     async function addProofTab(suite) {
       let verifiableCredentialProof;
-      suite.verificationMethod = verificationMethod;
       const label = suite?.cryptosuite || suite.type;
+
+      if(label === 'ecdsa-sd-2023') {
+        suite.verificationMethod = 'did:key:' + keyPairEcdsaMultikeyKeyPair
+          .publicKeyMultibase;
+      } else {
+        suite.verificationMethod = verificationMethod;
+      }
 
       // attach the proof
       try {
