@@ -5,7 +5,7 @@ import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
 import * as examples1Context from '@digitalbazaar/credentials-examples-context';
 import * as jose from 'jose';
 import * as odrlContext from '@digitalbazaar/odrl-context';
-import {AssertionProofPurpose, extendContextLoader} from 'jsonld-signatures';
+import {purposes, extendContextLoader} from 'jsonld-signatures';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
@@ -19,6 +19,9 @@ import examples2Context from './contexts/credentials/examples/v2';
 // default types
 const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'vc-jwt'];
 // additional types: Ed25519Signature2020
+
+// purposes used below
+const {AssertionProofPurpose} = purposes;
 
 // setup contexts used by respec-vc
 const contexts = {};
@@ -91,10 +94,7 @@ async function transformToJwt({credential, kid, jwk}) {
 async function attachProof({credential, suite}) {
   const credentialCopy = JSON.parse(JSON.stringify(credential));
   const options = {credential: credentialCopy, suite, documentLoader};
-  if(suite.cryptosuite === 'ecdsa-rdfc-2023') {
-    options.purposes = new AssertionProofPurpose();
-
-  }
+  options.purposes = new AssertionProofPurpose();
   return issue(options);
 }
 
