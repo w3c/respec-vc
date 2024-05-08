@@ -52,7 +52,7 @@ function xmlDateTimeToUnixTimestamp(xmlDateTime) {
 
 // transform the input credential to a JWT
 async function transformToJwt({credential, kid, jwk}) {
-  const header = {alg: 'ES256', typ: 'JWT'};
+  const header = {alg: 'ES256', typ: 'JWT', kid};
   const payload = {
     vc: credential
   };
