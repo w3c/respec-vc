@@ -170,11 +170,9 @@ async function createVcExamples() {
   // ecdsa-sd-2023
   const keyPairEcdsaMultikeyKeyPair = await EcdsaMultikey
     .generate({curve: 'P-256'});
-  const keyPairEcdsaMultiKey = await EcdsaMultikey
-    .from({...keyPairEcdsaMultikeyKeyPair});
   const {createSignCryptosuite} = ecdsaSd2023Cryptosuite;
   const suiteEcdsaMultiKey = new DataIntegrityProof({
-    signer: keyPairEcdsaMultiKey.signer(),
+    signer: keyPairEcdsaMultikeyKeyPair.signer(),
     cryptosuite: createSignCryptosuite()
   });
   // Ed25519Signature2020
