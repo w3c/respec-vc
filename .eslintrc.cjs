@@ -10,9 +10,9 @@ module.exports = {
   },
   ignorePatterns: ["dist/*", "webpack.config.js"],
   extends: [
-    'eslint-config-digitalbazaar',
-    'eslint-config-digitalbazaar/jsdoc',
-    'digitalbazaar/module',
+    'digitalbazaar',
+    'digitalbazaar/jsdoc',
+    'digitalbazaar/module'
   ],
   rules: {
     'jsdoc/check-examples': 0,
