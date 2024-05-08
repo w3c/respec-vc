@@ -16,6 +16,9 @@ import {cryptosuite as eddsaRdfc2022CryptoSuite} from
   '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
 
+const TAB_TYPES = ['ecdsa-sd-2023', 'Ed25519Signature2020', 'eddsa-rdfc-2022',
+  'vc-jwt'] ;
+
 // setup contexts used by respec-vc
 const contexts = {};
 for(const item of [odrlContext, ed25519Context, examples1Context]) {
@@ -97,6 +100,17 @@ async function attachProof({credential, suite}) {
 function addVcExampleStyles() {
   const exampleStyles = document.createElement('style');
 
+  let radioLabels = [...Array(TAB_TYPES.length + 1).keys()]
+    .map((i) => {
+      const j = i + 1;
+      return `.vc-tabbed [type="radio"]:nth-of-type(${j}):checked ~ .vc-tabs .vc-tab:nth-of-type(${j}) label`;
+    });
+  let radioSelector = [...Array(TAB_TYPES.length + 1).keys()]
+    .map((i) => {
+      const j = i + 1;
+      return `.vc-tabbed [type="radio"]:nth-of-type(${j}):checked ~ .vc-tab-content:nth-of-type(${j})`;
+    });
+
   exampleStyles.innerHTML += `
   .vc-tabbed {
     overflow-x: hidden;
@@ -142,19 +156,13 @@ function addVcExampleStyles() {
     display: none;
   }
 
-  .vc-tabbed [type="radio"]:nth-of-type(1):checked ~ .vc-tabs .vc-tab:nth-of-type(1) label,
-  .vc-tabbed [type="radio"]:nth-of-type(2):checked ~ .vc-tabs .vc-tab:nth-of-type(2) label,
-  .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tabs .vc-tab:nth-of-type(3) label,
-  .vc-tabbed [type="radio"]:nth-of-type(4):checked ~ .vc-tabs .vc-tab:nth-of-type(4) label {
+  ${radioLabels.join(',\n  ')} {
     border-bottom-color: #fff;
     background: #fff;
     color: #222;
   }
 
-  .vc-tabbed [type="radio"]:nth-of-type(1):checked ~ .vc-tab-content:nth-of-type(1),
-  .vc-tabbed [type="radio"]:nth-of-type(2):checked ~ .vc-tab-content:nth-of-type(2),
-  .vc-tabbed [type="radio"]:nth-of-type(3):checked ~ .vc-tab-content:nth-of-type(3),
-  .vc-tabbed [type="radio"]:nth-of-type(4):checked ~ .vc-tab-content:nth-of-type(4) {
+  ${radioSelector.join(',\n  ')} {
     display: block;
   }`;
 
@@ -203,8 +211,7 @@ async function createVcExamples() {
     const verificationMethod = example.dataset?.vcVm ||
       'did:key:' + keyPairEd25519VerificationKey2020.publicKey;
 
-    const tabTypes = example.dataset?.vcTabs ||
-      ['ecdsa-sd-2023', 'Ed25519Signature2020', 'eddsa-rdfc-2022', 'vc-jwt'];
+    const tabTypes = example.dataset?.vcTabs || TAB_TYPES;
 
     // extract and parse the example as JSON
     let credential = {};
