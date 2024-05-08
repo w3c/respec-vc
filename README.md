@@ -29,9 +29,23 @@ for all known releases.
 
 # ReSpec Markup
 
-To use this extension, you must add the `vc` class to your examples
-and optionally provide a digital proof verification method (e.g.,
-a URL to a public key) via the `data-vc-vm` attribute.
+To use this extension, you must add the `vc` class to your examples.
+
+## Options
+
+The `data-vc-vm` option can be used to provide a digital proof verification
+method (e.g., a URL to a public key).
+
+The `data-vc-tags` property can be set to the following values to customize the
+tabs displayed:
+
+On by default:
+* `ecdsa-sd-2023` - https://www.w3.org/TR/vc-di-ecdsa/
+* `eddsa-rdfc-2022` - https://www.w3.org/TR/vc-di-eddsa/
+* `vc-jwt` - https://w3c.github.io/vc-jose-cose/
+
+Optional:
+* `Ed25519Signature2020` - https://www.w3.org/TR/vc-di-eddsa/#the-ed25519signature2020-suite
 
 ```html
 <pre class="example nohighlight vc" title="Usage of the id property"
