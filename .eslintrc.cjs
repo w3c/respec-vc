@@ -14,10 +14,6 @@ module.exports = {
     'eslint-config-digitalbazaar/jsdoc',
     'digitalbazaar/module',
   ],
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module'
-  },
   rules: {
     'jsdoc/check-examples': 0,
     'max-len': ['error', {ignoreTemplateLiterals: true}]
