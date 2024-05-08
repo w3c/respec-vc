@@ -209,7 +209,7 @@ async function createVcExamples() {
     vcProofExampleIndex++;
 
     const verificationMethod = example.dataset?.vcVm ||
-      'did:key:' + keyPairEd25519VerificationKey2020.publicKey;
+      'did:key:' + keyPairEd25519VerificationKey2020.publicKeyMultibase;
 
     const tabTypes = example.dataset?.vcTabs || TAB_TYPES;
 
