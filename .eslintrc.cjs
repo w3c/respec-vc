@@ -8,7 +8,7 @@ module.exports = {
   env: {
     browser: true
   },
-  ignorePatterns: ["dist/*", "webpack.config.js"],
+  ignorePatterns: ['dist/*', 'webpack.config.js'],
   extends: [
     'digitalbazaar',
     'digitalbazaar/jsdoc',
