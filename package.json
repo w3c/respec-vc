@@ -5,7 +5,7 @@
   "scripts": {
     "start": "http-server .",
     "build": "webpack",
-    "lint": "eslint ."
+    "lint": "eslint --ext .cjs,.js ."
   },
   "repository": {
     "type": "git",
