@@ -16,8 +16,9 @@ import {cryptosuite as eddsaRdfc2022CryptoSuite} from
   '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
 
-const TAB_TYPES = ['ecdsa-sd-2023', 'Ed25519Signature2020', 'eddsa-rdfc-2022',
-  'vc-jwt'] ;
+// default types
+const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'vc-jwt'];
+// additional types: Ed25519Signature2020
 
 // setup contexts used by respec-vc
 const contexts = {};
