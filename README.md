@@ -36,7 +36,7 @@ To use this extension, you must add the `vc` class to your examples.
 The `data-vc-vm` option can be used to provide a digital proof verification
 method (e.g., a URL to a public key).
 
-The `data-vc-tags` property can be set to the following values to customize the
+The `data-vc-tabs` property can be set to the following values to customize the
 tabs displayed:
 
 On by default:
