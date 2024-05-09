@@ -182,7 +182,9 @@ async function createVcExamples() {
   const {createSignCryptosuite} = ecdsaSd2023Cryptosuite;
   const suiteEcdsaMultiKey = new DataIntegrityProof({
     signer: keyPairEcdsaMultikeyKeyPair.signer(),
-    cryptosuite: createSignCryptosuite()
+    cryptosuite: createSignCryptosuite({
+      mandatoryPointers: ['/issuer']
+    })
   });
   // Ed25519Signature2020
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
