@@ -228,18 +228,6 @@ async function createVcExamples() {
       continue;
     }
 
-    // convert to a JWT
-    let verifiableCredentialJwt;
-    try {
-      verifiableCredentialJwt = await transformToJwt({
-        credential, kid: verificationMethod, jwk});
-    } catch(e) {
-      console.error(
-        'respec-vc error: Failed to convert Credential to JWT.',
-        e, example.innerText);
-      continue;
-    }
-
     // set up the tabbed content
     const tabbedContent = document.createElement('div');
     tabbedContent.setAttribute('class', 'vc-tabbed');
@@ -249,7 +237,21 @@ async function createVcExamples() {
     tabLabels.setAttribute('class', 'vc-tabs');
     tabbedContent.appendChild(tabLabels);
 
-    function addTab(suffix, labelText, contentHTML) {
+    /**
+     * Definition for the content callback used by addTab.
+     *
+     * @callback contentCallback
+     */
+
+    /**
+     * Add tab to tab container in DOM. Run callback function to populate
+     * content on tab click.
+     *
+     * @param {string} suffix - One of the TAB_TYPES values (or `unsigned`).
+     * @param {string} labelText - Human readable label name.
+     * @param {contentCallback} callback - Function which returns HTML.
+     */
+    function addTab(suffix, labelText, callback) {
       const button = document.createElement('input');
       button.setAttribute('type', 'radio');
       button.setAttribute('id', `vc-tab${vcProofExampleIndex}${suffix}`);
@@ -269,8 +271,16 @@ async function createVcExamples() {
 
       const content = document.createElement('div');
       content.setAttribute('class', 'vc-tab-content');
-      content.innerHTML = contentHTML;
+      content.style.minHeight = `${example.clientHeight}px`;
       tabbedContent.appendChild(content);
+
+      if(suffix === 'unsigned') {
+        content.innerHTML = callback();
+      } else {
+        label.addEventListener('click', async () => {
+          content.innerHTML = await callback();
+        }, {once: true});
+      }
     }
 
     /*
@@ -289,21 +299,22 @@ async function createVcExamples() {
         suite.verificationMethod = verificationMethod;
       }
 
-      // attach the proof
-      try {
-        verifiableCredentialProof = await attachProof({credential, suite});
-        addTab(label, `Secured with Data Integrity (${label})`,
-          `<pre>${JSON.stringify(verifiableCredentialProof, null, 2)
-            .match(/.{1,75}/g).join('\n')}</pre>`);
-      } catch(e) {
-        console.error(
-          'respec-vc error: Failed to attach proof to Verifiable Credential.',
-          e, example.innerText);
-      }
+      addTab(label, `Secured with Data Integrity (${label})`, async () => {
+        // attach the proof
+        try {
+          verifiableCredentialProof = await attachProof({credential, suite});
+          return `<pre>${JSON.stringify(verifiableCredentialProof, null, 2)
+            .match(/.{1,75}/g).join('\n')}</pre>`;
+        } catch(e) {
+          console.error(
+            'respec-vc error: Failed to attach proof to Verifiable Credential.',
+            e, example.innerText);
+        }
+      });
     }
 
     // set up the unsigned button
-    addTab('unsigned', 'Verifiable Credential', example.outerHTML);
+    addTab('unsigned', 'Verifiable Credential', () => example.outerHTML);
 
     if(tabTypes.indexOf(suiteEd25519Signature2020.type) > -1) {
       await addProofTab(suiteEd25519Signature2020);
@@ -318,7 +329,19 @@ async function createVcExamples() {
     if(tabTypes.indexOf('vc-jwt') > -1) {
       // set up the signed JWT button
       addTab('vc-jwt', 'Secured with VC-JWT',
-        `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`);
+        async () => {
+          // convert to a JWT
+          let verifiableCredentialJwt;
+          try {
+            verifiableCredentialJwt = await transformToJwt({
+              credential, kid: verificationMethod, jwk});
+            return `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`;
+          } catch(e) {
+            console.error(
+              'respec-vc error: Failed to convert Credential to JWT.',
+              e, example.innerText);
+          }
+        });
     }
 
     // append the tabbed content
