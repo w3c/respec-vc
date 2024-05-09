@@ -5,8 +5,8 @@ import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
 import * as examples1Context from '@digitalbazaar/credentials-examples-context';
 import * as jose from 'jose';
 import * as odrlContext from '@digitalbazaar/odrl-context';
-import {purposes, extendContextLoader} from 'jsonld-signatures';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
+import {extendContextLoader, purposes} from 'jsonld-signatures';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
@@ -101,13 +101,13 @@ async function attachProof({credential, suite}) {
 function addVcExampleStyles() {
   const exampleStyles = document.createElement('style');
 
-  let radioLabels = [...Array(TAB_TYPES.length + 1).keys()]
-    .map((i) => {
+  const radioLabels = [...Array(TAB_TYPES.length + 1).keys()]
+    .map(i => {
       const j = i + 1;
       return `.vc-tabbed [type="radio"]:nth-of-type(${j}):checked ~ .vc-tabs .vc-tab:nth-of-type(${j}) label`;
     });
-  let radioSelector = [...Array(TAB_TYPES.length + 1).keys()]
-    .map((i) => {
+  const radioSelector = [...Array(TAB_TYPES.length + 1).keys()]
+    .map(i => {
       const j = i + 1;
       return `.vc-tabbed [type="radio"]:nth-of-type(${j}):checked ~ .vc-tab-content:nth-of-type(${j})`;
     });
@@ -211,7 +211,7 @@ async function createVcExamples() {
   for(const example of vcProofExamples) {
     vcProofExampleIndex++;
 
-    let verificationMethod = example.dataset?.vcVm ||
+    const verificationMethod = example.dataset?.vcVm ||
       'did:key:' + keyPairEd25519VerificationKey2020.publicKeyMultibase;
 
     const tabTypes = example.dataset?.vcTabs || TAB_TYPES;
