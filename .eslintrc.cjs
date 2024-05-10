@@ -6,7 +6,8 @@
 
 module.exports = {
   env: {
-    browser: true
+    browser: true,
+    node: true
   },
   ignorePatterns: ['dist/*', 'webpack.config.js'],
   extends: [
@@ -16,6 +17,9 @@ module.exports = {
   ],
   rules: {
     'jsdoc/check-examples': 0,
-    'max-len': ['error', {ignoreTemplateLiterals: true}]
+    'max-len': ['error', {
+      ignorePattern: '\\* SPDX-License-Identifier: ',
+      ignoreTemplateLiterals: true
+    }]
   }
 };
