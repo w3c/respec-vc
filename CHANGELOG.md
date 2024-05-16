@@ -10,6 +10,18 @@
 
 ## 1.0.0
 
+### Added
+- Added usage instructions to README.md.
+- Added JWT header and payload to JWT output.
+
+### Changed
+- Programmatically inject tab styles and script.
+- Changed from buttons to tabs.
+
+### Fixed
+- Fix race condition when setting example styles.
+- Fixed JWT payload transformations from credential data.
+
 ## 0.0.2
 
 ### Fixed
