@@ -4,6 +4,13 @@
 
 ## 2.0.1
 
+### Changed
+- Simplified examples context to just a `@vocab` definition (to match upstream).
+- Minified `dist/main.js` file.
+
+### Removed
+- Removed VC v1.1 example from index.html.
+
 ## 2.0.0
 
 ### Changed
