@@ -6,6 +6,9 @@
 
 ## 2.0.0
 
+### Changed
+- Rerelease of v1.0.1, but with a major version bump and improved example code.
+
 ## 1.0.1
 
 ### Added
