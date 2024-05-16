@@ -1,5 +1,19 @@
 # respec-vc ChangeLog
 
+## x.x.x
+
+### Added
+- Added `ecdsa-sd-2023` integration and tab option.
+
+### Changed
+- Tab clicks now initiate credential example creation.
+
+### Fixed
+- Corrected how `purposes` was being set.
+- Added missing `data-vc-tabs` documentation to README.
+- Corrected `verificationMethod` values.
+- Used `kid` in VC-JWT example.
+
 ## 3.0.0
 
 ### Added
