@@ -1,6 +1,6 @@
 # respec-vc ChangeLog
 
-## x.x.x
+## x.x.x - yyyy-mm-dd
 
 ### Added
 - Added `ecdsa-sd-2023` integration and tab option.
@@ -14,7 +14,7 @@
 - Corrected `verificationMethod` values.
 - Used `kid` in VC-JWT example.
 
-## 3.0.0
+## 3.0.0 - 2024-05-07
 
 ### Added
 - Added `eddsa-rdfc-2022` integration and tab option.
@@ -26,7 +26,7 @@
 - Added W3C copyright and code of conduct information.
 - Repository moved to the W3C.
 
-## 2.0.1
+## 2.0.1 - 2023-06-11
 
 ### Changed
 - Simplified examples context to just a `@vocab` definition (to match upstream).
@@ -35,17 +35,17 @@
 ### Removed
 - Removed VC v1.1 example from index.html.
 
-## 2.0.0
+## 2.0.0 - 2023-01-15
 
 ### Changed
 - Rerelease of v1.0.1, but with a major version bump and improved example code.
 
-## 1.0.1
+## 1.0.1 - 2022-01-15
 
 ### Added
 - Add comment to JWT output noting duplication of fields.
 
-## 1.0.0
+## 1.0.0 - 2021-11-21
 
 ### Added
 - Added usage instructions to README.md.
@@ -59,12 +59,12 @@
 - Fix race condition when setting example styles.
 - Fixed JWT payload transformations from credential data.
 
-## 0.0.2
+## 0.0.2 - 2021-11-10
 
 ### Fixed
 - Fixed to work with static ReSpec files.
 
-## 0.0.1
+## 0.0.1 - 2021-11-10
 
 ### Added
 - Added LDI and JWT examples.
