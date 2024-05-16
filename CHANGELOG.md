@@ -2,6 +2,16 @@
 
 ## 3.0.0
 
+### Added
+- Added `eddsa-rdfc-2022` integration and tab option.
+- Added `data-vc-tabs` feature for selecting specific tabs to display.
+- Added VC v2.0 support via library upgrades.
+
+### Changed
+- Made example match one from the VCDM v2.0 specification.
+- Added W3C copyright and code of conduct information.
+- Repository moved to the W3C.
+
 ## 2.0.1
 
 ### Changed
