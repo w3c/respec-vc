@@ -8,6 +8,9 @@
 
 ## 1.0.1
 
+### Added
+- Add comment to JWT output noting duplication of fields.
+
 ## 1.0.0
 
 ### Added
