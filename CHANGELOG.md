@@ -5,6 +5,7 @@
 ### Added
 - Added `ecdsa-sd-2023` integration and tab option.
 - Added `ecdsa-rdfc-2019` integration and tab option.
+- Added `bbs-2023` integration and tab option.
 
 ### Changed
 - Tab clicks now initiate credential example creation.
