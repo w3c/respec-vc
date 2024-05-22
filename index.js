@@ -1,4 +1,6 @@
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
+import * as ecdsaRdfc2019Cryptosuite from
+  '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
 import * as ecdsaSd2023Cryptosuite
   from '@digitalbazaar/ecdsa-sd-2023-cryptosuite';
 import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
@@ -17,7 +19,12 @@ import {cryptosuite as eddsaRdfc2022CryptoSuite} from
 import examples2Context from './contexts/credentials/examples/v2';
 
 // default types
-const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'vc-jwt'];
+const TAB_TYPES = [
+  'ecdsa-rdfc-2019',
+  'ecdsa-sd-2023',
+  'eddsa-rdfc-2022',
+  'vc-jwt'
+];
 // additional types: Ed25519Signature2020
 
 // purposes used below
@@ -176,9 +183,17 @@ function addContext(url, context) {
 
 async function createVcExamples() {
   // generate base keypair and signature suites
-  // ecdsa-sd-2023
   const keyPairEcdsaMultikeyKeyPair = await EcdsaMultikey
     .generate({curve: 'P-256'});
+
+  // ecdsa-rdfc-2019
+  const {cryptosuite: rdfcCryptosuite} = ecdsaRdfc2019Cryptosuite;
+  const suiteEcdsaRdfcMultiKey = new DataIntegrityProof({
+    signer: keyPairEcdsaMultikeyKeyPair.signer(),
+    cryptosuite: rdfcCryptosuite
+  });
+
+  // ecdsa-sd-2023
   const {createSignCryptosuite} = ecdsaSd2023Cryptosuite;
   const suiteEcdsaMultiKey = new DataIntegrityProof({
     signer: keyPairEcdsaMultikeyKeyPair.signer(),
@@ -292,7 +307,7 @@ async function createVcExamples() {
       let verifiableCredentialProof;
       const label = suite?.cryptosuite || suite.type;
 
-      if(label === 'ecdsa-sd-2023') {
+      if(label.startsWith('ecdsa')) {
         suite.verificationMethod = 'did:key:' + keyPairEcdsaMultikeyKeyPair
           .publicKeyMultibase;
       } else {
@@ -324,6 +339,9 @@ async function createVcExamples() {
     }
     if(tabTypes.indexOf(suiteEcdsaMultiKey.cryptosuite) > -1) {
       await addProofTab(suiteEcdsaMultiKey);
+    }
+    if(tabTypes.indexOf(suiteEcdsaRdfcMultiKey.cryptosuite) > -1) {
+      await addProofTab(suiteEcdsaRdfcMultiKey);
     }
 
     if(tabTypes.indexOf('vc-jwt') > -1) {
