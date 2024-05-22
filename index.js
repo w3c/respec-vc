@@ -1,3 +1,5 @@
+import * as bbs2023Cryptosuite from '@digitalbazaar/bbs-2023-cryptosuite';
+import * as Bls12381Multikey from '@digitalbazaar/bls12-381-multikey';
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
 import * as ecdsaRdfc2019Cryptosuite from
   '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
@@ -20,6 +22,7 @@ import examples2Context from './contexts/credentials/examples/v2';
 
 // default types
 const TAB_TYPES = [
+  'bbs-2023',
   'ecdsa-rdfc-2019',
   'ecdsa-sd-2023',
   'eddsa-rdfc-2022',
@@ -182,7 +185,18 @@ function addContext(url, context) {
 }
 
 async function createVcExamples() {
-  // generate base keypair and signature suites
+  // bbs-2023
+  const keyPairBls12381Multikey = await Bls12381Multikey.generateBbsKeyPair({
+    algorithm: Bls12381Multikey.ALGORITHMS.BBS_BLS12381_SHA256
+  });
+  const suiteBbs2023 = new DataIntegrityProof({
+    signer: keyPairBls12381Multikey.signer(),
+    cryptosuite: bbs2023Cryptosuite.createSignCryptosuite({
+      mandatoryPointers: ['/issuer']
+    })
+  });
+
+  // ECDSA: generate base keypair and signature suites
   const keyPairEcdsaMultikeyKeyPair = await EcdsaMultikey
     .generate({curve: 'P-256'});
 
@@ -342,6 +356,9 @@ async function createVcExamples() {
     }
     if(tabTypes.indexOf(suiteEcdsaRdfcMultiKey.cryptosuite) > -1) {
       await addProofTab(suiteEcdsaRdfcMultiKey);
+    }
+    if(tabTypes.indexOf(suiteBbs2023.cryptosuite) > -1) {
+      await addProofTab(suiteBbs2023);
     }
 
     if(tabTypes.indexOf('vc-jwt') > -1) {
