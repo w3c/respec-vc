@@ -30,7 +30,10 @@
     "jose": "^5.2.4"
   },
   "devDependencies": {
+    "@digitalbazaar/bbs-2023-cryptosuite": "^1.2.0",
+    "@digitalbazaar/bls12-381-multikey": "^1.3.0",
     "@digitalbazaar/ecdsa-multikey": "^1.7.0",
+    "@digitalbazaar/ecdsa-rdfc-2019-cryptosuite": "^1.0.1",
     "@digitalbazaar/ecdsa-sd-2023-cryptosuite": "^3.2.1",
     "eslint": "^8.57.0",
     "eslint-config-digitalbazaar": "^5.2.0",
