@@ -55,6 +55,84 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
   return defaultDocumentLoader(url);
 });
 
+async function createBBSExampleProof() {
+  const key = await Bls12381Multikey.generateBbsKeyPair({
+    algorithm: Bls12381Multikey.ALGORITHMS.BBS_BLS12381_SHA256
+  });
+
+  const proof = new DataIntegrityProof({
+    signer: key.signer(),
+    cryptosuite: bbs2023Cryptosuite.createSignCryptosuite({
+      mandatoryPointers: ['/issuer']
+    })
+  });
+
+  return {
+    proof,
+    key,
+    label: 'bbs'
+  };
+}
+
+async function createEcdsaRdfc2019ExampleProof() {
+  const key = await EcdsaMultikey
+    .generate({curve: 'P-256'});
+
+  // ecdsa-rdfc-2019
+  const {cryptosuite: rdfcCryptosuite} = ecdsaRdfc2019Cryptosuite;
+  const proof = new DataIntegrityProof({
+    signer: key.signer(),
+    cryptosuite: rdfcCryptosuite
+  });
+
+  return {
+    proof,
+    key,
+    label: 'ecdsa'
+  };
+}
+
+async function createEcdsaSd2023ExampleProof() {
+  const key = await EcdsaMultikey
+    .generate({curve: 'P-256'});
+
+  // ecdsa-sd-2023
+  const {createSignCryptosuite} = ecdsaSd2023Cryptosuite;
+  const proof = new DataIntegrityProof({
+    signer: key.signer(),
+    cryptosuite: createSignCryptosuite({
+      mandatoryPointers: ['/issuer']
+    })
+  });
+
+  return {
+    proof,
+    key,
+    label: 'ecdsa-sd'
+  };
+}
+
+async function createEddsaRdfc2022ExampleProof() {
+  // Ed25519Signature2020
+  const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
+    .generate();
+
+  const key = await Ed25519Multikey
+    .from(keyPairEd25519VerificationKey2020);
+
+  // eddsa-rdfc-2022
+  const proof = new DataIntegrityProof({
+    signer: key.signer(),
+    cryptosuite: eddsaRdfc2022CryptoSuite
+  });
+
+  return {
+    proof,
+    key,
+    label: 'eddsa'
+  };
+}
+
 // convert an XML Schema v1.` Datetime value to a UNIX timestamp
 function xmlDateTimeToUnixTimestamp(xmlDateTime) {
   if(!xmlDateTime) {
@@ -185,51 +263,35 @@ function addContext(url, context) {
 }
 
 async function createVcExamples() {
-  // bbs-2023
-  const keyPairBls12381Multikey = await Bls12381Multikey.generateBbsKeyPair({
-    algorithm: Bls12381Multikey.ALGORITHMS.BBS_BLS12381_SHA256
-  });
-  const suiteBbs2023 = new DataIntegrityProof({
-    signer: keyPairBls12381Multikey.signer(),
-    cryptosuite: bbs2023Cryptosuite.createSignCryptosuite({
-      mandatoryPointers: ['/issuer']
-    })
-  });
+  const exampleProofs = [];
 
-  // ECDSA: generate base keypair and signature suites
-  const keyPairEcdsaMultikeyKeyPair = await EcdsaMultikey
-    .generate({curve: 'P-256'});
+  // bbs-2023
+  const bbs2023 = await createBBSExampleProof();
+  exampleProofs.push(bbs2023);
 
   // ecdsa-rdfc-2019
-  const {cryptosuite: rdfcCryptosuite} = ecdsaRdfc2019Cryptosuite;
-  const suiteEcdsaRdfcMultiKey = new DataIntegrityProof({
-    signer: keyPairEcdsaMultikeyKeyPair.signer(),
-    cryptosuite: rdfcCryptosuite
-  });
+  const ecdsaRdfc2019 =
+    await createEcdsaRdfc2019ExampleProof();
+  exampleProofs.push(ecdsaRdfc2019);
 
   // ecdsa-sd-2023
-  const {createSignCryptosuite} = ecdsaSd2023Cryptosuite;
-  const suiteEcdsaMultiKey = new DataIntegrityProof({
-    signer: keyPairEcdsaMultikeyKeyPair.signer(),
-    cryptosuite: createSignCryptosuite({
-      mandatoryPointers: ['/issuer']
-    })
-  });
+  const ecdsaSd2023 =
+    await createEcdsaSd2023ExampleProof();
+  exampleProofs.push(ecdsaSd2023);
+
+  // eddsa-rdfc-2022
+  const eddsaRdfc2022 = await createEddsaRdfc2022ExampleProof();
+  exampleProofs.push(eddsaRdfc2022);
+
+  // vc-jwt
+  const jwk = await jose.generateKeyPair('ES256');
+
   // Ed25519Signature2020
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
     .generate();
-  const keyPairEd25519Multikey = await Ed25519Multikey
-    .from(keyPairEd25519VerificationKey2020);
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
     key: keyPairEd25519VerificationKey2020
   });
-  // eddsa-rdfc-2022
-  const suiteEd25519Multikey = new DataIntegrityProof({
-    signer: keyPairEd25519Multikey.signer(),
-    cryptosuite: eddsaRdfc2022CryptoSuite
-  });
-  // vc-jwt
-  const jwk = await jose.generateKeyPair('ES256');
 
   // add styles for examples
   addVcExampleStyles();
@@ -278,9 +340,10 @@ async function createVcExamples() {
      *
      * @param {string} suffix - One of the TAB_TYPES values (or `unsigned`).
      * @param {string} labelText - Human readable label name.
+     * @param {string} tabText - Text to display on the tab.
      * @param {contentCallback} callback - Function which returns HTML.
      */
-    function addTab(suffix, labelText, callback) {
+    function addTab(suffix, labelText, tabText, callback) {
       const button = document.createElement('input');
       button.setAttribute('type', 'radio');
       button.setAttribute('id', `vc-tab${vcProofExampleIndex}${suffix}`);
@@ -294,8 +357,16 @@ async function createVcExamples() {
 
       const label = document.createElement('li');
       label.setAttribute('class', 'vc-tab');
-      label.innerHTML =
-        `<label for='${button.getAttribute('id')}'>${labelText}</label>`;
+
+      const tabLabel = document.createElement('label');
+      tabLabel.setAttribute('for', button.getAttribute('id'));
+
+      const abbr = document.createElement('abbr');
+      abbr.setAttribute('title', labelText);
+      abbr.innerText = tabText;
+
+      tabLabel.appendChild(abbr);
+      label.appendChild(tabLabel);
       tabLabels.appendChild(label);
 
       const content = document.createElement('div');
@@ -312,23 +383,25 @@ async function createVcExamples() {
       }
     }
 
-    /*
-     * Add a Data Integrity based proof example tab
+    /**
+     * Add a Data Integrity based proof example tab.
+     *
      * @global string verificationMethod
-     * @param object suite
+     * @param {object} suite - Suite object.
+     * @param {string} tabText - Text to display on the tab.
+     * @param {string | undefined} key - Optional key to use for the proof.
      */
-    async function addProofTab(suite) {
+    async function addProofTab(suite, tabText, key) {
       let verifiableCredentialProof;
       const label = suite?.cryptosuite || suite.type;
 
-      if(label.startsWith('ecdsa')) {
-        suite.verificationMethod = 'did:key:' + keyPairEcdsaMultikeyKeyPair
-          .publicKeyMultibase;
+      if(key) {
+        suite.verificationMethod = 'did:key:' + key.publicKeyMultibase;
       } else {
         suite.verificationMethod = verificationMethod;
       }
 
-      addTab(label, `Secured with Data Integrity (${label})`, async () => {
+      addTab(label, `Secured with Data Integrity - ${label}`, tabText, async () => {
         // attach the proof
         try {
           verifiableCredentialProof = await attachProof({credential, suite});
@@ -342,28 +415,31 @@ async function createVcExamples() {
       });
     }
 
+    function hasTab(identifier) {
+      return tabTypes.indexOf(identifier) > -1;
+    }
+
     // set up the unsigned button
-    addTab('unsigned', 'Verifiable Credential', () => example.outerHTML);
+    addTab(
+      'unsigned',
+      'Unsecured credential',
+      'Credential',
+      () => example.outerHTML
+    );
 
-    if(tabTypes.indexOf(suiteEd25519Signature2020.type) > -1) {
-      await addProofTab(suiteEd25519Signature2020);
-    }
-    if(tabTypes.indexOf(suiteEd25519Multikey.cryptosuite) > -1) {
-      await addProofTab(suiteEd25519Multikey);
-    }
-    if(tabTypes.indexOf(suiteEcdsaMultiKey.cryptosuite) > -1) {
-      await addProofTab(suiteEcdsaMultiKey);
-    }
-    if(tabTypes.indexOf(suiteEcdsaRdfcMultiKey.cryptosuite) > -1) {
-      await addProofTab(suiteEcdsaRdfcMultiKey);
-    }
-    if(tabTypes.indexOf(suiteBbs2023.cryptosuite) > -1) {
-      await addProofTab(suiteBbs2023);
+    for(const {proof, key, label} of exampleProofs) {
+      if(hasTab(proof.cryptosuite)) {
+        await addProofTab(proof, label, key);
+      }
     }
 
-    if(tabTypes.indexOf('vc-jwt') > -1) {
+    if(hasTab(suiteEd25519Signature2020.type)) {
+      await addProofTab(suiteEd25519Signature2020, 'Ed25519Signature2020');
+    }
+
+    if(hasTab('vc-jwt')) {
       // set up the signed JWT button
-      addTab('vc-jwt', 'Secured with VC-JWT',
+      addTab('vc-jwt', 'Secured with VC-JWT', 'vc-jwt',
         async () => {
           // convert to a JWT
           let verifiableCredentialJwt;

@@ -8,6 +8,10 @@
 - Added `bbs-2023` integration and tab option.
 
 ### Changed
+- Refactored instantiation of proofs to include key material.
+- Reworked tab titles to reduce space requirement.
+
+### Changed
 - Tab clicks now initiate credential example creation.
 
 ### Fixed
