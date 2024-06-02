@@ -13,7 +13,7 @@ show the digitally signed forms of the credential. An example of the
 output of this extension is provided below (this extension adds the
 tabs seen in the image below):
 
-![image](https://user-images.githubusercontent.com/108611/142772916-03bafc46-c176-4673-b8b3-da19999dccd8.png)
+![image](https://github.com/w3c/respec-vc/assets/108611/0c32d83a-fd32-48fa-9c35-6eb2cea20af5)
 
 This extension can also be used to generate human-readable cryptographic hashes
 of files that are retrievable by a browser environment.
