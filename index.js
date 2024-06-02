@@ -22,10 +22,10 @@ import examples2Context from './contexts/credentials/examples/v2';
 
 // default types
 const TAB_TYPES = [
-  'bbs-2023',
   'ecdsa-rdfc-2019',
-  'ecdsa-sd-2023',
   'eddsa-rdfc-2022',
+  'ecdsa-sd-2023',
+  'bbs-2023',
   'vc-jwt'
 ];
 // additional types: Ed25519Signature2020
@@ -265,26 +265,9 @@ function addContext(url, context) {
 async function createVcExamples() {
   const exampleProofs = [];
 
-  // bbs-2023
-  const bbs2023 = await createBBSExampleProof();
-  exampleProofs.push(bbs2023);
-
   // ecdsa-rdfc-2019
-  const ecdsaRdfc2019 =
-    await createEcdsaRdfc2019ExampleProof();
+  const ecdsaRdfc2019 = await createEcdsaRdfc2019ExampleProof();
   exampleProofs.push(ecdsaRdfc2019);
-
-  // ecdsa-sd-2023
-  const ecdsaSd2023 =
-    await createEcdsaSd2023ExampleProof();
-  exampleProofs.push(ecdsaSd2023);
-
-  // eddsa-rdfc-2022
-  const eddsaRdfc2022 = await createEddsaRdfc2022ExampleProof();
-  exampleProofs.push(eddsaRdfc2022);
-
-  // vc-jwt
-  const jwk = await jose.generateKeyPair('ES256');
 
   // Ed25519Signature2020
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
@@ -292,6 +275,21 @@ async function createVcExamples() {
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
     key: keyPairEd25519VerificationKey2020
   });
+
+  // eddsa-rdfc-2022
+  const eddsaRdfc2022 = await createEddsaRdfc2022ExampleProof();
+  exampleProofs.push(eddsaRdfc2022);
+
+  // ecdsa-sd-2023
+  const ecdsaSd2023 = await createEcdsaSd2023ExampleProof();
+  exampleProofs.push(ecdsaSd2023);
+
+  // bbs-2023
+  const bbs2023 = await createBBSExampleProof();
+  exampleProofs.push(bbs2023);
+
+  // vc-jwt
+  const jwk = await jose.generateKeyPair('ES256');
 
   // add styles for examples
   addVcExampleStyles();
