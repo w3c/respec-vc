@@ -18,7 +18,14 @@ import {Ed25519VerificationKey2020} from
   '@digitalbazaar/ed25519-verification-key-2020';
 import {cryptosuite as eddsaRdfc2022CryptoSuite} from
   '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
+import * as mfHasher from 'multiformats/hashes/hasher';
+import {base64pad, base64url} from 'multiformats/bases/base64';
+import {base58btc} from 'multiformats/bases/base58';
+import {base16} from 'multiformats/bases/base16';
 import examples2Context from './contexts/credentials/examples/v2';
+import {sha256} from '@noble/hashes/sha256';
+import {sha384} from '@noble/hashes/sha512';
+import {sha3_256, sha3_384} from '@noble/hashes/sha3';
 
 // default types
 const TAB_TYPES = [
@@ -263,6 +270,103 @@ function addContext(url, context) {
 }
 
 async function createVcExamples() {
+  // process all 'vc-hash' entries
+  const sha2256Hasher = mfHasher.from({
+    name: 'sha2-256',
+    code: 0x12,
+    encode: (input) => sha256(input)
+  });
+  const sha2384Hasher = mfHasher.from({
+    name: 'sha2-384',
+    code: 0x20,
+    encode: (input) => sha384(input)
+  });
+  const sha3256Hasher = mfHasher.from({
+    name: 'sha3-256',
+    code: 0x16,
+    encode: (input) => sha3_256(input)
+  });
+  const sha3384Hasher = mfHasher.from({
+    name: 'sha3-384',
+    code: 0x15,
+    encode: (input) => sha3_384(input)
+  });
+
+  const vcHashEntries = document.querySelectorAll('.vc-hash');
+  let vcHashEntryIndex = 0;
+  for(const hashEntry of vcHashEntries) {
+    vcHashEntryIndex++;
+
+    // get the hash requirements
+    const hashUrl = hashEntry.dataset?.hashUrl || 'INVALID_URL';
+    const hashFormat = hashEntry.dataset?.hashFormat?.split(/(\s+)/) || [];
+    let encodedHash = null;
+
+    // select the base encoder (default: base64-url with no padding)
+    let baseEncoder;
+    if(hashFormat.includes('sri')) {
+      baseEncoder = base64pad;
+    } else if(hashFormat.includes('base16')) {
+      baseEncoder = base16;
+    } else if(hashFormat.includes('base58btc')) {
+      baseEncoder = base58btc;
+    } else {
+      baseEncoder = base64url;
+    }
+
+    // retrieve the file and generate the hash
+    try {
+      const response = await fetch(hashUrl);
+
+      // ensure retrieval succeeded
+      if(response.status !== 200) {
+        throw new Error('Failed to retrieve '+ hashUrl);
+      }
+      const hashData = new Uint8Array(await response.arrayBuffer());
+
+      // determine the hash algorithm to use and produce the output accordingly
+      if(hashFormat.includes('openssl') && hashFormat.includes('-sha256') ) {
+        const mfHash = await sha2256Hasher.digest(hashData);
+        encodedHash = Array.prototype.map.call(mfHash.digest, (byte) => {
+          return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+        }).join('');
+      } else if(hashFormat.includes('sri')) {
+        if(hashFormat.includes('sha2-256')) {
+          const mfHash = await sha2256Hasher.digest(hashData);
+          encodedHash = 'sha256-' + baseEncoder.encode(mfHash.digest);
+        } else if(hashFormat.includes('sha2-384')) {
+          const mfHash = await sha2384Hasher.digest(hashData);
+          encodedHash = 'sha384-' + baseEncoder.encode(mfHash.digest);
+        }
+      } else if(hashFormat.includes('multihash')) {
+        if(hashFormat.includes('sha2-256')) {
+          const mfHash = await sha2256Hasher.digest(hashData).bytes;
+          encodedHash = baseEncoder.encode(mfHash);
+        } else if(hashFormat.includes('sha2-384')) {
+          const mfHash = await sha2384Hasher.digest(hashData).bytes;
+          encodedHash = baseEncoder.encode(mfHash);
+        } else if(hashFormat.includes('sha3-256')) {
+          const mfHash = await sha3256Hasher.digest(hashData).bytes;
+          encodedHash = baseEncoder.encode(mfHash);
+        } else if(hashFormat.includes('sha3-384')) {
+          const mfHash = await sha3384Hasher.digest(hashData).bytes;
+          encodedHash = baseEncoder.encode(mfHash);
+        }
+      }
+
+      // set the encodedHash value
+      hashEntry.innerText = encodedHash || 'Unsupported hash format: \'' +
+        hashEntry.dataset?.hashFormat + '\'';
+    } catch(e) {
+      console.error('respec-vc error: Failed to create cryptographic hash.',
+        e, hashEntry);
+      hashEntry.innerText = 'Error generating cryptographic hash for ' +
+        hashUrl;
+      continue;
+    }
+  }
+
+  // process all 'vc' entries
   const exampleProofs = [];
 
   // ecdsa-rdfc-2019
