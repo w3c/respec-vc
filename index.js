@@ -8,9 +8,14 @@ import * as ecdsaSd2023Cryptosuite
 import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
 import * as examples1Context from '@digitalbazaar/credentials-examples-context';
 import * as jose from 'jose';
+import * as mfHasher from 'multiformats/hashes/hasher';
 import * as odrlContext from '@digitalbazaar/odrl-context';
+import {base64pad, base64url} from 'multiformats/bases/base64';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {extendContextLoader, purposes} from 'jsonld-signatures';
+import {sha3_256, sha3_384} from '@noble/hashes/sha3';
+import {base16} from 'multiformats/bases/base16';
+import {base58btc} from 'multiformats/bases/base58';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
@@ -18,14 +23,9 @@ import {Ed25519VerificationKey2020} from
   '@digitalbazaar/ed25519-verification-key-2020';
 import {cryptosuite as eddsaRdfc2022CryptoSuite} from
   '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
-import * as mfHasher from 'multiformats/hashes/hasher';
-import {base64pad, base64url} from 'multiformats/bases/base64';
-import {base58btc} from 'multiformats/bases/base58';
-import {base16} from 'multiformats/bases/base16';
 import examples2Context from './contexts/credentials/examples/v2';
 import {sha256} from '@noble/hashes/sha256';
 import {sha384} from '@noble/hashes/sha512';
-import {sha3_256, sha3_384} from '@noble/hashes/sha3';
 
 // default types
 const TAB_TYPES = [
