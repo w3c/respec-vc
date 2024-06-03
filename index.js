@@ -293,9 +293,7 @@ async function createVcExamples() {
   });
 
   const vcHashEntries = document.querySelectorAll('.vc-hash');
-  let vcHashEntryIndex = 0;
   for(const hashEntry of vcHashEntries) {
-    vcHashEntryIndex++;
 
     // get the hash requirements
     const hashUrl = hashEntry.dataset?.hashUrl || 'INVALID_URL';
