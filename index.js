@@ -274,22 +274,22 @@ async function createVcExamples() {
   const sha2256Hasher = mfHasher.from({
     name: 'sha2-256',
     code: 0x12,
-    encode: (input) => sha256(input)
+    encode: input => sha256(input)
   });
   const sha2384Hasher = mfHasher.from({
     name: 'sha2-384',
     code: 0x20,
-    encode: (input) => sha384(input)
+    encode: input => sha384(input)
   });
   const sha3256Hasher = mfHasher.from({
     name: 'sha3-256',
     code: 0x16,
-    encode: (input) => sha3_256(input)
+    encode: input => sha3_256(input)
   });
   const sha3384Hasher = mfHasher.from({
     name: 'sha3-384',
     code: 0x15,
-    encode: (input) => sha3_384(input)
+    encode: input => sha3_384(input)
   });
 
   const vcHashEntries = document.querySelectorAll('.vc-hash');
