@@ -318,14 +318,14 @@ async function createVcExamples() {
 
       // ensure retrieval succeeded
       if(response.status !== 200) {
-        throw new Error('Failed to retrieve '+ hashUrl);
+        throw new Error('Failed to retrieve ' + hashUrl);
       }
       const hashData = new Uint8Array(await response.arrayBuffer());
 
       // determine the hash algorithm to use and produce the output accordingly
-      if(hashFormat.includes('openssl') && hashFormat.includes('-sha256') ) {
+      if(hashFormat.includes('openssl') && hashFormat.includes('-sha256')) {
         const mfHash = await sha2256Hasher.digest(hashData);
-        encodedHash = Array.prototype.map.call(mfHash.digest, (byte) => {
+        encodedHash = Array.prototype.map.call(mfHash.digest, byte => {
           return ('0' + (byte & 0xFF).toString(16)).slice(-2);
         }).join('');
       } else if(hashFormat.includes('sri')) {
