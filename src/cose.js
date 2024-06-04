@@ -8,8 +8,12 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
     .join('');
 }
 
-// eslint-disable-next-line max-len
-const getCredential = async (privateKey, byteSigner, messageType, messageJson) => {
+const getCredential = async (
+  privateKey,
+  byteSigner,
+  messageType,
+  messageJson,
+) => {
   return issuer({
     alg: privateKey.alg,
     type: messageType,
@@ -19,15 +23,20 @@ const getCredential = async (privateKey, byteSigner, messageType, messageJson) =
   });
 };
 
-// eslint-disable-next-line max-len
-const getPresentation = async (privateKey, byteSigner, messageType, messageJson) => {
-  // eslint-disable-next-line max-len
-  const disclosures = (messageJson.verifiableCredential || []).map(enveloped => {
+const getPresentation = async (
+  privateKey,
+  byteSigner,
+  messageType,
+  message,
+) => {
+  const disclosures = (message.verifiableCredential || []).map(enveloped => {
     const {id} = enveloped;
-    // eslint-disable-next-line max-len
-    const type = id.includes('base64url') ? id.split(';base64url,')[0].replace('data:', '') : id.split(';')[0].replace('data:', '');
-    // eslint-disable-next-line max-len
-    const content = id.includes('base64url') ? new TextEncoder().encode(id.split('base64url,').pop()) : new TextEncoder().encode(id.split(';').pop());
+    const type = id.includes('base64url') ?
+      id.split(';base64url,')[0].replace('data:', '') :
+      id.split(';')[0].replace('data:', '');
+    const content = id.includes('base64url') ?
+      new TextEncoder().encode(id.split('base64url,').pop()) :
+      new TextEncoder().encode(id.split(';').pop());
     return {
       type,
       credential: content,
@@ -38,7 +47,7 @@ const getPresentation = async (privateKey, byteSigner, messageType, messageJson)
     type: messageType,
   }).issue({
     signer: byteSigner,
-    presentation: messageJson,
+    presentation: message,
     disclosures,
   });
 };
@@ -72,15 +81,15 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
 };
 
 export const getCoseExample = async (privateKey, messageJson) => {
-  // eslint-disable-next-line max-len
-  const type = Array.isArray(messageJson.type) ? messageJson.type : [messageJson.type];
-  // eslint-disable-next-line max-len
-  const messageType = type.includes('VerifiableCredential') ? 'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
+  const type = Array.isArray(messageJson.type) ?
+    messageJson.type : [messageJson.type];
+  const messageType = type.includes('VerifiableCredential') ?
+    'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageHex = buf2hex(message);
   const messageBuffer = Buffer.from(messageHex, 'hex');
-  // eslint-disable-next-line max-len
-  const diagnostic = await edn.render(messageBuffer, 'application/cbor-diagnostic');
+  const diagnostic =
+    await edn.render(messageBuffer, 'application/cbor-diagnostic');
   return `
 <h1>${messageType.replace('+cose', '')}</h1>
 <pre>

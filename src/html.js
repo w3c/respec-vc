@@ -1,8 +1,8 @@
-export const getJwtHtml = ({jwtExample}) => {
+export const getJoseHtml = ({joseExample}) => {
   return `
 <div class="vc-jose-cose-jwt-tabbed">
     <div class="vc-jose-cose-jwt-tab-content">
-${jwtExample}
+${joseExample}
     </div>
 </div>`;
 };

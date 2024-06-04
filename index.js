@@ -6,7 +6,7 @@ import * as examples1Context from '@digitalbazaar/credentials-examples-context';
 import * as odrlContext from '@digitalbazaar/odrl-context';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {extendContextLoader, purposes} from 'jsonld-signatures';
-import {getCoseHtml, getJwtHtml, getSdJwtHtml} from './src/html';
+import {getCoseHtml, getJoseHtml, getSdJwtHtml} from './src/html';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
@@ -18,12 +18,12 @@ import {
 } from '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
 import {getCoseExample} from './src/cose';
-import {getJwtExample} from './src/jwt';
+import {getJoseExample} from './src/jose';
 import {getSdJwtExample} from './src/sd-jwt';
 import {privateKey} from './src/common';
 
 // default types
-const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'jwt', 'sd-jwt', 'cose'];
+const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'jose', 'sd-jwt', 'cose'];
 // additional types: Ed25519Signature2020
 
 // purposes used below
@@ -310,7 +310,6 @@ async function createVcExamples() {
     signer: keyPairEd25519Multikey.signer(),
     cryptosuite: eddsaRdfc2022CryptoSuite,
   });
-  // vc-jwt and vc-jose-cose
 
   // add styles for examples
   addVcExampleStyles();
@@ -436,10 +435,10 @@ async function createVcExamples() {
       await addProofTab(suiteEcdsaMultiKey);
     }
 
-    if(tabTypes.indexOf('jwt') > -1) {
-      addTab('jwt', 'Secured with JWT', async () => {
-        const jwtExample = await getJwtExample(privateKey, credential);
-        return getJwtHtml({jwtExample});
+    if(tabTypes.indexOf('jose') > -1) {
+      addTab('jose', 'Secured with JOSE', async () => {
+        const joseExample = await getJoseExample(privateKey, credential);
+        return getJoseHtml({jwtExample: joseExample});
       });
     }
 

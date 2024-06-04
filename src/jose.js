@@ -7,8 +7,12 @@ import {
 
 import * as jose from 'jose';
 
-// eslint-disable-next-line max-len
-const getCredential = async (privateKey, byteSigner, messageType, messageJson) => {
+const getCredential = async (
+  privateKey,
+  byteSigner,
+  messageType,
+  messageJson
+) => {
   return issuer({
     alg: privateKey.alg,
     type: messageType,
@@ -18,15 +22,19 @@ const getCredential = async (privateKey, byteSigner, messageType, messageJson) =
   });
 };
 
-// eslint-disable-next-line max-len
-const getPresentation = async (privateKey, byteSigner, messageType, messageJson) => {
-  // eslint-disable-next-line max-len
-  const disclosures = (messageJson.verifiableCredential || []).map(enveloped => {
+const getPresentation = async (
+  privateKey,
+  byteSigner,
+  messageType,
+  message
+) => {
+  const disclosures = (message.verifiableCredential || []).map(enveloped => {
     const {id} = enveloped;
-    // eslint-disable-next-line max-len
-    const type = id.includes('base64url') ? id.split(';base64url,')[0].replace('data:', '') : id.split(';')[0].replace('data:', '');
-    // eslint-disable-next-line max-len
-    const content = id.includes('base64url') ? new TextEncoder().encode(id.split('base64url,').pop()) : new TextEncoder().encode(id.split(';').pop());
+    const type = id.includes('base64url') ? id.split(';base64url,')[0].
+      replace('data:', '') : id.split(';')[0].replace('data:', '');
+    const content = id.includes('base64url') ?
+      new TextEncoder().encode(id.split('base64url,').pop()) :
+      new TextEncoder().encode(id.split(';').pop());
     return {
       type,
       credential: content,
@@ -37,7 +45,7 @@ const getPresentation = async (privateKey, byteSigner, messageType, messageJson)
     type: messageType,
   }).issue({
     signer: byteSigner,
-    presentation: messageJson,
+    presentation: message,
     disclosures,
   });
 };
@@ -45,11 +53,14 @@ const getPresentation = async (privateKey, byteSigner, messageType, messageJson)
 const getJwtHtml = token => {
   const [header, payload, signature] = token.split('.');
   return `
-<div class="jwt-compact"><span class="jwt-header">${header}</span>.<span class="sd-jwt-payload">${payload}</span>.<span class="sd-jwt-signature">${signature}</span></div>`;
+<div class="jwt-compact">
+<span class="jwt-header">${header}</span>
+.<span class="sd-jwt-payload">${payload}</span>
+.<span class="sd-jwt-signature">${signature}</span>
+</div>`.trim();
 };
 
 const getBinaryMessage = async (privateKey, messageType, messageJson) => {
-
   const byteSigner = {
     sign: async bytes => {
       const jws = await new jose.CompactSign(bytes)
@@ -74,11 +85,11 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
   }
 };
 
-export const getJwtExample = async (privateKey, messageJson) => {
-  // eslint-disable-next-line max-len
-  const type = Array.isArray(messageJson.type) ? messageJson.type : [messageJson.type];
-  // eslint-disable-next-line max-len
-  const messageType = type.includes('VerifiableCredential') ? 'application/vc+ld+json+jwt' : 'application/vp+ld+json+jwt';
+export const getJoseExample = async (privateKey, messageJson) => {
+  const type = Array.isArray(messageJson.type) ?
+    messageJson.type : [messageJson.type];
+  const messageType = type.includes('VerifiableCredential') ?
+    'application/vc+ld+json+jwt' : 'application/vp+ld+json+jwt';
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageEncoded = new TextDecoder().decode(message);
   const decodedHeader = jose.decodeProtectedHeader(messageEncoded);
