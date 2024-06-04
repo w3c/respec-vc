@@ -19,11 +19,11 @@ import {
 import examples2Context from './contexts/credentials/examples/v2';
 import {getCoseExample} from './src/cose';
 import {getJwtExample} from './src/jwt';
-import {getPrivateKey} from './src/key';
 import {getSdJwtExample} from './src/sd-jwt';
+import {privateKey} from './src/common';
 
 // default types
-const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'cose', 'jwt', 'sd-jwt'];
+const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'jwt', 'sd-jwt', 'cose'];
 // additional types: Ed25519Signature2020
 
 // purposes used below
@@ -160,7 +160,6 @@ async function createVcExamples() {
     cryptosuite: eddsaRdfc2022CryptoSuite,
   });
   // vc-jwt and vc-jose-cose
-  const privateKey = await getPrivateKey();
 
   // add styles for examples
   addVcExampleStyles();
@@ -286,13 +285,6 @@ async function createVcExamples() {
       await addProofTab(suiteEcdsaMultiKey);
     }
 
-    if(tabTypes.indexOf('cose') > -1) {
-      addTab('cose', 'Secured with COSE', async () => {
-        const coseExample = await getCoseExample(privateKey, credential);
-        return getCoseHtml({coseExample});
-      });
-    }
-
     if(tabTypes.indexOf('jwt') > -1) {
       addTab('jwt', 'Secured with JWT', async () => {
         const jwtExample = await getJwtExample(privateKey, credential);
@@ -305,6 +297,13 @@ async function createVcExamples() {
         // eslint-disable-next-line max-len
         const sdJwtExample = await getSdJwtExample(vcProofExampleIndex, privateKey, credential);
         return getSdJwtHtml({sdJwtExample});
+      });
+    }
+
+    if(tabTypes.indexOf('cose') > -1) {
+      addTab('cose', 'Secured with COSE', async () => {
+        const coseExample = await getCoseExample(privateKey, credential);
+        return getCoseHtml({coseExample});
       });
     }
 
