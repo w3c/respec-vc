@@ -113,7 +113,7 @@ export const getBinaryMessage = async (privateKey, messageType, messageJson) => 
 };
 
 // eslint-disable-next-line max-len
-export const getSdJwtExample = async (index, privateKey, messageJson, prefix = 'sd-jwt') => {
+export const  getSdJwtExample = async (index, privateKey, messageJson, prefix = 'sd-jwt') => {
   // eslint-disable-next-line max-len
   const type = Array.isArray(messageJson.type) ? messageJson.type : [messageJson.type];
   // eslint-disable-next-line max-len

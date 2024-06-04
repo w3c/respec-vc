@@ -26,7 +26,7 @@ module.exports = [{
         test: /node_modules\/fast-uri/,
         use: [
           {
-            loader: path.resolve('src/polyfill.js')
+            loader: path.resolve('src/fast-uri-polyfill.js')
           }
         ]
       }
