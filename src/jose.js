@@ -50,7 +50,7 @@ const getPresentation = async (
   });
 };
 
-const getJwtHtml = token => {
+const getJoseHtml = token => {
   const [header, payload, signature] = token.split('.');
   return `
 <div class="jwt-compact">
@@ -104,7 +104,7 @@ ${JSON.stringify(messageJson, null, 2)}
 </pre>
 <h1>${messageType}</h1>
 <div class="jose-text">
-${getJwtHtml(messageEncoded)}
+${getJoseHtml(messageEncoded)}
 </div>
   `.trim();
 };

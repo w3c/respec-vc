@@ -23,7 +23,8 @@ import {getSdJwtExample} from './src/sd-jwt';
 import {privateKey} from './src/common';
 
 // default types
-const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'jose', 'sd-jwt', 'cose'];
+const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022',
+  'jose', 'sd-jwt', 'cose'];
 // additional types: Ed25519Signature2020
 
 // purposes used below
@@ -438,7 +439,7 @@ async function createVcExamples() {
     if(tabTypes.indexOf('jose') > -1) {
       addTab('jose', 'Secured with JOSE', async () => {
         const joseExample = await getJoseExample(privateKey, credential);
-        return getJoseHtml({jwtExample: joseExample});
+        return getJoseHtml({joseExample});
       });
     }
 
