@@ -17,6 +17,7 @@ module.exports = [{
       crypto: require.resolve("crypto-browserify"),
       stream: require.resolve("stream-browserify"),
       vm: require.resolve("vm-browserify"),
+      url: require.resolve("url/"),
     },
   },
   module: {
@@ -25,7 +26,7 @@ module.exports = [{
         test: /node_modules\/fast-uri/,
         use: [
           {
-            loader: path.resolve('src/index.js')
+            loader: path.resolve('src/polyfill.js')
           }
         ]
       }

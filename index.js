@@ -1,40 +1,29 @@
-import * as bbs2023Cryptosuite from '@digitalbazaar/bbs-2023-cryptosuite';
-import * as Bls12381Multikey from '@digitalbazaar/bls12-381-multikey';
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
-import * as ecdsaRdfc2019Cryptosuite from
-  '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
 import * as ecdsaSd2023Cryptosuite
   from '@digitalbazaar/ecdsa-sd-2023-cryptosuite';
 import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
 import * as examples1Context from '@digitalbazaar/credentials-examples-context';
-import * as jose from 'jose';
-import * as mfHasher from 'multiformats/hashes/hasher';
 import * as odrlContext from '@digitalbazaar/odrl-context';
-import {base64pad, base64url} from 'multiformats/bases/base64';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {extendContextLoader, purposes} from 'jsonld-signatures';
-import {sha3_256, sha3_384} from '@noble/hashes/sha3';
-import {base16} from 'multiformats/bases/base16';
-import {base58btc} from 'multiformats/bases/base58';
+import {getCoseHtml, getJwtHtml, getSdJwtHtml} from './src/html';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
-import {Ed25519VerificationKey2020} from
-  '@digitalbazaar/ed25519-verification-key-2020';
-import {cryptosuite as eddsaRdfc2022CryptoSuite} from
-  '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
+import {
+  Ed25519VerificationKey2020,
+} from '@digitalbazaar/ed25519-verification-key-2020';
+import {
+  cryptosuite as eddsaRdfc2022CryptoSuite,
+} from '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
-import {sha256} from '@noble/hashes/sha256';
-import {sha384} from '@noble/hashes/sha512';
+import {getCoseExample} from './src/cose';
+import {getJwtExample} from './src/jwt';
+import {getSdJwtExample} from './src/sd-jwt';
+import {privateKey} from './src/common';
 
 // default types
-const TAB_TYPES = [
-  'ecdsa-rdfc-2019',
-  'eddsa-rdfc-2022',
-  'ecdsa-sd-2023',
-  'bbs-2023',
-  'vc-jwt'
-];
+const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'jwt', 'sd-jwt', 'cose'];
 // additional types: Ed25519Signature2020
 
 // purposes used below
@@ -56,135 +45,11 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
     return {
       contextUrl: null,
       documentUrl: url,
-      document: context
+      document: context,
     };
   }
   return defaultDocumentLoader(url);
 });
-
-async function createBBSExampleProof() {
-  const key = await Bls12381Multikey.generateBbsKeyPair({
-    algorithm: Bls12381Multikey.ALGORITHMS.BBS_BLS12381_SHA256
-  });
-
-  const proof = new DataIntegrityProof({
-    signer: key.signer(),
-    cryptosuite: bbs2023Cryptosuite.createSignCryptosuite({
-      mandatoryPointers: ['/issuer']
-    })
-  });
-
-  return {
-    proof,
-    key,
-    label: 'bbs'
-  };
-}
-
-async function createEcdsaRdfc2019ExampleProof() {
-  const key = await EcdsaMultikey
-    .generate({curve: 'P-256'});
-
-  // ecdsa-rdfc-2019
-  const {cryptosuite: rdfcCryptosuite} = ecdsaRdfc2019Cryptosuite;
-  const proof = new DataIntegrityProof({
-    signer: key.signer(),
-    cryptosuite: rdfcCryptosuite
-  });
-
-  return {
-    proof,
-    key,
-    label: 'ecdsa'
-  };
-}
-
-async function createEcdsaSd2023ExampleProof() {
-  const key = await EcdsaMultikey
-    .generate({curve: 'P-256'});
-
-  // ecdsa-sd-2023
-  const {createSignCryptosuite} = ecdsaSd2023Cryptosuite;
-  const proof = new DataIntegrityProof({
-    signer: key.signer(),
-    cryptosuite: createSignCryptosuite({
-      mandatoryPointers: ['/issuer']
-    })
-  });
-
-  return {
-    proof,
-    key,
-    label: 'ecdsa-sd'
-  };
-}
-
-async function createEddsaRdfc2022ExampleProof() {
-  // Ed25519Signature2020
-  const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
-    .generate();
-
-  const key = await Ed25519Multikey
-    .from(keyPairEd25519VerificationKey2020);
-
-  // eddsa-rdfc-2022
-  const proof = new DataIntegrityProof({
-    signer: key.signer(),
-    cryptosuite: eddsaRdfc2022CryptoSuite
-  });
-
-  return {
-    proof,
-    key,
-    label: 'eddsa'
-  };
-}
-
-// convert an XML Schema v1.` Datetime value to a UNIX timestamp
-function xmlDateTimeToUnixTimestamp(xmlDateTime) {
-  if(!xmlDateTime) {
-    return undefined;
-  }
-
-  return Date.parse(xmlDateTime) / 1000;
-}
-
-// transform the input credential to a JWT
-async function transformToJwt({credential, kid, jwk}) {
-  const header = {alg: 'ES256', typ: 'JWT', kid};
-  const payload = {
-    vc: credential
-  };
-  if(credential.expirationDate) {
-    payload.exp = xmlDateTimeToUnixTimestamp(credential.expirationDate);
-  }
-  if(credential.issuer) {
-    payload.iss = credential.issuer;
-  }
-  if(credential.issuanceDate) {
-    payload.nbf = xmlDateTimeToUnixTimestamp(credential.issuanceDate);
-  }
-  if(credential.id) {
-    payload.jti = credential.id;
-  }
-  if(credential.credentialSubject.id) {
-    payload.sub = credential.credentialSubject.id;
-  }
-
-  // create the JWT description
-  let description = '---------------- JWT header ---------------\n' +
-    JSON.stringify(header, null, 2);
-  description += '\n\n--------------- JWT payload ---------------\n' +
-    '// NOTE: The example below uses a valid VC-JWT serialization\n' +
-    '//       that duplicates the iss, nbf, jti, and sub fields in the\n' +
-    '//       Verifiable Credential (vc) field.\n\n' +
-    JSON.stringify(payload, null, 2);
-  const jwt = await new jose.SignJWT(payload)
-    .setProtectedHeader(header)
-    .sign(jwk.privateKey);
-
-  return description + '\n\n--------------- JWT ---------------\n\n' + jwt;
-}
 
 async function attachProof({credential, suite}) {
   const credentialCopy = JSON.parse(JSON.stringify(credential));
@@ -270,128 +135,31 @@ function addContext(url, context) {
 }
 
 async function createVcExamples() {
-  // process all 'vc-hash' entries
-  const sha2256Hasher = mfHasher.from({
-    name: 'sha2-256',
-    code: 0x12,
-    encode: input => sha256(input)
+  // generate base keypair and signature suites
+  // ecdsa-sd-2023
+  const keyPairEcdsaMultikeyKeyPair = await EcdsaMultikey
+    .generate({curve: 'P-256'});
+  const {createSignCryptosuite} = ecdsaSd2023Cryptosuite;
+  const suiteEcdsaMultiKey = new DataIntegrityProof({
+    signer: keyPairEcdsaMultikeyKeyPair.signer(),
+    cryptosuite: createSignCryptosuite({
+      mandatoryPointers: ['/issuer'],
+    }),
   });
-  const sha2384Hasher = mfHasher.from({
-    name: 'sha2-384',
-    code: 0x20,
-    encode: input => sha384(input)
-  });
-  const sha3256Hasher = mfHasher.from({
-    name: 'sha3-256',
-    code: 0x16,
-    encode: input => sha3_256(input)
-  });
-  const sha3384Hasher = mfHasher.from({
-    name: 'sha3-384',
-    code: 0x15,
-    encode: input => sha3_384(input)
-  });
-
-  const vcHashEntries = document.querySelectorAll('.vc-hash');
-  for(const hashEntry of vcHashEntries) {
-
-    // get the hash requirements
-    const hashUrl = hashEntry.dataset?.hashUrl || 'INVALID_URL';
-    const hashFormat = hashEntry.dataset?.hashFormat?.split(/(\s+)/) || [];
-    let encodedHash = null;
-
-    // select the base encoder (default: base64-url with no padding)
-    let baseEncoder;
-    if(hashFormat.includes('sri')) {
-      baseEncoder = base64pad;
-    } else if(hashFormat.includes('base16')) {
-      baseEncoder = base16;
-    } else if(hashFormat.includes('base58btc')) {
-      baseEncoder = base58btc;
-    } else {
-      baseEncoder = base64url;
-    }
-
-    // retrieve the file and generate the hash
-    try {
-      const response = await fetch(hashUrl);
-
-      // ensure retrieval succeeded
-      if(response.status !== 200) {
-        throw new Error('Failed to retrieve ' + hashUrl);
-      }
-      const hashData = new Uint8Array(await response.arrayBuffer());
-
-      // determine the hash algorithm to use and produce the output accordingly
-      if(hashFormat.includes('openssl') && hashFormat.includes('-sha256')) {
-        const mfHash = await sha2256Hasher.digest(hashData);
-        encodedHash = Array.prototype.map.call(mfHash.digest, byte => {
-          return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-        }).join('');
-      } else if(hashFormat.includes('sri')) {
-        if(hashFormat.includes('sha2-256')) {
-          const mfHash = await sha2256Hasher.digest(hashData);
-          encodedHash = 'sha256-' + baseEncoder.encode(mfHash.digest);
-        } else if(hashFormat.includes('sha2-384')) {
-          const mfHash = await sha2384Hasher.digest(hashData);
-          encodedHash = 'sha384-' + baseEncoder.encode(mfHash.digest);
-        }
-      } else if(hashFormat.includes('multihash')) {
-        if(hashFormat.includes('sha2-256')) {
-          const mfHash = await sha2256Hasher.digest(hashData).bytes;
-          encodedHash = baseEncoder.encode(mfHash);
-        } else if(hashFormat.includes('sha2-384')) {
-          const mfHash = await sha2384Hasher.digest(hashData).bytes;
-          encodedHash = baseEncoder.encode(mfHash);
-        } else if(hashFormat.includes('sha3-256')) {
-          const mfHash = await sha3256Hasher.digest(hashData).bytes;
-          encodedHash = baseEncoder.encode(mfHash);
-        } else if(hashFormat.includes('sha3-384')) {
-          const mfHash = await sha3384Hasher.digest(hashData).bytes;
-          encodedHash = baseEncoder.encode(mfHash);
-        }
-      }
-
-      // set the encodedHash value
-      hashEntry.innerText = encodedHash || 'Unsupported hash format: \'' +
-        hashEntry.dataset?.hashFormat + '\'';
-    } catch(e) {
-      console.error('respec-vc error: Failed to create cryptographic hash.',
-        e, hashEntry);
-      hashEntry.innerText = 'Error generating cryptographic hash for ' +
-        hashUrl;
-      continue;
-    }
-  }
-
-  // process all 'vc' entries
-  const exampleProofs = [];
-
-  // ecdsa-rdfc-2019
-  const ecdsaRdfc2019 = await createEcdsaRdfc2019ExampleProof();
-  exampleProofs.push(ecdsaRdfc2019);
-
   // Ed25519Signature2020
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
     .generate();
+  const keyPairEd25519Multikey = await Ed25519Multikey
+    .from(keyPairEd25519VerificationKey2020);
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
-    key: keyPairEd25519VerificationKey2020
+    key: keyPairEd25519VerificationKey2020,
   });
-
   // eddsa-rdfc-2022
-  const eddsaRdfc2022 = await createEddsaRdfc2022ExampleProof();
-  exampleProofs.push(eddsaRdfc2022);
-
-  // ecdsa-sd-2023
-  const ecdsaSd2023 = await createEcdsaSd2023ExampleProof();
-  exampleProofs.push(ecdsaSd2023);
-
-  // bbs-2023
-  const bbs2023 = await createBBSExampleProof();
-  exampleProofs.push(bbs2023);
-
-  // vc-jwt
-  const jwk = await jose.generateKeyPair('ES256');
+  const suiteEd25519Multikey = new DataIntegrityProof({
+    signer: keyPairEd25519Multikey.signer(),
+    cryptosuite: eddsaRdfc2022CryptoSuite,
+  });
+  // vc-jwt and vc-jose-cose
 
   // add styles for examples
   addVcExampleStyles();
@@ -440,10 +208,9 @@ async function createVcExamples() {
      *
      * @param {string} suffix - One of the TAB_TYPES values (or `unsigned`).
      * @param {string} labelText - Human readable label name.
-     * @param {string} tabText - Text to display on the tab.
      * @param {contentCallback} callback - Function which returns HTML.
      */
-    function addTab(suffix, labelText, tabText, callback) {
+    function addTab(suffix, labelText, callback) {
       const button = document.createElement('input');
       button.setAttribute('type', 'radio');
       button.setAttribute('id', `vc-tab${vcProofExampleIndex}${suffix}`);
@@ -457,16 +224,8 @@ async function createVcExamples() {
 
       const label = document.createElement('li');
       label.setAttribute('class', 'vc-tab');
-
-      const tabLabel = document.createElement('label');
-      tabLabel.setAttribute('for', button.getAttribute('id'));
-
-      const abbr = document.createElement('abbr');
-      abbr.setAttribute('title', labelText);
-      abbr.innerText = tabText;
-
-      tabLabel.appendChild(abbr);
-      label.appendChild(tabLabel);
+      label.innerHTML =
+        `<label for='${button.getAttribute('id')}'>${labelText}</label>`;
       tabLabels.appendChild(label);
 
       const content = document.createElement('div');
@@ -483,25 +242,23 @@ async function createVcExamples() {
       }
     }
 
-    /**
-     * Add a Data Integrity based proof example tab.
-     *
+    /*
+     * Add a Data Integrity based proof example tab
      * @global string verificationMethod
-     * @param {object} suite - Suite object.
-     * @param {string} tabText - Text to display on the tab.
-     * @param {string | undefined} key - Optional key to use for the proof.
+     * @param object suite
      */
-    async function addProofTab(suite, tabText, key) {
+    async function addProofTab(suite) {
       let verifiableCredentialProof;
       const label = suite?.cryptosuite || suite.type;
 
-      if(key) {
-        suite.verificationMethod = 'did:key:' + key.publicKeyMultibase;
+      if(label === 'ecdsa-sd-2023') {
+        suite.verificationMethod = 'did:key:' + keyPairEcdsaMultikeyKeyPair
+          .publicKeyMultibase;
       } else {
         suite.verificationMethod = verificationMethod;
       }
 
-      addTab(label, `Secured with Data Integrity - ${label}`, tabText, async () => {
+      addTab(label, `Secured with Data Integrity (${label})`, async () => {
         // attach the proof
         try {
           verifiableCredentialProof = await attachProof({credential, suite});
@@ -515,44 +272,39 @@ async function createVcExamples() {
       });
     }
 
-    function hasTab(identifier) {
-      return tabTypes.indexOf(identifier) > -1;
-    }
-
     // set up the unsigned button
-    addTab(
-      'unsigned',
-      'Unsecured credential',
-      'Credential',
-      () => example.outerHTML
-    );
+    addTab('unsigned', 'Verifiable Credential', () => example.outerHTML);
 
-    for(const {proof, key, label} of exampleProofs) {
-      if(hasTab(proof.cryptosuite)) {
-        await addProofTab(proof, label, key);
-      }
+    if(tabTypes.indexOf(suiteEd25519Signature2020.type) > -1) {
+      await addProofTab(suiteEd25519Signature2020);
+    }
+    if(tabTypes.indexOf(suiteEd25519Multikey.cryptosuite) > -1) {
+      await addProofTab(suiteEd25519Multikey);
+    }
+    if(tabTypes.indexOf(suiteEcdsaMultiKey.cryptosuite) > -1) {
+      await addProofTab(suiteEcdsaMultiKey);
     }
 
-    if(hasTab(suiteEd25519Signature2020.type)) {
-      await addProofTab(suiteEd25519Signature2020, 'Ed25519Signature2020');
+    if(tabTypes.indexOf('jwt') > -1) {
+      addTab('jwt', 'Secured with JWT', async () => {
+        const jwtExample = await getJwtExample(privateKey, credential);
+        return getJwtHtml({jwtExample});
+      });
     }
 
-    if(hasTab('vc-jwt')) {
-      // set up the signed JWT button
-      addTab('vc-jwt', 'Secured with VC-JWT', 'vc-jwt',
-        async () => {
-          // convert to a JWT
-          let verifiableCredentialJwt;
-          try {
-            verifiableCredentialJwt = await transformToJwt({
-              credential, kid: verificationMethod, jwk});
-            return `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`;
-          } catch(e) {
-            console.error(
-              'respec-vc error: Failed to convert Credential to JWT.',
-              e, example.innerText);
-          }
-        });
+    if(tabTypes.indexOf('sd-jwt') > -1) {
+      addTab('sd-jwt', 'Secured with SD-JWT', async () => {
+        // eslint-disable-next-line max-len
+        const sdJwtExample = await getSdJwtExample(vcProofExampleIndex, privateKey, credential);
+        return getSdJwtHtml({sdJwtExample});
+      });
+    }
+
+    if(tabTypes.indexOf('cose') > -1) {
+      addTab('cose', 'Secured with COSE', async () => {
+        const coseExample = await getCoseExample(privateKey, credential);
+        return getCoseHtml({coseExample});
+      });
     }
 
     // append the tabbed content
@@ -569,5 +321,5 @@ async function createVcExamples() {
 // setup exports on window
 window.respecVc = {
   addContext,
-  createVcExamples
+  createVcExamples,
 };
