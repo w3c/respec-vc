@@ -3,9 +3,25 @@
 ## x.x.x - yyyy-mm-dd
 
 ### Added
-- Added `ecdsa-sd-2023` integration and tab option.
+-
 
 ### Changed
+-
+
+### Fixed
+-
+
+## 3.1.0 - 2024-06-02
+
+### Added
+- Option to generate URL digests for openssl, digestSRI, and digestMultibase.
+- `ecdsa-sd-2023` integration and tab option.
+- `ecdsa-rdfc-2019` integration and tab option.
+- `bbs-2023` integration and tab option.
+
+### Changed
+- Refactored instantiation of proofs to include key material.
+- Reworked tab titles to reduce space requirement.
 - Tab clicks now initiate credential example creation.
 
 ### Fixed

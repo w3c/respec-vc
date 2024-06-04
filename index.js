@@ -2,7 +2,7 @@ import * as bbs2023Cryptosuite from '@digitalbazaar/bbs-2023-cryptosuite';
 import * as Bls12381Multikey from '@digitalbazaar/bls12-381-multikey';
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
 import * as ecdsaRdfc2019Cryptosuite from
-    '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
+  '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
 import * as ecdsaSd2023Cryptosuite
   from '@digitalbazaar/ecdsa-sd-2023-cryptosuite';
 import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
@@ -20,9 +20,9 @@ import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {Ed25519VerificationKey2020} from
-    '@digitalbazaar/ed25519-verification-key-2020';
+  '@digitalbazaar/ed25519-verification-key-2020';
 import {cryptosuite as eddsaRdfc2022CryptoSuite} from
-    '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
+  '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
 import {sha256} from '@noble/hashes/sha256';
 import {sha384} from '@noble/hashes/sha512';
@@ -33,7 +33,7 @@ const TAB_TYPES = [
   'eddsa-rdfc-2022',
   'ecdsa-sd-2023',
   'bbs-2023',
-  'vc-jwt',
+  'vc-jwt'
 ];
 // additional types: Ed25519Signature2020
 
@@ -56,7 +56,7 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
     return {
       contextUrl: null,
       documentUrl: url,
-      document: context,
+      document: context
     };
   }
   return defaultDocumentLoader(url);
@@ -64,20 +64,20 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
 
 async function createBBSExampleProof() {
   const key = await Bls12381Multikey.generateBbsKeyPair({
-    algorithm: Bls12381Multikey.ALGORITHMS.BBS_BLS12381_SHA256,
+    algorithm: Bls12381Multikey.ALGORITHMS.BBS_BLS12381_SHA256
   });
 
   const proof = new DataIntegrityProof({
     signer: key.signer(),
     cryptosuite: bbs2023Cryptosuite.createSignCryptosuite({
-      mandatoryPointers: ['/issuer'],
-    }),
+      mandatoryPointers: ['/issuer']
+    })
   });
 
   return {
     proof,
     key,
-    label: 'bbs',
+    label: 'bbs'
   };
 }
 
@@ -89,13 +89,13 @@ async function createEcdsaRdfc2019ExampleProof() {
   const {cryptosuite: rdfcCryptosuite} = ecdsaRdfc2019Cryptosuite;
   const proof = new DataIntegrityProof({
     signer: key.signer(),
-    cryptosuite: rdfcCryptosuite,
+    cryptosuite: rdfcCryptosuite
   });
 
   return {
     proof,
     key,
-    label: 'ecdsa',
+    label: 'ecdsa'
   };
 }
 
@@ -108,14 +108,14 @@ async function createEcdsaSd2023ExampleProof() {
   const proof = new DataIntegrityProof({
     signer: key.signer(),
     cryptosuite: createSignCryptosuite({
-      mandatoryPointers: ['/issuer'],
-    }),
+      mandatoryPointers: ['/issuer']
+    })
   });
 
   return {
     proof,
     key,
-    label: 'ecdsa-sd',
+    label: 'ecdsa-sd'
   };
 }
 
@@ -130,13 +130,13 @@ async function createEddsaRdfc2022ExampleProof() {
   // eddsa-rdfc-2022
   const proof = new DataIntegrityProof({
     signer: key.signer(),
-    cryptosuite: eddsaRdfc2022CryptoSuite,
+    cryptosuite: eddsaRdfc2022CryptoSuite
   });
 
   return {
     proof,
     key,
-    label: 'eddsa',
+    label: 'eddsa'
   };
 }
 
@@ -153,7 +153,7 @@ function xmlDateTimeToUnixTimestamp(xmlDateTime) {
 async function transformToJwt({credential, kid, jwk}) {
   const header = {alg: 'ES256', typ: 'JWT', kid};
   const payload = {
-    vc: credential,
+    vc: credential
   };
   if(credential.expirationDate) {
     payload.exp = xmlDateTimeToUnixTimestamp(credential.expirationDate);
@@ -274,22 +274,22 @@ async function createVcExamples() {
   const sha2256Hasher = mfHasher.from({
     name: 'sha2-256',
     code: 0x12,
-    encode: input => sha256(input),
+    encode: input => sha256(input)
   });
   const sha2384Hasher = mfHasher.from({
     name: 'sha2-384',
     code: 0x20,
-    encode: input => sha384(input),
+    encode: input => sha384(input)
   });
   const sha3256Hasher = mfHasher.from({
     name: 'sha3-256',
     code: 0x16,
-    encode: input => sha3_256(input),
+    encode: input => sha3_256(input)
   });
   const sha3384Hasher = mfHasher.from({
     name: 'sha3-384',
     code: 0x15,
-    encode: input => sha3_384(input),
+    encode: input => sha3_384(input)
   });
 
   const vcHashEntries = document.querySelectorAll('.vc-hash');
@@ -375,7 +375,7 @@ async function createVcExamples() {
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
     .generate();
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
-    key: keyPairEd25519VerificationKey2020,
+    key: keyPairEd25519VerificationKey2020
   });
 
   // eddsa-rdfc-2022
@@ -524,7 +524,7 @@ async function createVcExamples() {
       'unsigned',
       'Unsecured credential',
       'Credential',
-      () => example.outerHTML,
+      () => example.outerHTML
     );
 
     for(const {proof, key, label} of exampleProofs) {
@@ -545,8 +545,7 @@ async function createVcExamples() {
           let verifiableCredentialJwt;
           try {
             verifiableCredentialJwt = await transformToJwt({
-              credential, kid: verificationMethod, jwk,
-            });
+              credential, kid: verificationMethod, jwk});
             return `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`;
           } catch(e) {
             console.error(
@@ -570,5 +569,5 @@ async function createVcExamples() {
 // setup exports on window
 window.respecVc = {
   addContext,
-  createVcExamples,
+  createVcExamples
 };
