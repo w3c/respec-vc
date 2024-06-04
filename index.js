@@ -3,21 +3,27 @@ import * as ecdsaSd2023Cryptosuite
   from '@digitalbazaar/ecdsa-sd-2023-cryptosuite';
 import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
 import * as examples1Context from '@digitalbazaar/credentials-examples-context';
-import * as jose from 'jose';
 import * as odrlContext from '@digitalbazaar/odrl-context';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {extendContextLoader, purposes} from 'jsonld-signatures';
+import {getCoseHtml, getJwtHtml, getSdJwtHtml} from './src/html';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
-import {Ed25519VerificationKey2020} from
-  '@digitalbazaar/ed25519-verification-key-2020';
-import {cryptosuite as eddsaRdfc2022CryptoSuite} from
-  '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
+import {
+  Ed25519VerificationKey2020,
+} from '@digitalbazaar/ed25519-verification-key-2020';
+import {
+  cryptosuite as eddsaRdfc2022CryptoSuite,
+} from '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
+import {getCoseExample} from './src/cose';
+import {getJwtExample} from './src/jwt';
+import {getPrivateKey} from './src/key';
+import {getSdJwtExample} from './src/sd-jwt';
 
 // default types
-const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'vc-jwt'];
+const TAB_TYPES = ['ecdsa-sd-2023', 'eddsa-rdfc-2022', 'cose', 'jwt', 'sd-jwt'];
 // additional types: Ed25519Signature2020
 
 // purposes used below
@@ -39,57 +45,11 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
     return {
       contextUrl: null,
       documentUrl: url,
-      document: context
+      document: context,
     };
   }
   return defaultDocumentLoader(url);
 });
-
-// convert an XML Schema v1.` Datetime value to a UNIX timestamp
-function xmlDateTimeToUnixTimestamp(xmlDateTime) {
-  if(!xmlDateTime) {
-    return undefined;
-  }
-
-  return Date.parse(xmlDateTime) / 1000;
-}
-
-// transform the input credential to a JWT
-async function transformToJwt({credential, kid, jwk}) {
-  const header = {alg: 'ES256', typ: 'JWT', kid};
-  const payload = {
-    vc: credential
-  };
-  if(credential.expirationDate) {
-    payload.exp = xmlDateTimeToUnixTimestamp(credential.expirationDate);
-  }
-  if(credential.issuer) {
-    payload.iss = credential.issuer;
-  }
-  if(credential.issuanceDate) {
-    payload.nbf = xmlDateTimeToUnixTimestamp(credential.issuanceDate);
-  }
-  if(credential.id) {
-    payload.jti = credential.id;
-  }
-  if(credential.credentialSubject.id) {
-    payload.sub = credential.credentialSubject.id;
-  }
-
-  // create the JWT description
-  let description = '---------------- JWT header ---------------\n' +
-    JSON.stringify(header, null, 2);
-  description += '\n\n--------------- JWT payload ---------------\n' +
-    '// NOTE: The example below uses a valid VC-JWT serialization\n' +
-    '//       that duplicates the iss, nbf, jti, and sub fields in the\n' +
-    '//       Verifiable Credential (vc) field.\n\n' +
-    JSON.stringify(payload, null, 2);
-  const jwt = await new jose.SignJWT(payload)
-    .setProtectedHeader(header)
-    .sign(jwk.privateKey);
-
-  return description + '\n\n--------------- JWT ---------------\n\n' + jwt;
-}
 
 async function attachProof({credential, suite}) {
   const credentialCopy = JSON.parse(JSON.stringify(credential));
@@ -183,8 +143,8 @@ async function createVcExamples() {
   const suiteEcdsaMultiKey = new DataIntegrityProof({
     signer: keyPairEcdsaMultikeyKeyPair.signer(),
     cryptosuite: createSignCryptosuite({
-      mandatoryPointers: ['/issuer']
-    })
+      mandatoryPointers: ['/issuer'],
+    }),
   });
   // Ed25519Signature2020
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
@@ -192,15 +152,15 @@ async function createVcExamples() {
   const keyPairEd25519Multikey = await Ed25519Multikey
     .from(keyPairEd25519VerificationKey2020);
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
-    key: keyPairEd25519VerificationKey2020
+    key: keyPairEd25519VerificationKey2020,
   });
   // eddsa-rdfc-2022
   const suiteEd25519Multikey = new DataIntegrityProof({
     signer: keyPairEd25519Multikey.signer(),
-    cryptosuite: eddsaRdfc2022CryptoSuite
+    cryptosuite: eddsaRdfc2022CryptoSuite,
   });
-  // vc-jwt
-  const jwk = await jose.generateKeyPair('ES256');
+  // vc-jwt and vc-jose-cose
+  const privateKey = await getPrivateKey();
 
   // add styles for examples
   addVcExampleStyles();
@@ -326,22 +286,26 @@ async function createVcExamples() {
       await addProofTab(suiteEcdsaMultiKey);
     }
 
-    if(tabTypes.indexOf('vc-jwt') > -1) {
-      // set up the signed JWT button
-      addTab('vc-jwt', 'Secured with VC-JWT',
-        async () => {
-          // convert to a JWT
-          let verifiableCredentialJwt;
-          try {
-            verifiableCredentialJwt = await transformToJwt({
-              credential, kid: verificationMethod, jwk});
-            return `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`;
-          } catch(e) {
-            console.error(
-              'respec-vc error: Failed to convert Credential to JWT.',
-              e, example.innerText);
-          }
-        });
+    if(tabTypes.indexOf('cose') > -1) {
+      addTab('cose', 'Secured with COSE', async () => {
+        const coseExample = await getCoseExample(privateKey, credential);
+        return getCoseHtml({coseExample});
+      });
+    }
+
+    if(tabTypes.indexOf('jwt') > -1) {
+      addTab('jwt', 'Secured with JWT', async () => {
+        const jwtExample = await getJwtExample(privateKey, credential);
+        return getJwtHtml({jwtExample});
+      });
+    }
+
+    if(tabTypes.indexOf('sd-jwt') > -1) {
+      addTab('sd-jwt', 'Secured with SD-JWT', async () => {
+        // eslint-disable-next-line max-len
+        const sdJwtExample = await getSdJwtExample(vcProofExampleIndex, privateKey, credential);
+        return getSdJwtHtml({sdJwtExample});
+      });
     }
 
     // append the tabbed content
@@ -358,5 +322,5 @@ async function createVcExamples() {
 // setup exports on window
 window.respecVc = {
   addContext,
-  createVcExamples
+  createVcExamples,
 };

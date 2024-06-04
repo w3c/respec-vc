@@ -42,7 +42,7 @@ tabs displayed:
 On by default:
 * `ecdsa-sd-2023` - https://www.w3.org/TR/vc-di-ecdsa/
 * `eddsa-rdfc-2022` - https://www.w3.org/TR/vc-di-eddsa/
-* `vc-jwt` - https://w3c.github.io/vc-jose-cose/
+* `vc-jose-cose` - https://w3.org/TR/vc-jose-cose/
 
 Optional:
 * `Ed25519Signature2020` - https://www.w3.org/TR/vc-di-eddsa/#the-ed25519signature2020-suite
