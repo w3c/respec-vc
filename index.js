@@ -517,7 +517,7 @@ async function createVcExamples() {
     const verificationMethod = example.dataset?.vcVm ||
       'did:key:' + keyPairEd25519VerificationKey2020.publicKeyMultibase;
 
-    const tabTypes = example.dataset?.vcTabs || TAB_TYPES;
+    const tabTypes = example.dataset?.vcTabs?.split(' ') || TAB_TYPES;
 
     // extract and parse the example as JSON
     let credential = {};
