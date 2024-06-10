@@ -38,8 +38,8 @@ To use this extension, you must add the `vc` class to your examples.
 
 ### Set Specific Tabs to Display
 
-The `data-vc-tabs` property can be set to the following values to customize the
-tabs displayed:
+The `data-vc-tabs` property can be set to a space delimited list containing any
+of the following values to customize the tabs displayed:
 
 On by default:
 * `ecdsa-rdfc-2019` - https://www.w3.org/TR/vc-di-ecdsa/
@@ -52,6 +52,28 @@ Optional:
 * `Ed25519Signature2020` - https://www.w3.org/TR/vc-di-eddsa/#the-ed25519signature2020-suite
 * `sd-jwt` - https://www.w3.org/TR/vc-jose-cose/#with-sd-jwt
 * `cose` - https://www.w3.org/TR/vc-jose-cose/#securing-with-cose
+
+```html
+<pre class="example nohighlight vc" title="Usage of the id property"
+  data-vc-tabs="bbs-2023 vc-jwt">
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1"
+  ],
+  <span class="highlight">"id": "http://example.edu/credentials/3732"</span>,
+  "type": ["VerifiableCredential", "UniversityDegreeCredential"],
+  "issuer": "https://example.edu/issuers/565049",
+  "issuanceDate": "2010-01-01T00:00:00Z",
+  "credentialSubject": {
+    <span class="highlight">"id": "did:example:ebfeb1f712ebc6f1c276e12ec21"</span>,
+    "degree": {
+      "type": "BachelorDegree",
+      "name": "Bachelor of Science and Arts"
+    }
+  }
+}
+</pre>
 
 ### Set Verification Method
 
