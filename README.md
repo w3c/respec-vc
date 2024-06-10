@@ -36,8 +36,7 @@ To use this extension, you must add the `vc` class to your examples.
 
 ## Options
 
-The `data-vc-vm` option can be used to provide a digital proof verification
-method (e.g., a URL to a public key).
+### Set Specific Tabs to Display
 
 The `data-vc-tabs` property can be set to the following values to customize the
 tabs displayed:
@@ -53,6 +52,11 @@ Optional:
 * `Ed25519Signature2020` - https://www.w3.org/TR/vc-di-eddsa/#the-ed25519signature2020-suite
 * `sd-jwt` - https://www.w3.org/TR/vc-jose-cose/#with-sd-jwt
 * `cose` - https://www.w3.org/TR/vc-jose-cose/#securing-with-cose
+
+### Set Verification Method
+
+The `data-vc-vm` option can be used to provide a digital proof verification
+method (e.g., a URL to a public key):
 
 ```html
 <pre class="example nohighlight vc" title="Usage of the id property"
