@@ -11,6 +11,11 @@
 ### Fixed
 -
 
+## 3.x.x - yyyy-mm-dd
+
+### Fixed
+- Fixed `data-vc-tabs` to work with multiple space delimited values.
+
 ## 3.1.0 - 2024-06-02
 
 ### Added
