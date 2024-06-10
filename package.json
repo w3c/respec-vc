@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-    "start": "http-server .",
+    "start": "http-server . -c-1",
     "build": "webpack",
     "lint": "eslint --ext .cjs,.js ."
   },
