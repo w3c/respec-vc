@@ -162,14 +162,14 @@ export const getSdJwtExample = async (
       </li>
     </ul>
     <div class="sd-jwt-tab-content" id="${prefix}-content-${index}-encoded">
-        ${encoded}
+      ${encoded}
     </div>
     <div class="sd-jwt-tab-content" id="${prefix}-content-${index}-decoded">
       ${header}
       ${payload}
     </div>
     <div class="sd-jwt-tab-content" id="${prefix}-content-${index}-disclosures">
-        ${disclosures}
+      ${disclosures}
     </div>
 </div>
 `;

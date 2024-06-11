@@ -55,8 +55,8 @@ const getJoseHtml = token => {
   return `
 <div class="jwt-compact">
 <span class="jwt-header">${header}</span>
-.<span class="sd-jwt-payload">${payload}</span>
-.<span class="sd-jwt-signature">${signature}</span>
+.<span class="jwt-payload">${payload}</span>
+.<span class="jwt-signature">${signature}</span>
 </div>`.trim();
 };
 

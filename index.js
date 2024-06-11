@@ -21,9 +21,9 @@ import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {Ed25519VerificationKey2020} from
-  '@digitalbazaar/ed25519-verification-key-2020';
+    '@digitalbazaar/ed25519-verification-key-2020';
 import {cryptosuite as eddsaRdfc2022CryptoSuite} from
-  '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
+    '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
 import {getCoseExample} from './src/cose';
 import {getJoseExample} from './src/jose';
@@ -168,193 +168,209 @@ function addVcExampleStyles() {
     });
 
   exampleStyles.innerHTML += `
-  .vc-tabbed {
-    overflow-x: hidden;
-    margin: 0 0;
-  }
+.vc-tabbed {
+  overflow-x: hidden;
+  margin: 0 0;
+}
 
-  .vc-tabbed [type="radio"] {
-    display: none;
-  }
+.vc-tabbed [type="radio"] {
+  display: none;
+}
 
-  .vc-tabs {
-    display: flex;
-    align-items: stretch;
-    list-style: none;
-    padding: 0;
-    border-bottom: 1px solid #ccc;
-  }
+.vc-tabs {
+  display: flex;
+  align-items: stretch;
+  list-style: none;
+  padding: 0;
+  border-bottom: 1px solid #ccc;
+}
 
-  li.vc-tab {
-    margin: unset;
-  }
+li.vc-tab {
+  margin: unset;
+}
 
-  .vc-tab > label {
-    display: block;
-    margin-bottom: -1px;
-    padding: .4em .5em;
-    border: 1px solid #ccc;
-    border-top-right-radius: .4em;
-    border-top-left-radius: .4em;
-    background: #eee;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
+.vc-tab > label {
+  display: block;
+  margin-bottom: -1px;
+  padding: .4em .5em;
+  border: 1px solid #ccc;
+  border-top-right-radius: .4em;
+  border-top-left-radius: .4em;
+  background: #eee;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s;
+}
 
-  .vc-tab:hover label {
-    border-left-color: #333;
-    border-top-color: #333;
-    border-right-color: #333;
-    color: #333;
-  }
+.vc-tab:hover label {
+  border-left-color: #333;
+  border-top-color: #333;
+  border-right-color: #333;
+  color: #333;
+}
 
-  .vc-tab-content {
-    display: none;
-  }
+.vc-tab-content {
+  display: none;
+}
 
-  ${radioLabels.join(',\n  ')} {
-    border-bottom-color: #fff;
-    background: #fff;
-    color: #222;
-  }
+.vc-jose-cose-tabbed, .vc-jose-cose-tabbed-jwt,
+.vc-jose-cose-tabbed-sd-jwt, .vc-jose-cose-tabbed-cose,
+.sd-jwt-tabbed {
+  overflow-x: hidden;
+  margin: 0 0;
+}
 
-  ${radioSelector.join(',\n  ')} {
-    display: block;
-  }
+.vc-jose-cose-tabbed h1, .vc-jose-cose-jwt-tabbed h1,
+.vc-jose-cose-sd-jwt-tabbed h1, .vc-jose-cose-cose-tabbed h1,
+.sd-jwt-tabbed h1 {
+  font-size: 1em;
+  margin: 0 0;
+}
 
-  .vc-jose-cose-tabbed, .vc-jose-cose-tabbed-jwt, .vc-jose-cose-tabbed-sd-jwt, .vc-jose-cose-tabbed-cose,
-  .sd-jwt-tabbed {
-    overflow-x: hidden;
-    margin: 0 0;
-  }
-  .vc-jose-cose-tabbed h1, .vc-jose-cose-jwt-tabbed h1, .vc-jose-cose-sd-jwt-tabbed h1, .vc-jose-cose-cose-tabbed h1,
-  .sd-jwt-tabbed h1 {
-    font-size: 1em;
-    margin: 0 0;
-  }
-  .vc-jose-cose-tabbed [type="radio"], .vc-jose-cose-tabbed-jwt [type="radio"], .vc-jose-cose-tabbed-sd-jwt [type="radio"], .vc-jose-cose-tabbed-cose [type="radio"],
-  .sd-jwt-tabbed [type="radio"] {
-    display: none;
-  }
-  .vc-jose-cose-tabs, .vc-jose-cose-jwt-tabs, .vc-jose-cose-sd-jwt-tabs, .vc-jose-cose-cose-tabs,
-  .sd-jwt-tabs {
-    display: flex;
-    align-items: stretch;
-    list-style: none;
-    padding: 0;
-    border-bottom: 1px solid #ccc;
-  }
-  li.vc-jose-cose-tab, li.vc-jose-cose-jwt-tab, li.vc-jose-cose-sd-jwt-tab, li.vc-jose-cose-cose-tab,
-  li.sd-jwt-tab {
-    margin: 0 0;
-    margin-left: 8px;
-  }
-  .vc-jose-cose-tab>label, .vc-jose-cose-jwt-tab>label, .vc-jose-cose-sd-jwt-tab>label, .vc-jose-cose-cose-tab>label,
-  .sd-jwt-tab>label {
-    display: block;
-    margin-bottom: -1px;
-    padding: .4em .5em;
-    border: 1px solid #ccc;
-    border-top-right-radius: .4em;
-    border-top-left-radius: .4em;
-    background: #eee;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .vc-jose-cose-tab:hover label, .vc-jose-cose-jwt-tab:hover label, .vc-jose-cose-sd-jwt-tab:hover label, .vc-jose-cose-cose-tab:hover label,
-  .sd-jwt-tab:hover label {
-    border-left-color: #333;
-    border-top-color: #333;
-    border-right-color: #333;
-    color: #333;
-  }
-  .vc-jose-cose-tab-content,
-  .sd-jwt-tab-content {
-    display: none;
-  }
-  .vc-jose-cose-tabbed [type="radio"]:nth-of-type(1):checked~.vc-jose-cose-tabs .vc-jose-cose-tab:nth-of-type(1) label,
-  .vc-jose-cose-tabbed [type="radio"]:nth-of-type(2):checked~.vc-jose-cose-tabs .vc-jose-cose-tab:nth-of-type(2) label,
-  .vc-jose-cose-tabbed [type="radio"]:nth-of-type(3):checked~.vc-jose-cose-tabs .vc-jose-cose-tab:nth-of-type(3) label,
-  .sd-jwt-tabbed [type="radio"]:nth-of-type(1):checked~.sd-jwt-tabs .sd-jwt-tab:nth-of-type(1) label,
-  .sd-jwt-tabbed [type="radio"]:nth-of-type(2):checked~.sd-jwt-tabs .sd-jwt-tab:nth-of-type(2) label,
-  .sd-jwt-tabbed [type="radio"]:nth-of-type(3):checked~.sd-jwt-tabs .sd-jwt-tab:nth-of-type(3) label {
-    border-bottom-color: #fff;
-    background: #fff;
-    color: #222;
-  }
-  .vc-jose-cose-tabbed [type="radio"]:nth-of-type(1):checked~.vc-jose-cose-tab-content:nth-of-type(1),
-  .vc-jose-cose-tabbed [type="radio"]:nth-of-type(2):checked~.vc-jose-cose-tab-content:nth-of-type(2),
-  .vc-jose-cose-tabbed [type="radio"]:nth-of-type(3):checked~.vc-jose-cose-tab-content:nth-of-type(3),
-  .sd-jwt-tabbed [type="radio"]:nth-of-type(1):checked~.sd-jwt-tab-content:nth-of-type(1),
-  .sd-jwt-tabbed [type="radio"]:nth-of-type(2):checked~.sd-jwt-tab-content:nth-of-type(2),
-  .sd-jwt-tabbed [type="radio"]:nth-of-type(3):checked~.sd-jwt-tab-content:nth-of-type(3) {
-    display: block;
-  }
-  .sd-jwt-header, .jwt-header, .vc-jose-cose-jwt .header, .vc-jose-cose-sd-jwt .header, .vc-jose-cose-cose .header {
-    color: red;
-  }
-  .sd-jwt-payload, .jwt-payload, .vc-jose-cose-jwt .payload, .vc-jose-cose-sd-jwt .payload, .vc-jose-cose-cose .payload {
-    color: green;
-  }
-  .sd-jwt-signature, .jwt-signature, .vc-jose-cose-jwt .signature, .vc-jose-cose-sd-jwt .signature, .vc-jose-cose-cose .signature {
-    color: blue;
-  }
-  .sd-jwt-disclosure, .vc-jose-cose-jwt .disclosure, .vc-jose-cose-sd-jwt .disclosure, .vc-jose-cose-cose .disclosure {
-    color: purple;
-  }
-  .sd-jwt-compact, .jwt-compact, .vc-jose-cose-jwt .compact, .vc-jose-cose-sd-jwt .compact, .vc-jose-cose-cose .compact {
-    background-color: rgba(0,0,0,.03);
-  }
-  .cose-text, .jose-text, .vc-jose-cose-jwt .text, .vc-jose-cose-sd-jwt .text, .vc-jose-cose-cose .text {
-    font-family: monospace;
-    color: green;
-  }
-  .disclosure {
-      margin: 10px 0;
-      font-size: 12px;
-      line-height: 1.6;
-      padding: 5px;
-  }
-  .disclosure h3 {
-      margin: 0;
-      font-size: 14px;
-      padding-left: 5px;
-  }
-  .disclosure .claim-name {
-      color: #333;
-  }
-  .disclosure .hash,
-  .disclosure .disclosure-value,
-  .disclosure .contents {
-      color: #555;
-      word-wrap: break-word;
-      display: inline;
-  }
-  .disclosure p {
-      margin: 0;
-      padding-left: 5px;
-  }
-  .disclosure pre {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      margin: 0;
-      padding-left: 5px;
-      line-height: 1.6;
-      display: inline-block;
-  }
-  .header-value {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      margin: 0;
-      padding-left: 5px;
-      line-height: 1.6;
-      font-size: 12px;
-  }
-  .vc-tab-content {
-    display: none;
-  }`;
+.vc-jose-cose-tabbed [type="radio"], .vc-jose-cose-tabbed-jwt [type="radio"],
+.vc-jose-cose-tabbed-sd-jwt [type="radio"],
+.vc-jose-cose-tabbed-cose [type="radio"],
+.sd-jwt-tabbed [type="radio"] {
+  display: none;
+}
+
+.vc-jose-cose-tabs, .vc-jose-cose-jwt-tabs, .vc-jose-cose-sd-jwt-tabs,
+.vc-jose-cose-cose-tabs,
+.sd-jwt-tabs {
+  display: flex;
+  align-items: stretch;
+  list-style: none;
+  padding: 0;
+  border-bottom: 1px solid #ccc;
+}
+
+li.vc-jose-cose-tab, li.vc-jose-cose-jwt-tab, li.vc-jose-cose-sd-jwt-tab,
+li.vc-jose-cose-cose-tab,
+li.sd-jwt-tab {
+  margin: 0 0;
+  margin-left: 8px;
+}
+
+.vc-jose-cose-tab>label, .vc-jose-cose-jwt-tab>label,
+.vc-jose-cose-sd-jwt-tab>label, .vc-jose-cose-cose-tab>label,
+.sd-jwt-tab>label {
+  display: block;
+  margin-bottom: -1px;
+  padding: .4em .5em;
+  border: 1px solid #ccc;
+  border-top-right-radius: .4em;
+  border-top-left-radius: .4em;
+  background: #eee;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.vc-jose-cose-tab:hover label, .vc-jose-cose-jwt-tab:hover label,
+.vc-jose-cose-sd-jwt-tab:hover label, .vc-jose-cose-cose-tab:hover label,
+.sd-jwt-tab:hover label {
+  border-left-color: #333;
+  border-top-color: #333;
+  border-right-color: #333;
+  color: #333;
+}
+
+.vc-jose-cose-tab-content,
+.sd-jwt-tab-content {
+  display: none;
+}
+
+${radioLabels.join(',\n  ')} {
+  border-bottom-color: #fff;
+  background: #fff;
+  color: #222;
+}
+
+${radioSelector.join(',\n  ')},
+.sd-jwt-tabbed [type="radio"]:nth-of-type(1):checked ~ .sd-jwt-tab-content:nth-of-type(1),
+.sd-jwt-tabbed [type="radio"]:nth-of-type(2):checked ~ .sd-jwt-tab-content:nth-of-type(2),
+.sd-jwt-tabbed [type="radio"]:nth-of-type(3):checked ~ .sd-jwt-tab-content:nth-of-type(3) {
+  display: block;
+}
+
+.disclosure {
+  margin: 10px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 5px;
+}
+
+.disclosure h3 {
+  margin: 0;
+  font-size: 14px;
+  padding-left: 5px;
+}
+
+.disclosure .claim-name {
+  color: #333;
+}
+
+.disclosure .hash,
+.disclosure .disclosure-value,
+.disclosure .contents {
+  color: #555;
+  word-wrap: break-word;
+  display: inline;
+}
+
+.disclosure p {
+  margin: 0;
+  padding-left: 5px;
+}
+
+.disclosure pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  padding-left: 5px;
+  line-height: 1.6;
+  display: inline-block;
+}
+
+.header-value {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  padding-left: 5px;
+  line-height: 1.6;
+  font-size: 12px;
+}
+
+.cose-text, .jose-text, .vc-jose-cose-jwt .text, .vc-jose-cose-sd-jwt .text,
+ .vc-jose-cose-cose .text {
+  font-family: monospace;
+  color: green;
+}
+
+.sd-jwt-compact, .jwt-compact, .vc-jose-cose-jwt .compact, .vc-jose-cose-sd-jwt
+ .compact, .vc-jose-cose-cose .compact {
+  background-color: rgba(0,0,0,.03);
+}
+
+.sd-jwt-header, .jwt-header, .vc-jose-cose-jwt .header, .vc-jose-cose-sd-jwt
+ .header, .vc-jose-cose-cose .header {
+  color: red;
+}
+
+.sd-jwt-payload, .jwt-payload, .vc-jose-cose-jwt .payload, .vc-jose-cose-sd-jwt
+ .payload, .vc-jose-cose-cose .payload {
+  color: green;
+}
+
+.sd-jwt-signature, .jwt-signature, .vc-jose-cose-jwt .signature,
+ .vc-jose-cose-sd-jwt .signature, .vc-jose-cose-cose .signature {
+  color: blue;
+}
+
+.sd-jwt-disclosure, .vc-jose-cose-jwt .disclosure, .vc-jose-cose-sd-jwt
+ .disclosure, .vc-jose-cose-cose .disclosure {
+  color: purple;
+}`;
 
   document.getElementsByTagName('head')[0].appendChild(exampleStyles);
 }
@@ -454,7 +470,6 @@ async function createVcExamples() {
         e, hashEntry);
       hashEntry.innerText = 'Error generating cryptographic hash for ' +
         hashUrl;
-      continue;
     }
   }
 
@@ -484,8 +499,11 @@ async function createVcExamples() {
   const bbs2023 = await createBBSExampleProof();
   exampleProofs.push(bbs2023);
 
-  // vc-jwt
-  const jwk = await jose.generateKeyPair('ES256');
+  // vc-jose-cose
+  const jwk = await jose.generateKeyPair('ES256', {extractable: true});
+  const privateKeyJwk = await jose.exportJWK(jwk.privateKey);
+  privateKeyJwk.kid = 'ExHkBMW9fmbkvV266mRpuP2sUY_N_EWIN1lapUzO8ro';
+  privateKeyJwk.alg = 'ES256';
 
   // add styles for examples
   addVcExampleStyles();
@@ -634,24 +652,25 @@ async function createVcExamples() {
     if(hasTab('jose')) {
       addTab('jose', 'Secured with JOSE', 'jose',
         async () => {
-          const joseExample = await getJoseExample(jwk, credential);
+          const joseExample = await getJoseExample(privateKeyJwk, credential);
           return getJoseHtml({joseExample});
         });
     }
 
     if(hasTab('sd-jwt')) {
-      addTab('sd-jwt', 'Secured with SD-JWT', async () => {
+      addTab('sd-jwt', 'Secured with SD-JWT', 'sd-jwt', async () => {
         const sdJwtExample =
-          await getSdJwtExample(vcProofExampleIndex, jwk, credential);
+          await getSdJwtExample(vcProofExampleIndex, privateKeyJwk, credential);
         return getSdJwtHtml({sdJwtExample});
       });
     }
 
     if(hasTab('cose')) {
-      addTab('cose', 'Secured with COSE', async () => {
-        const coseExample = await getCoseExample(jwk, credential);
-        return getCoseHtml({coseExample});
-      });
+      addTab('cose', 'Secured with COSE', 'cose',
+        async () => {
+          const coseExample = await getCoseExample(privateKeyJwk, credential);
+          return getCoseHtml({coseExample});
+        });
     }
     // append the tabbed content
 
