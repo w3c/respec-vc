@@ -13,9 +13,11 @@ const getCredential = async (
   messageType,
   messageJson
 ) => {
+  let oldMessageType = (messageType === 'application/vc+jwt')
+    ? 'application/vc+ld+json+jwt' : 'application/vp+ld+json+jwt';
   return issuer({
     alg: privateKey.alg,
-    type: messageType,
+    type: oldMessageType,
     signer: byteSigner,
   }).issue({
     claimset: new TextEncoder().encode(JSON.stringify(messageJson, null, 2)),
@@ -73,10 +75,10 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc+ld+json+jwt': {
+    case 'application/vc+jwt': {
       return getCredential(privateKey, byteSigner, messageType, messageJson);
     }
-    case 'application/vp+ld+json+jwt': {
+    case 'application/vp+jwt': {
       return getPresentation(privateKey, byteSigner, messageType, messageJson);
     }
     default: {
@@ -89,7 +91,7 @@ export const getJoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc+ld+json+jwt' : 'application/vp+ld+json+jwt';
+    'application/vc+jwt' : 'application/vp+jwt';
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageEncoded = new TextDecoder().decode(message);
   const decodedHeader = jose.decodeProtectedHeader(messageEncoded);

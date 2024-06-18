@@ -14,9 +14,12 @@ const getCredential = async (
   messageType,
   messageJson,
 ) => {
+  let oldMessageType = (messageType === 'application/vc+cose')
+    ? 'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
+
   return issuer({
     alg: privateKey.alg,
-    type: messageType,
+    type: oldMessageType,
     signer: byteSigner,
   }).issue({
     claimset: new TextEncoder().encode(JSON.stringify(messageJson, null, 2)),
@@ -42,9 +45,11 @@ const getPresentation = async (
       credential: content,
     };
   });
+  let oldMessageType = (messageType === 'application/vc+cose')
+    ? 'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
   return holder({
     alg: privateKey.alg,
-    type: messageType,
+    type: oldMessageType,
   }).issue({
     signer: byteSigner,
     presentation: message,
@@ -68,10 +73,10 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc+ld+json+cose': {
+    case 'application/vc+cose': {
       return getCredential(privateKey, byteSigner, messageType, messageJson);
     }
-    case 'application/vp+ld+json+cose': {
+    case 'application/vp+cose': {
       return getPresentation(privateKey, byteSigner, messageType, messageJson);
     }
     default: {
@@ -84,7 +89,7 @@ export const getCoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
+    'application/vc+cose' : 'application/vp+cose';
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageHex = buf2hex(message);
   const messageBuffer = Buffer.from(messageHex, 'hex');

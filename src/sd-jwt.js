@@ -80,9 +80,12 @@ const getCredential = async (
   messageType,
   messageJson,
 ) => {
+  let oldMessageType = (messageType === 'application/vc+sd-jwt')
+    ? 'application/vc+ld+json+sd-jwt' : 'application/vp+ld+json+sd-jwt';
+
   return issuer({
     alg: privateKey.alg,
-    type: messageType,
+    type: oldMessageType,
     signer: byteSigner,
   }).issue({
     claimset: new TextEncoder().encode(generateIssuerClaims(messageJson)),
@@ -95,7 +98,7 @@ const getPresentation = async (
   messageType,
   messageJson,
 ) => {
-  const mediaType = 'application/vc+ld+json+sd-jwt';
+  const mediaType = 'application/vc+sd-jwt';
   return getCredential(privateKey, byteSigner, mediaType, messageJson);
 };
 
@@ -116,10 +119,10 @@ export const getBinaryMessage = async (
     },
   };
   switch(messageType) {
-    case 'application/vc+ld+json+sd-jwt': {
+    case 'application/vc+sd-jwt': {
       return getCredential(privateKey, byteSigner, messageType, messageJson);
     }
-    case 'application/vp+ld+json+sd-jwt': {
+    case 'application/vp+sd-jwt': {
       return getPresentation(privateKey, byteSigner, messageType, messageJson);
     }
     default: {
@@ -137,7 +140,7 @@ export const getSdJwtExample = async (
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc+ld+json+sd-jwt' : 'application/vp+ld+json+sd-jwt';
+    'application/vc+sd-jwt' : 'application/vp+sd-jwt';
   const binaryMessage =
     await getBinaryMessage(privateKey, messageType, messageJson);
   const message = new TextDecoder().decode(binaryMessage);

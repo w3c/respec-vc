@@ -213,17 +213,15 @@ li.vc-tab {
   display: none;
 }
 
+.vc-tab-content h1 {
+  font-size: 1em;
+  margin: 0 0;
+}
+
 .vc-jose-cose-tabbed, .vc-jose-cose-tabbed-jwt,
 .vc-jose-cose-tabbed-sd-jwt, .vc-jose-cose-tabbed-cose,
 .sd-jwt-tabbed {
   overflow-x: hidden;
-  margin: 0 0;
-}
-
-.vc-jose-cose-tabbed h1, .vc-jose-cose-jwt-tabbed h1,
-.vc-jose-cose-sd-jwt-tabbed h1, .vc-jose-cose-cose-tabbed h1,
-.sd-jwt-tabbed h1 {
-  font-size: 1em;
   margin: 0 0;
 }
 
@@ -617,7 +615,11 @@ async function createVcExamples() {
         // attach the proof
         try {
           verifiableCredentialProof = await attachProof({credential, suite});
-          return `<pre>${JSON.stringify(verifiableCredentialProof, null, 2)
+          const mediaType =
+            (verifiableCredentialProof.type.includes('VerifiablePresentation'))
+            ? 'application/vp' : 'application/vc';
+          return `<h1>${mediaType}</h1>
+            <pre>${JSON.stringify(verifiableCredentialProof, null, 2)
             .match(/.{1,75}/g).join('\n')}</pre>`;
         } catch(e) {
           console.error(
