@@ -38,7 +38,7 @@ To use this extension, you must add the `vc` class to your examples.
 
 ### Set Specific Tabs to Display
 
-The `data-vc-tabs` property can be set to a space delimited list containing any
+The `data-vc-tabs` property can be set to a space-delimited list containing any
 of the following values to customize the tabs displayed:
 
 On by default:
