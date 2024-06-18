@@ -47,10 +47,12 @@ On by default:
 * `eddsa-rdfc-2022` - https://www.w3.org/TR/vc-di-eddsa/
 * `ecdsa-sd-2023` - https://www.w3.org/TR/vc-di-ecdsa/
 * `bbs-2023`  - https://www.w3.org/TR/vc-di-bbs/
-* `vc-jwt` - https://w3c.github.io/vc-jose-cose/
+* `jose` - https://w3c.github.io/vc-jose-cose/#with-jose
 
 Optional:
 * `Ed25519Signature2020` - https://www.w3.org/TR/vc-di-eddsa/#the-ed25519signature2020-suite
+* `sd-jwt` - https://www.w3.org/TR/vc-jose-cose/#with-sd-jwt
+* `cose` - https://www.w3.org/TR/vc-jose-cose/#securing-with-cose
 
 ```html
 <pre class="example nohighlight vc" title="Usage of the id property"

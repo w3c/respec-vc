@@ -13,6 +13,7 @@ import * as odrlContext from '@digitalbazaar/odrl-context';
 import {base64pad, base64url} from 'multiformats/bases/base64';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {extendContextLoader, purposes} from 'jsonld-signatures';
+import {getCoseHtml, getJoseHtml, getSdJwtHtml} from './src/html';
 import {sha3_256, sha3_384} from '@noble/hashes/sha3';
 import {base16} from 'multiformats/bases/base16';
 import {base58btc} from 'multiformats/bases/base58';
@@ -24,6 +25,9 @@ import {Ed25519VerificationKey2020} from
 import {cryptosuite as eddsaRdfc2022CryptoSuite} from
   '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
+import {getCoseExample} from './src/cose';
+import {getJoseExample} from './src/jose';
+import {getSdJwtExample} from './src/sd-jwt';
 import {sha256} from '@noble/hashes/sha256';
 import {sha384} from '@noble/hashes/sha512';
 
@@ -33,7 +37,9 @@ const TAB_TYPES = [
   'eddsa-rdfc-2022',
   'ecdsa-sd-2023',
   'bbs-2023',
-  'vc-jwt'
+  'jose',
+  'sd-jwt',
+  'cose',
 ];
 // additional types: Ed25519Signature2020
 
@@ -56,7 +62,7 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
     return {
       contextUrl: null,
       documentUrl: url,
-      document: context
+      document: context,
     };
   }
   return defaultDocumentLoader(url);
@@ -64,20 +70,20 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
 
 async function createBBSExampleProof() {
   const key = await Bls12381Multikey.generateBbsKeyPair({
-    algorithm: Bls12381Multikey.ALGORITHMS.BBS_BLS12381_SHA256
+    algorithm: Bls12381Multikey.ALGORITHMS.BBS_BLS12381_SHA256,
   });
 
   const proof = new DataIntegrityProof({
     signer: key.signer(),
     cryptosuite: bbs2023Cryptosuite.createSignCryptosuite({
-      mandatoryPointers: ['/issuer']
-    })
+      mandatoryPointers: ['/issuer'],
+    }),
   });
 
   return {
     proof,
     key,
-    label: 'bbs'
+    label: 'bbs',
   };
 }
 
@@ -89,13 +95,13 @@ async function createEcdsaRdfc2019ExampleProof() {
   const {cryptosuite: rdfcCryptosuite} = ecdsaRdfc2019Cryptosuite;
   const proof = new DataIntegrityProof({
     signer: key.signer(),
-    cryptosuite: rdfcCryptosuite
+    cryptosuite: rdfcCryptosuite,
   });
 
   return {
     proof,
     key,
-    label: 'ecdsa'
+    label: 'ecdsa',
   };
 }
 
@@ -108,14 +114,14 @@ async function createEcdsaSd2023ExampleProof() {
   const proof = new DataIntegrityProof({
     signer: key.signer(),
     cryptosuite: createSignCryptosuite({
-      mandatoryPointers: ['/issuer']
-    })
+      mandatoryPointers: ['/issuer'],
+    }),
   });
 
   return {
     proof,
     key,
-    label: 'ecdsa-sd'
+    label: 'ecdsa-sd',
   };
 }
 
@@ -130,60 +136,14 @@ async function createEddsaRdfc2022ExampleProof() {
   // eddsa-rdfc-2022
   const proof = new DataIntegrityProof({
     signer: key.signer(),
-    cryptosuite: eddsaRdfc2022CryptoSuite
+    cryptosuite: eddsaRdfc2022CryptoSuite,
   });
 
   return {
     proof,
     key,
-    label: 'eddsa'
+    label: 'eddsa',
   };
-}
-
-// convert an XML Schema v1.` Datetime value to a UNIX timestamp
-function xmlDateTimeToUnixTimestamp(xmlDateTime) {
-  if(!xmlDateTime) {
-    return undefined;
-  }
-
-  return Date.parse(xmlDateTime) / 1000;
-}
-
-// transform the input credential to a JWT
-async function transformToJwt({credential, kid, jwk}) {
-  const header = {alg: 'ES256', typ: 'JWT', kid};
-  const payload = {
-    vc: credential
-  };
-  if(credential.expirationDate) {
-    payload.exp = xmlDateTimeToUnixTimestamp(credential.expirationDate);
-  }
-  if(credential.issuer) {
-    payload.iss = credential.issuer;
-  }
-  if(credential.issuanceDate) {
-    payload.nbf = xmlDateTimeToUnixTimestamp(credential.issuanceDate);
-  }
-  if(credential.id) {
-    payload.jti = credential.id;
-  }
-  if(credential.credentialSubject.id) {
-    payload.sub = credential.credentialSubject.id;
-  }
-
-  // create the JWT description
-  let description = '---------------- JWT header ---------------\n' +
-    JSON.stringify(header, null, 2);
-  description += '\n\n--------------- JWT payload ---------------\n' +
-    '// NOTE: The example below uses a valid VC-JWT serialization\n' +
-    '//       that duplicates the iss, nbf, jti, and sub fields in the\n' +
-    '//       Verifiable Credential (vc) field.\n\n' +
-    JSON.stringify(payload, null, 2);
-  const jwt = await new jose.SignJWT(payload)
-    .setProtectedHeader(header)
-    .sign(jwk.privateKey);
-
-  return description + '\n\n--------------- JWT ---------------\n\n' + jwt;
 }
 
 async function attachProof({credential, suite}) {
@@ -208,59 +168,209 @@ function addVcExampleStyles() {
     });
 
   exampleStyles.innerHTML += `
-  .vc-tabbed {
-    overflow-x: hidden;
-    margin: 0 0;
-  }
+.vc-tabbed {
+  overflow-x: hidden;
+  margin: 0 0;
+}
 
-  .vc-tabbed [type="radio"] {
-    display: none;
-  }
+.vc-tabbed [type="radio"] {
+  display: none;
+}
 
-  .vc-tabs {
-    display: flex;
-    align-items: stretch;
-    list-style: none;
-    padding: 0;
-    border-bottom: 1px solid #ccc;
-  }
+.vc-tabs {
+  display: flex;
+  align-items: stretch;
+  list-style: none;
+  padding: 0;
+  border-bottom: 1px solid #ccc;
+}
 
-  li.vc-tab {
-    margin: unset;
-  }
+li.vc-tab {
+  margin: unset;
+}
 
-  .vc-tab > label {
-    display: block;
-    margin-bottom: -1px;
-    padding: .4em .5em;
-    border: 1px solid #ccc;
-    border-top-right-radius: .4em;
-    border-top-left-radius: .4em;
-    background: #eee;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .vc-tab:hover label {
-    border-left-color: #333;
-    border-top-color: #333;
-    border-right-color: #333;
-    color: #333;
-  }
+.vc-tab > label {
+  display: block;
+  margin-bottom: -1px;
+  padding: .4em .5em;
+  border: 1px solid #ccc;
+  border-top-right-radius: .4em;
+  border-top-left-radius: .4em;
+  background: #eee;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s;
+}
 
-  .vc-tab-content {
-    display: none;
-  }
+.vc-tab:hover label {
+  border-left-color: #333;
+  border-top-color: #333;
+  border-right-color: #333;
+  color: #333;
+}
 
-  ${radioLabels.join(',\n  ')} {
-    border-bottom-color: #fff;
-    background: #fff;
-    color: #222;
-  }
+.vc-tab-content {
+  display: none;
+}
 
-  ${radioSelector.join(',\n  ')} {
-    display: block;
-  }`;
+.vc-jose-cose-tabbed, .vc-jose-cose-tabbed-jwt,
+.vc-jose-cose-tabbed-sd-jwt, .vc-jose-cose-tabbed-cose,
+.sd-jwt-tabbed {
+  overflow-x: hidden;
+  margin: 0 0;
+}
+
+.vc-jose-cose-tabbed h1, .vc-jose-cose-jwt-tabbed h1,
+.vc-jose-cose-sd-jwt-tabbed h1, .vc-jose-cose-cose-tabbed h1,
+.sd-jwt-tabbed h1 {
+  font-size: 1em;
+  margin: 0 0;
+}
+
+.vc-jose-cose-tabbed [type="radio"], .vc-jose-cose-tabbed-jwt [type="radio"],
+.vc-jose-cose-tabbed-sd-jwt [type="radio"],
+.vc-jose-cose-tabbed-cose [type="radio"],
+.sd-jwt-tabbed [type="radio"] {
+  display: none;
+}
+
+.vc-jose-cose-tabs, .vc-jose-cose-jwt-tabs, .vc-jose-cose-sd-jwt-tabs,
+.vc-jose-cose-cose-tabs,
+.sd-jwt-tabs {
+  display: flex;
+  align-items: stretch;
+  list-style: none;
+  padding: 0;
+  border-bottom: 1px solid #ccc;
+}
+
+li.vc-jose-cose-tab, li.vc-jose-cose-jwt-tab, li.vc-jose-cose-sd-jwt-tab,
+li.vc-jose-cose-cose-tab,
+li.sd-jwt-tab {
+  margin: 0 0;
+  margin-left: 8px;
+}
+
+.vc-jose-cose-tab>label, .vc-jose-cose-jwt-tab>label,
+.vc-jose-cose-sd-jwt-tab>label, .vc-jose-cose-cose-tab>label,
+.sd-jwt-tab>label {
+  display: block;
+  margin-bottom: -1px;
+  padding: .4em .5em;
+  border: 1px solid #ccc;
+  border-top-right-radius: .4em;
+  border-top-left-radius: .4em;
+  background: #eee;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.vc-jose-cose-tab:hover label, .vc-jose-cose-jwt-tab:hover label,
+.vc-jose-cose-sd-jwt-tab:hover label, .vc-jose-cose-cose-tab:hover label,
+.sd-jwt-tab:hover label {
+  border-left-color: #333;
+  border-top-color: #333;
+  border-right-color: #333;
+  color: #333;
+}
+
+.vc-jose-cose-tab-content,
+.sd-jwt-tab-content {
+  display: none;
+}
+
+${radioLabels.join(',\n  ')} {
+  border-bottom-color: #fff;
+  background: #fff;
+  color: #222;
+}
+
+${radioSelector.join(',\n  ')},
+.sd-jwt-tabbed [type="radio"]:nth-of-type(1):checked ~ .sd-jwt-tab-content:nth-of-type(1),
+.sd-jwt-tabbed [type="radio"]:nth-of-type(2):checked ~ .sd-jwt-tab-content:nth-of-type(2),
+.sd-jwt-tabbed [type="radio"]:nth-of-type(3):checked ~ .sd-jwt-tab-content:nth-of-type(3) {
+  display: block;
+}
+
+.disclosure {
+  margin: 10px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 5px;
+}
+
+.disclosure h3 {
+  margin: 0;
+  font-size: 14px;
+  padding-left: 5px;
+}
+
+.disclosure .claim-name {
+  color: #333;
+}
+
+.disclosure .hash,
+.disclosure .disclosure-value,
+.disclosure .contents {
+  color: #555;
+  word-wrap: break-word;
+  display: inline;
+}
+
+.disclosure p {
+  margin: 0;
+  padding-left: 5px;
+}
+
+.disclosure pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  padding-left: 5px;
+  line-height: 1.6;
+  display: inline-block;
+}
+
+.header-value {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  padding-left: 5px;
+  line-height: 1.6;
+  font-size: 12px;
+}
+
+.cose-text, .jose-text, .vc-jose-cose-jwt .text, .vc-jose-cose-sd-jwt .text,
+ .vc-jose-cose-cose .text {
+  font-family: monospace;
+  color: green;
+}
+
+.sd-jwt-compact, .jwt-compact, .vc-jose-cose-jwt .compact, .vc-jose-cose-sd-jwt
+ .compact, .vc-jose-cose-cose .compact {
+  background-color: rgba(0,0,0,.03);
+}
+
+.sd-jwt-header, .jwt-header, .vc-jose-cose-jwt .header, .vc-jose-cose-sd-jwt
+ .header, .vc-jose-cose-cose .header {
+  color: red;
+}
+
+.sd-jwt-payload, .jwt-payload, .vc-jose-cose-jwt .payload, .vc-jose-cose-sd-jwt
+ .payload, .vc-jose-cose-cose .payload {
+  color: green;
+}
+
+.sd-jwt-signature, .jwt-signature, .vc-jose-cose-jwt .signature,
+ .vc-jose-cose-sd-jwt .signature, .vc-jose-cose-cose .signature {
+  color: blue;
+}
+
+.sd-jwt-disclosure, .vc-jose-cose-jwt .disclosure, .vc-jose-cose-sd-jwt
+ .disclosure, .vc-jose-cose-cose .disclosure {
+  color: purple;
+}`;
 
   document.getElementsByTagName('head')[0].appendChild(exampleStyles);
 }
@@ -274,22 +384,22 @@ async function createVcExamples() {
   const sha2256Hasher = mfHasher.from({
     name: 'sha2-256',
     code: 0x12,
-    encode: input => sha256(input)
+    encode: input => sha256(input),
   });
   const sha2384Hasher = mfHasher.from({
     name: 'sha2-384',
     code: 0x20,
-    encode: input => sha384(input)
+    encode: input => sha384(input),
   });
   const sha3256Hasher = mfHasher.from({
     name: 'sha3-256',
     code: 0x16,
-    encode: input => sha3_256(input)
+    encode: input => sha3_256(input),
   });
   const sha3384Hasher = mfHasher.from({
     name: 'sha3-384',
     code: 0x15,
-    encode: input => sha3_384(input)
+    encode: input => sha3_384(input),
   });
 
   const vcHashEntries = document.querySelectorAll('.vc-hash');
@@ -360,7 +470,6 @@ async function createVcExamples() {
         e, hashEntry);
       hashEntry.innerText = 'Error generating cryptographic hash for ' +
         hashUrl;
-      continue;
     }
   }
 
@@ -375,7 +484,7 @@ async function createVcExamples() {
   const keyPairEd25519VerificationKey2020 = await Ed25519VerificationKey2020
     .generate();
   const suiteEd25519Signature2020 = new Ed25519Signature2020({
-    key: keyPairEd25519VerificationKey2020
+    key: keyPairEd25519VerificationKey2020,
   });
 
   // eddsa-rdfc-2022
@@ -390,8 +499,11 @@ async function createVcExamples() {
   const bbs2023 = await createBBSExampleProof();
   exampleProofs.push(bbs2023);
 
-  // vc-jwt
-  const jwk = await jose.generateKeyPair('ES256');
+  // vc-jose-cose
+  const jwk = await jose.generateKeyPair('ES256', {extractable: true});
+  const privateKeyJwk = await jose.exportJWK(jwk.privateKey);
+  privateKeyJwk.kid = 'ExHkBMW9fmbkvV266mRpuP2sUY_N_EWIN1lapUzO8ro';
+  privateKeyJwk.alg = 'ES256';
 
   // add styles for examples
   addVcExampleStyles();
@@ -524,7 +636,7 @@ async function createVcExamples() {
       'unsigned',
       'Unsecured credential',
       'Credential',
-      () => example.outerHTML
+      () => example.outerHTML,
     );
 
     for(const {proof, key, label} of exampleProofs) {
@@ -537,24 +649,29 @@ async function createVcExamples() {
       await addProofTab(suiteEd25519Signature2020, 'Ed25519Signature2020');
     }
 
-    if(hasTab('vc-jwt')) {
-      // set up the signed JWT button
-      addTab('vc-jwt', 'Secured with VC-JWT', 'vc-jwt',
+    if(hasTab('jose')) {
+      addTab('jose', 'Secured with JOSE', 'jose',
         async () => {
-          // convert to a JWT
-          let verifiableCredentialJwt;
-          try {
-            verifiableCredentialJwt = await transformToJwt({
-              credential, kid: verificationMethod, jwk});
-            return `<pre>${verifiableCredentialJwt.match(/.{1,75}/g).join('\n')}</pre>`;
-          } catch(e) {
-            console.error(
-              'respec-vc error: Failed to convert Credential to JWT.',
-              e, example.innerText);
-          }
+          const joseExample = await getJoseExample(privateKeyJwk, credential);
+          return getJoseHtml({joseExample});
         });
     }
 
+    if(hasTab('sd-jwt')) {
+      addTab('sd-jwt', 'Secured with SD-JWT', 'sd-jwt', async () => {
+        const sdJwtExample =
+          await getSdJwtExample(vcProofExampleIndex, privateKeyJwk, credential);
+        return getSdJwtHtml({sdJwtExample});
+      });
+    }
+
+    if(hasTab('cose')) {
+      addTab('cose', 'Secured with COSE', 'cose',
+        async () => {
+          const coseExample = await getCoseExample(privateKeyJwk, credential);
+          return getCoseHtml({coseExample});
+        });
+    }
     // append the tabbed content
 
     // replace the original example with the tabbed content
@@ -569,5 +686,5 @@ async function createVcExamples() {
 // setup exports on window
 window.respecVc = {
   addContext,
-  createVcExamples
+  createVcExamples,
 };
