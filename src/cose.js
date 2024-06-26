@@ -11,15 +11,11 @@ function buf2hex(buffer) {
 const getCredential = async (
   privateKey,
   byteSigner,
-  messageType,
   messageJson,
 ) => {
-  let oldMessageType = (messageType === 'application/vc+cose')
-    ? 'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
-
   return issuer({
     alg: privateKey.alg,
-    type: oldMessageType,
+    type: 'application/vc+ld+json+cose',
     signer: byteSigner,
   }).issue({
     claimset: new TextEncoder().encode(JSON.stringify(messageJson, null, 2)),
@@ -29,7 +25,6 @@ const getCredential = async (
 const getPresentation = async (
   privateKey,
   byteSigner,
-  messageType,
   message,
 ) => {
   const disclosures = (message.verifiableCredential || []).map(enveloped => {
@@ -45,11 +40,9 @@ const getPresentation = async (
       credential: content,
     };
   });
-  let oldMessageType = (messageType === 'application/vc+cose')
-    ? 'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
   return holder({
     alg: privateKey.alg,
-    type: oldMessageType,
+    type: 'application/vp+ld+json+cose',
   }).issue({
     signer: byteSigner,
     presentation: message,
@@ -73,11 +66,11 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc+cose': {
-      return getCredential(privateKey, byteSigner, messageType, messageJson);
+    case 'application/vc-ld+cose': {
+      return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp+cose': {
-      return getPresentation(privateKey, byteSigner, messageType, messageJson);
+    case 'application/vp-ld+cose': {
+      return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
       throw new Error('Unknown message type');
@@ -89,7 +82,7 @@ export const getCoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc+cose' : 'application/vp+cose';
+    'application/vc-ld+cose' : 'application/vp-ld+cose';
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageHex = buf2hex(message);
   const messageBuffer = Buffer.from(messageHex, 'hex');
