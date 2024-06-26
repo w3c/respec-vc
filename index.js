@@ -616,8 +616,9 @@ async function createVcExamples() {
         try {
           verifiableCredentialProof = await attachProof({credential, suite});
           const mediaType =
-            (verifiableCredentialProof.type.includes('VerifiablePresentation'))
-              ? 'application/vp' : 'application/vc';
+            (verifiableCredentialProof.type
+              .includes('VerifiablePresentation')) ?
+              'application/vp' : 'application/vc';
           return `<h1>${mediaType}</h1>
             <pre>${JSON.stringify(verifiableCredentialProof, null, 2)
     .match(/.{1,75}/g).join('\n')}</pre>`;
