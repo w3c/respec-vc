@@ -74,32 +74,16 @@ export const generateIssuerClaims = example => {
     .replace(/type:/g, '!sd type:');
 };
 
-const getCredential = async (
-  privateKey,
-  byteSigner,
-  messageType,
-  messageJson,
-) => {
-  const oldMessageType = (messageType === 'application/vc-ld+sd-jwt') ?
-    'application/vc+ld+json+sd-jwt' : 'application/vp+ld+json+sd-jwt';
-  return issuer({
-    alg: privateKey.alg,
-    type: oldMessageType,
-    signer: byteSigner,
-  }).issue({
-    claimset: new TextEncoder().encode(generateIssuerClaims(messageJson)),
-  });
-};
-
-const getPresentation = async (
-  privateKey,
-  byteSigner,
-  messageType,
-  messageJson,
-) => {
-  const mediaType = 'application/vp-ld+sd-jwt';
-  return getCredential(privateKey, byteSigner, mediaType, messageJson);
-};
+const getCredential =
+  async (privateKey, byteSigner, messageJson) => {
+    return issuer({
+      alg: privateKey.alg,
+      type: 'application/vc+ld+json+sd-jwt',
+      signer: byteSigner,
+    }).issue({
+      claimset: new TextEncoder().encode(generateIssuerClaims(messageJson)),
+    });
+  };
 
 export const getBinaryMessage = async (
   privateKey,
@@ -119,10 +103,10 @@ export const getBinaryMessage = async (
   };
   switch(messageType) {
     case 'application/vc-ld+sd-jwt': {
-      return getCredential(privateKey, byteSigner, messageType, messageJson);
+      return getCredential(privateKey, byteSigner, messageJson);
     }
     case 'application/vp-ld+sd-jwt': {
-      return getPresentation(privateKey, byteSigner, messageType, messageJson);
+      return getCredential(privateKey, byteSigner, messageJson);
     }
     default: {
       throw new Error('Unknown message type');

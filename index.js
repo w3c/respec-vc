@@ -2,7 +2,7 @@ import * as bbs2023Cryptosuite from '@digitalbazaar/bbs-2023-cryptosuite';
 import * as Bls12381Multikey from '@digitalbazaar/bls12-381-multikey';
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
 import * as ecdsaRdfc2019Cryptosuite from
-  '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
+    '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
 import * as ecdsaSd2023Cryptosuite
   from '@digitalbazaar/ecdsa-sd-2023-cryptosuite';
 import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey';
@@ -21,9 +21,9 @@ import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {Ed25519VerificationKey2020} from
-  '@digitalbazaar/ed25519-verification-key-2020';
+    '@digitalbazaar/ed25519-verification-key-2020';
 import {cryptosuite as eddsaRdfc2022CryptoSuite} from
-  '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
+    '@digitalbazaar/eddsa-rdfc-2022-cryptosuite';
 import examples2Context from './contexts/credentials/examples/v2';
 import {getCoseExample} from './src/cose';
 import {getJoseExample} from './src/jose';
@@ -617,10 +617,10 @@ async function createVcExamples() {
           verifiableCredentialProof = await attachProof({credential, suite});
           const mediaType =
             (verifiableCredentialProof.type.includes('VerifiablePresentation'))
-            ? 'application/vp' : 'application/vc';
+              ? 'application/vp' : 'application/vc';
           return `<h1>${mediaType}</h1>
             <pre>${JSON.stringify(verifiableCredentialProof, null, 2)
-            .match(/.{1,75}/g).join('\n')}</pre>`;
+    .match(/.{1,75}/g).join('\n')}</pre>`;
         } catch(e) {
           console.error(
             'respec-vc error: Failed to attach proof to Verifiable Credential.',
