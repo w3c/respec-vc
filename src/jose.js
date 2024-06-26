@@ -10,14 +10,11 @@ import * as jose from 'jose';
 const getCredential = async (
   privateKey,
   byteSigner,
-  messageType,
   messageJson
 ) => {
-  let oldMessageType = (messageType === 'application/vc+jwt')
-    ? 'application/vc+ld+json+jwt' : 'application/vp+ld+json+jwt';
   return issuer({
     alg: privateKey.alg,
-    type: oldMessageType,
+    type: 'application/vc+ld+json+jwt',
     signer: byteSigner,
   }).issue({
     claimset: new TextEncoder().encode(JSON.stringify(messageJson, null, 2)),
@@ -27,7 +24,6 @@ const getCredential = async (
 const getPresentation = async (
   privateKey,
   byteSigner,
-  messageType,
   message
 ) => {
   const disclosures = (message.verifiableCredential || []).map(enveloped => {
@@ -44,7 +40,7 @@ const getPresentation = async (
   });
   return holder({
     alg: privateKey.alg,
-    type: messageType,
+    type: 'application/vp+ld+json+jwt',
   }).issue({
     signer: byteSigner,
     presentation: message,
@@ -75,11 +71,11 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc+jwt': {
-      return getCredential(privateKey, byteSigner, messageType, messageJson);
+    case 'application/vc-ld+jwt': {
+      return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp+jwt': {
-      return getPresentation(privateKey, byteSigner, messageType, messageJson);
+    case 'application/vp-ld+jwt': {
+      return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
       throw new Error('Unknown message type');
@@ -91,7 +87,7 @@ export const getJoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc+jwt' : 'application/vp+jwt';
+    'application/vc-ld+jwt' : 'application/vp-ld+jwt';
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageEncoded = new TextDecoder().decode(message);
   const decodedHeader = jose.decodeProtectedHeader(messageEncoded);

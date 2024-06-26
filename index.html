@@ -80,7 +80,40 @@
     }
   }
 }
-      </pre>
+  </pre>
+  <pre class="example nohighlight vc" data-vc-tabs="jose sd-jwt cose" title="A Verifiable Presentation example">
+{
+  <span class='comment'>// set the context, which establishes the special terms we will be using.</span>
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://www.w3.org/ns/credentials/examples/v2"
+  ],
+  <span class='comment'>// specify the identifier for the presentation</span>
+  "id": "http://example.edu/presentations/1872",
+  <span class='comment'>// the presentation type, which declare what data to expect in the presentation</span>
+  "type": "VerifiablePresentation",
+  <span class='comment'>// when the presentation was issued</span>
+  "validFrom": "2010-01-01T19:23:24Z",
+  <span class='comment'>// credentials in the presentation</span>
+  "verifiableCredential": [
+    {
+      "@context": "https://www.w3.org/ns/credentials/v2",
+      "id": "data:application/vc-ld+cose;base64url,UXpWalYuLi5STWpV",
+      "type": "EnvelopedVerifiableCredential"
+    },
+    {
+      "@context": "https://www.w3.org/ns/credentials/v2",
+      "id": "data:application/vc-ld+jwt;eyVjV...RMjU",
+      "type": "EnvelopedVerifiableCredential"
+    },
+    {
+      "@context": "https://www.w3.org/ns/credentials/v2",
+      "id": "data:application/vc-ld+sd-jwt;eyVjV...RMjU",
+      "type": "EnvelopedVerifiableCredential"
+    }
+  ]
+}
+  </pre>
 </section>
 
 <section>
