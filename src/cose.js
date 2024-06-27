@@ -11,15 +11,11 @@ function buf2hex(buffer) {
 const getCredential = async (
   privateKey,
   byteSigner,
-  messageType,
   messageJson,
 ) => {
-  let oldMessageType = (messageType === 'application/vc+cose')
-    ? 'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
-
   return issuer({
     alg: privateKey.alg,
-    type: oldMessageType,
+    type: 'application/vc+ld+json+cose',
     signer: byteSigner,
   }).issue({
     claimset: new TextEncoder().encode(JSON.stringify(messageJson, null, 2)),
@@ -29,7 +25,6 @@ const getCredential = async (
 const getPresentation = async (
   privateKey,
   byteSigner,
-  messageType,
   message,
 ) => {
   const disclosures = (message.verifiableCredential || []).map(enveloped => {
@@ -45,11 +40,9 @@ const getPresentation = async (
       credential: content,
     };
   });
-  let oldMessageType = (messageType === 'application/vc+cose')
-    ? 'application/vc+ld+json+cose' : 'application/vp+ld+json+cose';
   return holder({
     alg: privateKey.alg,
-    type: oldMessageType,
+    type: 'application/vp+ld+json+cose',
   }).issue({
     signer: byteSigner,
     presentation: message,
@@ -58,7 +51,7 @@ const getPresentation = async (
 };
 
 const getBinaryMessage = async (privateKey, messageType, messageJson) => {
-  const signer = cose.detached.signer({
+  const signer = cose.signer({
     remote: cose.crypto.signer({
       secretKeyJwk: privateKey,
     }),
@@ -74,10 +67,10 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
   };
   switch(messageType) {
     case 'application/vc+cose': {
-      return getCredential(privateKey, byteSigner, messageType, messageJson);
+      return getCredential(privateKey, byteSigner, messageJson);
     }
     case 'application/vp+cose': {
-      return getPresentation(privateKey, byteSigner, messageType, messageJson);
+      return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
       throw new Error('Unknown message type');
@@ -104,7 +97,7 @@ ${JSON.stringify(messageJson, null, 2)}
 <div class="cose-text">
 <pre><code>${diagnostic.trim()}</code></pre>
 </div>
-<h1>${messageType} (detached payload)</h1>
+<h1>${messageType}</h1>
 <div class="cose-text">
 ${messageHex}
 </div>
