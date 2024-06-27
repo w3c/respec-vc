@@ -616,11 +616,12 @@ async function createVcExamples() {
         try {
           verifiableCredentialProof = await attachProof({credential, suite});
           const mediaType =
-            (verifiableCredentialProof.type.includes('VerifiablePresentation'))
-            ? 'application/vp' : 'application/vc';
+            (verifiableCredentialProof.type
+              .includes('VerifiablePresentation')) ?
+              'application/vp' : 'application/vc';
           return `<h1>${mediaType}</h1>
             <pre>${JSON.stringify(verifiableCredentialProof, null, 2)
-            .match(/.{1,75}/g).join('\n')}</pre>`;
+    .match(/.{1,75}/g).join('\n')}</pre>`;
         } catch(e) {
           console.error(
             'respec-vc error: Failed to attach proof to Verifiable Credential.',
@@ -634,12 +635,21 @@ async function createVcExamples() {
     }
 
     // set up the unsigned button
-    addTab(
-      'unsigned',
-      'Unsecured credential',
-      'Credential',
-      () => example.outerHTML,
-    );
+    if(credential.type.includes('VerifiablePresentation')) {
+      addTab(
+        'unsigned',
+        'Unsecured presentation',
+        'Presentation',
+        () => example.outerHTML,
+      );
+    } else {
+      addTab(
+        'unsigned',
+        'Unsecured credential',
+        'Credential',
+        () => example.outerHTML,
+      );
+    }
 
     for(const {proof, key, label} of exampleProofs) {
       if(hasTab(proof.cryptosuite)) {
