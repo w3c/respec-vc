@@ -66,10 +66,10 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc+cose': {
+    case 'application/vc-ld+cose': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp+cose': {
+    case 'application/vp-ld+cose': {
       return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
@@ -82,7 +82,7 @@ export const getCoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc+cose' : 'application/vp+cose';
+    'application/vc-ld+cose' : 'application/vp-ld+cose';
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageHex = buf2hex(message);
   const messageBuffer = Buffer.from(messageHex, 'hex');
