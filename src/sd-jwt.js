@@ -77,29 +77,15 @@ export const generateIssuerClaims = example => {
 const getCredential = async (
   privateKey,
   byteSigner,
-  messageType,
   messageJson,
 ) => {
-  let oldMessageType = (messageType === 'application/vc+sd-jwt')
-    ? 'application/vc+ld+json+sd-jwt' : 'application/vp+ld+json+sd-jwt';
-
   return issuer({
     alg: privateKey.alg,
-    type: oldMessageType,
+    type: 'application/vc+ld+json+sd-jwt',
     signer: byteSigner,
   }).issue({
     claimset: new TextEncoder().encode(generateIssuerClaims(messageJson)),
   });
-};
-
-const getPresentation = async (
-  privateKey,
-  byteSigner,
-  messageType,
-  messageJson,
-) => {
-  const mediaType = 'application/vc+sd-jwt';
-  return getCredential(privateKey, byteSigner, mediaType, messageJson);
 };
 
 export const getBinaryMessage = async (
@@ -119,11 +105,11 @@ export const getBinaryMessage = async (
     },
   };
   switch(messageType) {
-    case 'application/vc+sd-jwt': {
-      return getCredential(privateKey, byteSigner, messageType, messageJson);
+    case 'application/vc-ld+sd-jwt': {
+      return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp+sd-jwt': {
-      return getPresentation(privateKey, byteSigner, messageType, messageJson);
+    case 'application/vp-ld+sd-jwt': {
+      return getCredential(privateKey, byteSigner, messageJson);
     }
     default: {
       throw new Error('Unknown message type');
@@ -140,7 +126,7 @@ export const getSdJwtExample = async (
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc+sd-jwt' : 'application/vp+sd-jwt';
+    'application/vc-ld+sd-jwt' : 'application/vp-ld+sd-jwt';
   const binaryMessage =
     await getBinaryMessage(privateKey, messageType, messageJson);
   const message = new TextDecoder().decode(binaryMessage);
