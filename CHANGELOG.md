@@ -11,10 +11,16 @@
 ### Fixed
 -
 
-## 3.x.x - yyyy-mm-dd
+## 3.3.0 - 2024-07-02
+
+### Added
+- Attached payloads and presentations for COSE.
+
+## 3.2.0 - 2024-06-18
 
 ### Fixed
 - Fixed `data-vc-tabs` to work with multiple space-delimited values.
+- Fixed media types to use `application/vc` and `application/vp`.
 
 ## 3.1.0 - 2024-06-02
 
