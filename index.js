@@ -545,8 +545,7 @@ async function createVcExamples() {
      */
 
     /**
-     * Add tab to tab container in DOM. Run callback function to populate
-     * content on tab click.
+     * Add tab to tab container in DOM. Run callback immediately.
      *
      * @param {string} suffix - One of the TAB_TYPES values (or `unsigned`).
      * @param {string} labelText - Human readable label name.
@@ -587,9 +586,7 @@ async function createVcExamples() {
       if(suffix === 'unsigned') {
         content.innerHTML = callback();
       } else {
-        label.addEventListener('click', async () => {
-          content.innerHTML = await callback();
-        }, {once: true});
+        callback().then(rv => content.innerHTML = rv);
       }
     }
 
