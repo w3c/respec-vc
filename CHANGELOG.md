@@ -11,6 +11,12 @@
 ### Fixed
 -
 
+## 3.3.x - 2024-mm-dd
+
+### Fixed
+- Removed the onclick event for loading tab contents to allow better Respec
+  exporting.
+
 ## 3.3.0 - 2024-07-02
 
 ### Added
