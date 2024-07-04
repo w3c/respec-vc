@@ -16,6 +16,7 @@
 ### Fixed
 - Removed the onclick event for loading tab contents to allow better Respec
   exporting.
+- Create truly unique IDs for example tab content.
 
 ## 3.3.0 - 2024-07-02
 

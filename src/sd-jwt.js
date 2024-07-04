@@ -134,30 +134,33 @@ export const getSdJwtExample = async (
   const header = getHeadersHtml(message);
   const payload = getPayloadHtml(message);
   const disclosures = await getDisclosuresHtml(message);
+
+  const uniqueId = `${prefix}-${index}-${Math.random().toString(36).substring(2, 9)}`;
+
   return `
 <div class="sd-jwt-tabbed">
-    <input type="radio" id="${prefix}-tab-${index}-encoded" name="${prefix}-tabs-${index}" checked="checked" tabindex="0">
-    <input type="radio" id="${prefix}-tab-${index}-decoded" name="${prefix}-tabs-${index}" tabindex="0">
-    <input type="radio" id="${prefix}-tab-${index}-disclosures" name="${prefix}-tabs-${index}" tabindex="0">
+    <input type="radio" id="${uniqueId}-encoded" name="${uniqueId}-tabs" checked="checked" tabindex="0">
+    <input type="radio" id="${uniqueId}-decoded" name="${uniqueId}-tabs" tabindex="0">
+    <input type="radio" id="${uniqueId}-disclosures" name="${uniqueId}-tabs" tabindex="0">
     <ul class="sd-jwt-tabs">
       <li class="sd-jwt-tab">
-        <label for="${prefix}-tab-${index}-encoded">Encoded</label>
+        <label for="${uniqueId}-encoded">Encoded</label>
       </li>
       <li class="sd-jwt-tab">
-        <label for="${prefix}-tab-${index}-decoded">Decoded</label>
+        <label for="${uniqueId}-decoded">Decoded</label>
       </li>
       <li class="sd-jwt-tab">
-        <label for="${prefix}-tab-${index}-disclosures">Issuer Disclosures</label>
+        <label for="${uniqueId}-disclosures">Issuer Disclosures</label>
       </li>
     </ul>
-    <div class="sd-jwt-tab-content" id="${prefix}-content-${index}-encoded">
+    <div class="sd-jwt-tab-content" id="${uniqueId}-content-encoded">
       ${encoded}
     </div>
-    <div class="sd-jwt-tab-content" id="${prefix}-content-${index}-decoded">
+    <div class="sd-jwt-tab-content" id="${uniqueId}-content-decoded">
       ${header}
       ${payload}
     </div>
-    <div class="sd-jwt-tab-content" id="${prefix}-content-${index}-disclosures">
+    <div class="sd-jwt-tab-content" id="${uniqueId}-content-disclosures">
       ${disclosures}
     </div>
 </div>
