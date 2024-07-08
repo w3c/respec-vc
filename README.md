@@ -178,3 +178,22 @@ $ npm i
 $ npm run build # build and watch index.js changes
 $ npm run start # serve this directory
 ```
+
+## Creating a Release
+
+NOTE: This release process is not ideal and is planned to be changed/imporved in future.
+
+To create a new release:
+
+1. Clear out `node_modules/` and `dist/`
+2. `git pull origin main`
+3. `git checkout -b VERSION` (where `VERSION` is something like `3.3.2`)
+4. `npm i`
+5. `npm run build`
+6. Test by running `npm run start` and ensure `index.html` loads without errors.
+7. `git add dist/main.js && git commit -a`
+6. `git tag VERSION`
+7. `git push --tags`
+
+**DO NOT merge the branch down to main.** All tagged releases are
+"headless" because they contain massive 7MB files.
