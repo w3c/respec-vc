@@ -105,10 +105,10 @@ export const getBinaryMessage = async (
     },
   };
   switch(messageType) {
-    case 'application/vc-ld+sd-jwt': {
+    case 'application/vc+sd-jwt': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp-ld+sd-jwt': {
+    case 'application/vp+sd-jwt': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
     default: {
@@ -126,7 +126,7 @@ export const getSdJwtExample = async (
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc-ld+sd-jwt' : 'application/vp-ld+sd-jwt';
+    'application/vc+sd-jwt' : 'application/vp+sd-jwt';
   const binaryMessage =
     await getBinaryMessage(privateKey, messageType, messageJson);
   const message = new TextDecoder().decode(binaryMessage);

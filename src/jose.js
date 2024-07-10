@@ -71,10 +71,10 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc-ld+jwt': {
+    case 'application/vc+jwt': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp-ld+jwt': {
+    case 'application/vp+jwt': {
       return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
@@ -87,7 +87,7 @@ export const getJoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
   const messageType = type.includes('VerifiableCredential') ?
-    'application/vc-ld+jwt' : 'application/vp-ld+jwt';
+    'application/vc+jwt' : 'application/vp+jwt';
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageEncoded = new TextDecoder().decode(message);
   const decodedHeader = jose.decodeProtectedHeader(messageEncoded);
