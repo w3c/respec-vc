@@ -106,10 +106,9 @@ export const getJoseExample = async (privateKey, messageJson) => {
   let messageType;
   if(type.includes('VerifiableCredential')) {
     messageType = 'application/vc+ld+jwt';
-  } else if(type.includes('VerifiablePresentation')) {
+  } else if(type.includes('VerifiablePresentation') ||
+    type.includes('EnvelopedVerifiablePresentation')) {
     messageType = 'application/vp+ld+jwt';
-  } else if(type.includes('EnvelopedVerifiablePresentation')) {
-    messageType = 'EnvelopedVerifiablePresentation';
   } else {
     throw new Error('Unknown message type');
   }
@@ -117,27 +116,15 @@ export const getJoseExample = async (privateKey, messageJson) => {
   const messageEncoded = new TextDecoder().decode(message);
   const decodedHeader = jose.decodeProtectedHeader(messageEncoded);
 
-  let contentHtml;
-  if(messageType === 'EnvelopedVerifiablePresentation') {
-    const cleanedMessageJson = {...messageJson};
-    if(Array.isArray(cleanedMessageJson.verifiableCredential) &&
-      cleanedMessageJson.verifiableCredential.length === 0) {
-      delete cleanedMessageJson.verifiableCredential;
-    }
-    contentHtml = `
-<h1>Enveloped Verifiable Presentation</h1>
-<pre>
-${JSON.stringify(cleanedMessageJson, null, 2)}
-</pre>
-<h1>application/vp+ld+jwt</h1>`;
-  } else {
-    contentHtml = `
-<h1>${messageType.replace('+jwt', '')}</h1>
+  if(Array.isArray(messageJson.verifiableCredential) &&
+    messageJson.verifiableCredential.length === 0) {
+    delete messageJson.verifiableCredential;
+  }
+  const contentHtml = `<h1>${messageType.replace('+ld+jwt', '')}</h1>
 <pre>
 ${JSON.stringify(messageJson, null, 2)}
 </pre>
-<h1>${messageType}</h1>`;
-  }
+<h1>${messageType.replace('+ld+jwt', '-ld+jwt')}</h1>`;
 
   return `
 <h1>Protected Headers</h1>

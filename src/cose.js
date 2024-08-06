@@ -27,27 +27,42 @@ const getPresentation = async (
   byteSigner,
   message,
 ) => {
-  const disclosures = (message.verifiableCredential || []).map(enveloped => {
-    const {id} = enveloped;
-    const type = id.includes('base64url') ?
-      id.split(';base64url,')[0].replace('data:', '') :
-      id.split(';')[0].replace('data:', '');
-    const content = id.includes('base64url') ?
-      new TextEncoder().encode(id.split('base64url,').pop()) :
-      new TextEncoder().encode(id.split(';').pop());
-    return {
-      type,
-      credential: content,
-    };
-  });
-  return holder({
-    alg: privateKey.alg,
-    type: 'application/vp+ld+json+cose',
-  }).issue({
-    signer: byteSigner,
-    presentation: message,
-    disclosures,
-  });
+  // Check if it's an EnvelopedVerifiablePresentation
+  if(message.type === 'EnvelopedVerifiablePresentation') {
+    // Remove empty verifiableCredential array if present
+    const cleanedMessage = {...message};
+    if(Array.isArray(cleanedMessage.verifiableCredential) &&
+      cleanedMessage.verifiableCredential.length === 0) {
+      delete cleanedMessage.verifiableCredential;
+    }
+
+    // COSE Sign1 message containing the cleaned EnvelopedVerifiablePresentation
+    const payload = new TextEncoder().encode(JSON.stringify(cleanedMessage));
+    return byteSigner.sign(payload);
+  } else {
+    // Handle regular VerifiablePresentation
+    const disclosures = (message.verifiableCredential || []).map(enveloped => {
+      const {id} = enveloped;
+      const type = id.includes('base64url') ?
+        id.split(';base64url,')[0].replace('data:', '') :
+        id.split(';')[0].replace('data:', '');
+      const content = id.includes('base64url') ?
+        new TextEncoder().encode(id.split('base64url,').pop()) :
+        new TextEncoder().encode(id.split(';').pop());
+      return {
+        type,
+        credential: content,
+      };
+    });
+    return holder({
+      alg: privateKey.alg,
+      type: 'application/vp+ld+json+cose',
+    }).issue({
+      signer: byteSigner,
+      presentation: message,
+      disclosures,
+    });
+  }
 };
 
 const getBinaryMessage = async (privateKey, messageType, messageJson) => {
@@ -66,10 +81,11 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc-ld+cose': {
+    case 'application/vc+ld+cose': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp-ld+cose': {
+    case 'application/vp+ld+cose':
+    case 'EnvelopedVerifiablePresentation': {
       return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
@@ -81,23 +97,37 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
 export const getCoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
-  const messageType = type.includes('VerifiableCredential') ?
-    'application/vc-ld+cose' : 'application/vp-ld+cose';
+  let messageType;
+  if(type.includes('VerifiableCredential')) {
+    messageType = 'application/vc+ld+cose';
+  } else if(type.includes('VerifiablePresentation') ||
+    type.includes('EnvelopedVerifiablePresentation')) {
+    messageType = 'application/vp+ld+cose';
+  } else {
+    throw new Error('Unknown message type');
+  }
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageHex = buf2hex(message);
   const messageBuffer = Buffer.from(messageHex, 'hex');
   const diagnostic =
     await edn.render(messageBuffer, 'application/cbor-diagnostic');
-  return `
-<h1>${messageType.replace('+cose', '')}</h1>
+
+  if(Array.isArray(messageJson.verifiableCredential) &&
+    messageJson.verifiableCredential.length === 0) {
+    delete messageJson.verifiableCredential;
+  }
+  const contentHtml = `<h1>${messageType.replace('+ld+cose', '')}</h1>
 <pre>
 ${JSON.stringify(messageJson, null, 2)}
-</pre>
+</pre>`;
+
+  return `
+${contentHtml}
 <h1>application/cbor-diagnostic</h1>
 <div class="cose-text">
 <pre><code>${diagnostic.trim()}</code></pre>
 </div>
-<h1>${messageType}</h1>
+<h1>${messageType.replace('+ld+cose', '-ld+cose')}</h1>
 <div class="cose-text">
 ${messageHex}
 </div>
