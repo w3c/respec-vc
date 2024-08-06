@@ -21,47 +21,32 @@ const getPresentation = async (
   byteSigner,
   message
 ) => {
-  // Check if it's an EnvelopedVerifiablePresentation
-  if(message.type === 'EnvelopedVerifiablePresentation') {
-    // Remove empty verifiableCredential array if present
-    const cleanedMessage = {...message};
-    if(Array.isArray(cleanedMessage.verifiableCredential) &&
-      cleanedMessage.verifiableCredential.length === 0) {
-      delete cleanedMessage.verifiableCredential;
-    }
-
-    // Create a new JWT containing the cleaned EnvelopedVerifiablePresentation
-    const payload = new TextEncoder().encode(JSON.stringify(cleanedMessage));
-    const jws = await new jose.CompactSign(payload)
-      .setProtectedHeader({kid: privateKey.kid, alg: privateKey.alg})
-      .sign(await key.importKeyLike({
-        type: 'application/jwk+json',
-        content: new TextEncoder().encode(JSON.stringify(privateKey)),
-      }));
-    return text.encoder.encode(jws);
-  } else {
-    // Handle regular VerifiablePresentation
-    const disclosures = (message.verifiableCredential || []).map(enveloped => {
-      const {id} = enveloped;
-      const type = id.includes('base64url') ? id.split(';base64url,')[0].
-        replace('data:', '') : id.split(';')[0].replace('data:', '');
-      const content = id.includes('base64url') ?
-        new TextEncoder().encode(id.split('base64url,').pop()) :
-        new TextEncoder().encode(id.split(';').pop());
-      return {
-        type,
-        credential: content,
-      };
-    });
-    return holder({
-      alg: privateKey.alg,
-      type: 'application/vp+ld+json+jwt',
-    }).issue({
-      signer: byteSigner,
-      presentation: message,
-      disclosures,
-    });
+  // Remove empty verifiableCredential array if present
+  if(Array.isArray(message.verifiableCredential) &&
+    message.verifiableCredential.length === 0) {
+    delete message.verifiableCredential;
   }
+
+  const disclosures = (message.verifiableCredential || []).map(enveloped => {
+    const {id} = enveloped;
+    const type = id.includes('base64url') ? id.split(';base64url,')[0].
+      replace('data:', '') : id.split(';')[0].replace('data:', '');
+    const content = id.includes('base64url') ?
+      new TextEncoder().encode(id.split('base64url,').pop()) :
+      new TextEncoder().encode(id.split(';').pop());
+    return {
+      type,
+      credential: content,
+    };
+  });
+  return holder({
+    alg: privateKey.alg,
+    type: 'application/vp+ld+json+jwt',
+  }).issue({
+    signer: byteSigner,
+    presentation: message,
+    disclosures,
+  });
 };
 
 const getJoseHtml = token => {
