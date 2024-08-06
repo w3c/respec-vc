@@ -88,6 +88,18 @@ const getCredential = async (
   });
 };
 
+const getPresentation = async (
+  privateKey,
+  byteSigner,
+  message,
+) => {
+  if(Array.isArray(message.verifiableCredential) &&
+    message.verifiableCredential.length === 0) {
+    delete message.verifiableCredential;
+  }
+  return getCredential(privateKey, byteSigner, message);
+};
+
 export const getBinaryMessage = async (
   privateKey,
   messageType,
@@ -108,8 +120,9 @@ export const getBinaryMessage = async (
     case 'application/vc-ld+sd-jwt': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp-ld+sd-jwt': {
-      return getCredential(privateKey, byteSigner, messageJson);
+    case 'application/vp-ld+sd-jwt':
+    case 'EnvelopedVerifiablePresentation': {
+      return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
       throw new Error('Unknown message type');
@@ -125,11 +138,25 @@ export const getSdJwtExample = async (
 ) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
-  const messageType = type.includes('VerifiableCredential') ?
-    'application/vc-ld+sd-jwt' : 'application/vp-ld+sd-jwt';
+  let messageType;
+  if(type.includes('VerifiableCredential')) {
+    messageType = 'application/vc-ld+sd-jwt';
+  } else if(type.includes('VerifiablePresentation') ||
+    type.includes('EnvelopedVerifiablePresentation')) {
+    messageType = 'application/vp-ld+sd-jwt';
+  } else {
+    throw new Error('Unknown message type');
+  }
+
   const binaryMessage =
     await getBinaryMessage(privateKey, messageType, messageJson);
   const message = new TextDecoder().decode(binaryMessage);
+
+  if(Array.isArray(messageJson.verifiableCredential) &&
+    messageJson.verifiableCredential.length === 0) {
+    delete messageJson.verifiableCredential;
+  }
+
   const encoded = getSdHtml(message);
   const header = getHeadersHtml(message);
   const payload = getPayloadHtml(message);
