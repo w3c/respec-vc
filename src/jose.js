@@ -1,9 +1,4 @@
-import {
-  holder,
-  issuer,
-  key,
-  text,
-} from '@transmute/verifiable-credentials';
+import {holder, issuer, key, text} from '@transmute/verifiable-credentials';
 
 import * as jose from 'jose';
 
@@ -26,26 +21,47 @@ const getPresentation = async (
   byteSigner,
   message
 ) => {
-  const disclosures = (message.verifiableCredential || []).map(enveloped => {
-    const {id} = enveloped;
-    const type = id.includes('base64url') ? id.split(';base64url,')[0].
-      replace('data:', '') : id.split(';')[0].replace('data:', '');
-    const content = id.includes('base64url') ?
-      new TextEncoder().encode(id.split('base64url,').pop()) :
-      new TextEncoder().encode(id.split(';').pop());
-    return {
-      type,
-      credential: content,
-    };
-  });
-  return holder({
-    alg: privateKey.alg,
-    type: 'application/vp+ld+json+jwt',
-  }).issue({
-    signer: byteSigner,
-    presentation: message,
-    disclosures,
-  });
+  // Check if it's an EnvelopedVerifiablePresentation
+  if(message.type === 'EnvelopedVerifiablePresentation') {
+    // Remove empty verifiableCredential array if present
+    const cleanedMessage = {...message};
+    if(Array.isArray(cleanedMessage.verifiableCredential) &&
+      cleanedMessage.verifiableCredential.length === 0) {
+      delete cleanedMessage.verifiableCredential;
+    }
+
+    // Create a new JWT containing the cleaned EnvelopedVerifiablePresentation
+    const payload = new TextEncoder().encode(JSON.stringify(cleanedMessage));
+    const jws = await new jose.CompactSign(payload)
+      .setProtectedHeader({kid: privateKey.kid, alg: privateKey.alg})
+      .sign(await key.importKeyLike({
+        type: 'application/jwk+json',
+        content: new TextEncoder().encode(JSON.stringify(privateKey)),
+      }));
+    return text.encoder.encode(jws);
+  } else {
+    // Handle regular VerifiablePresentation
+    const disclosures = (message.verifiableCredential || []).map(enveloped => {
+      const {id} = enveloped;
+      const type = id.includes('base64url') ? id.split(';base64url,')[0].
+        replace('data:', '') : id.split(';')[0].replace('data:', '');
+      const content = id.includes('base64url') ?
+        new TextEncoder().encode(id.split('base64url,').pop()) :
+        new TextEncoder().encode(id.split(';').pop());
+      return {
+        type,
+        credential: content,
+      };
+    });
+    return holder({
+      alg: privateKey.alg,
+      type: 'application/vp+ld+json+jwt',
+    }).issue({
+      signer: byteSigner,
+      presentation: message,
+      disclosures,
+    });
+  }
 };
 
 const getJoseHtml = token => {
@@ -71,10 +87,11 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc-ld+jwt': {
+    case 'application/vc+ld+jwt': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp-ld+jwt': {
+    case 'application/vp+ld+jwt':
+    case 'EnvelopedVerifiablePresentation': {
       return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
@@ -86,21 +103,48 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
 export const getJoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
-  const messageType = type.includes('VerifiableCredential') ?
-    'application/vc-ld+jwt' : 'application/vp-ld+jwt';
+  let messageType;
+  if(type.includes('VerifiableCredential')) {
+    messageType = 'application/vc+ld+jwt';
+  } else if(type.includes('VerifiablePresentation')) {
+    messageType = 'application/vp+ld+jwt';
+  } else if(type.includes('EnvelopedVerifiablePresentation')) {
+    messageType = 'EnvelopedVerifiablePresentation';
+  } else {
+    throw new Error('Unknown message type');
+  }
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageEncoded = new TextDecoder().decode(message);
   const decodedHeader = jose.decodeProtectedHeader(messageEncoded);
+
+  let contentHtml;
+  if(messageType === 'EnvelopedVerifiablePresentation') {
+    const cleanedMessageJson = {...messageJson};
+    if(Array.isArray(cleanedMessageJson.verifiableCredential) &&
+      cleanedMessageJson.verifiableCredential.length === 0) {
+      delete cleanedMessageJson.verifiableCredential;
+    }
+    contentHtml = `
+<h1>Enveloped Verifiable Presentation</h1>
+<pre>
+${JSON.stringify(cleanedMessageJson, null, 2)}
+</pre>
+<h1>application/vp+ld+jwt</h1>`;
+  } else {
+    contentHtml = `
+<h1>${messageType.replace('+jwt', '')}</h1>
+<pre>
+${JSON.stringify(messageJson, null, 2)}
+</pre>
+<h1>${messageType}</h1>`;
+  }
+
   return `
 <h1>Protected Headers</h1>
 <pre>
 ${JSON.stringify(decodedHeader, null, 2)}
 </pre>
-<h1>${messageType.replace('+jwt', '')}</h1>
-<pre>
-${JSON.stringify(messageJson, null, 2)}
-</pre>
-<h1>${messageType}</h1>
+${contentHtml}
 <div class="jose-text">
 ${getJoseHtml(messageEncoded)}
 </div>
