@@ -27,6 +27,11 @@ const getPresentation = async (
   byteSigner,
   message,
 ) => {
+  if(Array.isArray(message.verifiableCredential) &&
+    message.verifiableCredential.length === 0) {
+    delete message.verifiableCredential;
+  }
+
   const disclosures = (message.verifiableCredential || []).map(enveloped => {
     const {id} = enveloped;
     const type = id.includes('base64url') ?
@@ -66,10 +71,11 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
     },
   };
   switch(messageType) {
-    case 'application/vc-ld+cose': {
+    case 'application/vc+ld+cose': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp-ld+cose': {
+    case 'application/vp+ld+cose':
+    case 'EnvelopedVerifiablePresentation': {
       return getPresentation(privateKey, byteSigner, messageJson);
     }
     default: {
@@ -81,23 +87,37 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
 export const getCoseExample = async (privateKey, messageJson) => {
   const type = Array.isArray(messageJson.type) ?
     messageJson.type : [messageJson.type];
-  const messageType = type.includes('VerifiableCredential') ?
-    'application/vc-ld+cose' : 'application/vp-ld+cose';
+  let messageType;
+  if(type.includes('VerifiableCredential')) {
+    messageType = 'application/vc+ld+cose';
+  } else if(type.includes('VerifiablePresentation') ||
+    type.includes('EnvelopedVerifiablePresentation')) {
+    messageType = 'application/vp+ld+cose';
+  } else {
+    throw new Error('Unknown message type');
+  }
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageHex = buf2hex(message);
   const messageBuffer = Buffer.from(messageHex, 'hex');
   const diagnostic =
     await edn.render(messageBuffer, 'application/cbor-diagnostic');
-  return `
-<h1>${messageType.replace('+cose', '')}</h1>
+
+  if(Array.isArray(messageJson.verifiableCredential) &&
+    messageJson.verifiableCredential.length === 0) {
+    delete messageJson.verifiableCredential;
+  }
+  const contentHtml = `<h1>${messageType.replace('+ld+cose', '')}</h1>
 <pre>
 ${JSON.stringify(messageJson, null, 2)}
-</pre>
+</pre>`;
+
+  return `
+${contentHtml}
 <h1>application/cbor-diagnostic</h1>
 <div class="cose-text">
 <pre><code>${diagnostic.trim()}</code></pre>
 </div>
-<h1>${messageType}</h1>
+<h1>${messageType.replace('+ld+cose', '-ld+cose')}</h1>
 <div class="cose-text">
 ${messageHex}
 </div>
