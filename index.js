@@ -552,7 +552,7 @@ async function createVcExamples() {
      * @param {string} tabText - Text to display on the tab.
      * @param {contentCallback} callback - Function which returns HTML.
      */
-    function addTab(suffix, labelText, tabText, callback) {
+    async function addTab(suffix, labelText, tabText, callback) {
       const button = document.createElement('input');
       button.setAttribute('type', 'radio');
       button.setAttribute('id', `vc-tab${vcProofExampleIndex}${suffix}`);
@@ -586,7 +586,7 @@ async function createVcExamples() {
       if(suffix === 'unsigned') {
         content.innerHTML = callback();
       } else {
-        callback().then(rv => content.innerHTML = rv);
+        content.innerHTML = await callback();
       }
     }
 
@@ -608,7 +608,7 @@ async function createVcExamples() {
         suite.verificationMethod = verificationMethod;
       }
 
-      addTab(label, `Secured with Data Integrity - ${label}`, tabText, async () => {
+      await addTab(label, `Secured with Data Integrity - ${label}`, tabText, async () => {
         // attach the proof
         try {
           verifiableCredentialProof = await attachProof({credential, suite});
@@ -633,14 +633,14 @@ async function createVcExamples() {
 
     // set up the unsigned button
     if(credential.type.includes('VerifiablePresentation')) {
-      addTab(
+      await addTab(
         'unsigned',
         'Unsecured presentation',
         'Presentation',
         () => example.outerHTML,
       );
     } else {
-      addTab(
+      await addTab(
         'unsigned',
         'Unsecured credential',
         'Credential',
@@ -659,7 +659,7 @@ async function createVcExamples() {
     }
 
     if(hasTab('jose')) {
-      addTab('jose', 'Secured with JOSE', 'jose',
+      await addTab('jose', 'Secured with JOSE', 'jose',
         async () => {
           const joseExample = await getJoseExample(privateKeyJwk, credential);
           return getJoseHtml({joseExample});
@@ -667,7 +667,7 @@ async function createVcExamples() {
     }
 
     if(hasTab('sd-jwt')) {
-      addTab('sd-jwt', 'Secured with SD-JWT', 'sd-jwt', async () => {
+      await addTab('sd-jwt', 'Secured with SD-JWT', 'sd-jwt', async () => {
         const sdJwtExample =
           await getSdJwtExample(vcProofExampleIndex, privateKeyJwk, credential);
         return getSdJwtHtml({sdJwtExample});
@@ -675,7 +675,7 @@ async function createVcExamples() {
     }
 
     if(hasTab('cose')) {
-      addTab('cose', 'Secured with COSE', 'cose',
+      await addTab('cose', 'Secured with COSE', 'cose',
         async () => {
           const coseExample = await getCoseExample(privateKeyJwk, credential);
           return getCoseHtml({coseExample});
