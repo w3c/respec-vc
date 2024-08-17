@@ -11,16 +11,15 @@
 ### Fixed
 -
 
-## 3.3.x - 2024-mm-dd
-
-### Added
--
-
-### Changed
--
+## 3.3.4 - 2024-08-17
 
 ### Fixed
--
+- Await rendering for headless ReSpec/Echidna usage
+
+## 3.3.3 - 2024-08-07
+
+### Added
+- Support rendering Enveloped Verifiable Presentations
 
 ## 3.3.2 - 2024-07-05
 
