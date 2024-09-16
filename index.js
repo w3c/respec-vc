@@ -666,20 +666,20 @@ async function createVcExamples() {
         });
     }
 
-    if(hasTab('sd-jwt')) {
-      await addTab('sd-jwt', 'Secured with SD-JWT', 'sd-jwt', async () => {
-        const sdJwtExample =
-          await getSdJwtExample(vcProofExampleIndex, privateKeyJwk, credential);
-        return getSdJwtHtml({sdJwtExample});
-      });
-    }
-
     if(hasTab('cose')) {
       await addTab('cose', 'Secured with COSE', 'cose',
         async () => {
           const coseExample = await getCoseExample(privateKeyJwk, credential);
           return getCoseHtml({coseExample});
         });
+    }
+
+    if(hasTab('sd-jwt')) {
+      await addTab('sd-jwt', 'Secured with SD-JWT', 'sd-jwt', async () => {
+        const sdJwtExample =
+          await getSdJwtExample(vcProofExampleIndex, privateKeyJwk, credential);
+        return getSdJwtHtml({sdJwtExample});
+      });
     }
     // append the tabbed content
 
