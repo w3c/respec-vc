@@ -15,6 +15,8 @@
 
 ### Fixed
 - Moved `sd-jwt` tab to end of tab list to fix `cose` rendering.
+- Changed headers in examples to use `<strong>` instead of `<h1>` for HTML
+  validation and accessibility.
 
 ## 3.3.3 - 2024-08-07
 
