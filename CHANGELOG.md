@@ -11,7 +11,7 @@
 ### Fixed
 -
 
-## 3.x.x - 2024-mm-dd
+## 3.3.5 - 2024-09-18
 
 ### Fixed
 - Await rendering for headless ReSpec/Echidna usage
