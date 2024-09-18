@@ -213,11 +213,6 @@ li.vc-tab {
   display: none;
 }
 
-.vc-tab-content h1 {
-  font-size: 1em;
-  margin: 0 0;
-}
-
 .vc-jose-cose-tabbed, .vc-jose-cose-tabbed-jwt,
 .vc-jose-cose-tabbed-sd-jwt, .vc-jose-cose-tabbed-cose,
 .sd-jwt-tabbed {
@@ -616,7 +611,7 @@ async function createVcExamples() {
             (verifiableCredentialProof.type
               .includes('VerifiablePresentation')) ?
               'application/vp' : 'application/vc';
-          return `<h1>${mediaType}</h1>
+          return `<strong>${mediaType}</strong>
             <pre>${JSON.stringify(verifiableCredentialProof, null, 2)
     .match(/.{1,75}/g).join('\n')}</pre>`;
         } catch(e) {
