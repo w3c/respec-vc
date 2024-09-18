@@ -106,18 +106,18 @@ export const getCoseExample = async (privateKey, messageJson) => {
     messageJson.verifiableCredential.length === 0) {
     delete messageJson.verifiableCredential;
   }
-  const contentHtml = `<h1>${messageType.replace('+ld+cose', '')}</h1>
+  const contentHtml = `<strong>${messageType.replace('+ld+cose', '')}</strong>
 <pre>
 ${JSON.stringify(messageJson, null, 2)}
 </pre>`;
 
   return `
 ${contentHtml}
-<h1>application/cbor-diagnostic</h1>
+<strong>application/cbor-diagnostic</strong>
 <div class="cose-text">
 <pre><code>${diagnostic.trim()}</code></pre>
 </div>
-<h1>${messageType.replace('+ld+cose', '-ld+cose')}</h1>
+<strong>${messageType.replace('+ld+cose', '-ld+cose')}</strong>
 <div class="cose-text">
 ${messageHex}
 </div>
