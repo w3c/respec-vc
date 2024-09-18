@@ -11,6 +11,11 @@
 ### Fixed
 -
 
+## 3.x.x - 2024-mm-dd
+
+### Fixed
+- Moved `sd-jwt` tab to end of tab list to fix `cose` rendering.
+
 ## 3.3.3 - 2024-08-07
 
 ### Added
