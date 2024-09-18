@@ -18,6 +18,11 @@
 - Changed headers in examples to use `<strong>` instead of `<h1>` for HTML
   validation and accessibility.
 
+## 3.3.4 - 2024-08-17
+
+### Fixed
+- Await rendering for headless ReSpec/Echidna useage.
+
 ## 3.3.3 - 2024-08-07
 
 ### Added
