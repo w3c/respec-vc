@@ -105,14 +105,14 @@ export const getJoseExample = async (privateKey, messageJson) => {
     messageJson.verifiableCredential.length === 0) {
     delete messageJson.verifiableCredential;
   }
-  const contentHtml = `<h1>${messageType.replace('+ld+jwt', '')}</h1>
+  const contentHtml = `<strong>${messageType.replace('+ld+jwt', '')}</strong>
 <pre>
 ${JSON.stringify(messageJson, null, 2)}
 </pre>
-<h1>${messageType.replace('+ld+jwt', '-ld+jwt')}</h1>`;
+<strong>${messageType.replace('+ld+jwt', '-ld+jwt')}</strong>`;
 
   return `
-<h1>Protected Headers</h1>
+<strong>Protected Headers</strong>
 <pre>
 ${JSON.stringify(decodedHeader, null, 2)}
 </pre>
