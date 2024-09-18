@@ -11,16 +11,10 @@
 ### Fixed
 -
 
-## 3.3.x - 2024-mm-dd
+## 3.3.3 - 2024-08-07
 
 ### Added
--
-
-### Changed
--
-
-### Fixed
--
+- Support rendering Enveloped Verifiable Presentations.
 
 ## 3.3.2 - 2024-07-05
 
