@@ -23,7 +23,7 @@ of files that are retrievable by a browser environment.
 To use this extension, include the following line in your ReSpec file:
 
 ```html
-<script class="remove" src="https://cdn.jsdelivr.net/gh/w3c/respec-vc@3.3.2/dist/main.js"></script>
+<script class="remove" src="https://cdn.jsdelivr.net/gh/w3c/respec-vc@3.3.5/dist/main.js"></script>
 ```
 
 Note that there might be releases later than the one listed above.
@@ -191,7 +191,7 @@ To create a new release:
 4. `npm i`
 5. `npm run build`
 6. Test by running `npm run start` and ensure `index.html` loads without errors.
-7. `git add dist/main.js && git commit -a`
+7. `git add -f dist/main.js && git commit -a`
 6. `git tag VERSION`
 7. `git push --tags`
 
