@@ -34,7 +34,7 @@ const getSdHtml = vc => {
 <span class="sd-jwt-header">${header}</span>
 .<span class="sd-jwt-payload">${payload}</span>
 .<span class="sd-jwt-signature">${signature}</span>
-${disclosures}
+${disclosures}~
 </div>`;
 };
 
