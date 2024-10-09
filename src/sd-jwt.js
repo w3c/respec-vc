@@ -34,7 +34,7 @@ const getSdHtml = vc => {
 <span class="sd-jwt-header">${header}</span>
 .<span class="sd-jwt-payload">${payload}</span>
 .<span class="sd-jwt-signature">${signature}</span>
-${disclosures}
+${disclosures}~
 </div>`;
 };
 
@@ -117,10 +117,10 @@ export const getBinaryMessage = async (
     },
   };
   switch(messageType) {
-    case 'application/vc-ld+sd-jwt': {
+    case 'application/vc+sd-jwt': {
       return getCredential(privateKey, byteSigner, messageJson);
     }
-    case 'application/vp-ld+sd-jwt':
+    case 'application/vp+sd-jwt':
     case 'EnvelopedVerifiablePresentation': {
       return getPresentation(privateKey, byteSigner, messageJson);
     }
@@ -140,10 +140,10 @@ export const getSdJwtExample = async (
     messageJson.type : [messageJson.type];
   let messageType;
   if(type.includes('VerifiableCredential')) {
-    messageType = 'application/vc-ld+sd-jwt';
+    messageType = 'application/vc+sd-jwt';
   } else if(type.includes('VerifiablePresentation') ||
     type.includes('EnvelopedVerifiablePresentation')) {
-    messageType = 'application/vp-ld+sd-jwt';
+    messageType = 'application/vp+sd-jwt';
   } else {
     throw new Error('Unknown message type');
   }
