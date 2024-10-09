@@ -117,7 +117,7 @@ ${contentHtml}
 <div class="cose-text">
 <pre><code>${diagnostic.trim()}</code></pre>
 </div>
-<strong>${messageType.replace('+ld+cose', '-ld+cose')}</strong>
+<strong>${messageType.replace('+ld+cose', '+cose')}</strong>
 <div class="cose-text">
 ${messageHex}
 </div>

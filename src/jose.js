@@ -109,7 +109,7 @@ export const getJoseExample = async (privateKey, messageJson) => {
 <pre>
 ${JSON.stringify(messageJson, null, 2)}
 </pre>
-<strong>${messageType.replace('+ld+jwt', '-ld+jwt')}</strong>`;
+<strong>${messageType.replace('+ld+jwt', '+jwt')}</strong>`;
 
   return `
 <strong>Protected Headers</strong>
