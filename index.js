@@ -212,6 +212,9 @@ li.vc-tab {
 .vc-tab-content {
   display: none;
 }
+.vc-tab-content > pre {
+  white-space: pre-wrap;
+}
 
 .vc-jose-cose-tabbed, .vc-jose-cose-tabbed-jwt,
 .vc-jose-cose-tabbed-sd-jwt, .vc-jose-cose-tabbed-cose,
@@ -612,8 +615,7 @@ async function createVcExamples() {
               .includes('VerifiablePresentation')) ?
               'application/vp' : 'application/vc';
           return `<strong>${mediaType}</strong>
-            <pre>${JSON.stringify(verifiableCredentialProof, null, 2)
-    .match(/.{1,75}/g).join('\n')}</pre>`;
+            <pre>${JSON.stringify(verifiableCredentialProof, null, 2)}</pre>`;
         } catch(e) {
           console.error(
             'respec-vc error: Failed to attach proof to Verifiable Credential.',
