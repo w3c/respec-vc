@@ -12,6 +12,7 @@ import * as examples1Context from '@digitalbazaar/credentials-examples-context';
 import * as jose from 'jose';
 import * as mfHasher from 'multiformats/hashes/hasher';
 import * as odrlContext from '@digitalbazaar/odrl-context';
+import * as vpqr from '@digitalbazaar/vpqr';
 import {base64pad, base64url} from 'multiformats/bases/base64';
 import {defaultDocumentLoader, issue} from '@digitalbazaar/vc';
 import {extendContextLoader, purposes} from 'jsonld-signatures';
@@ -76,8 +77,8 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
     return context;
   } catch(e) {
     console.log(
-      'Warning: Do not load context files from the network in production.');
-    console.log('Warning: Loading context URL from network:', url);
+      'Warning: Do not load context files from the network in production. ' +
+      'Developer mode: loading context URL from network:', url);
   }
 
   // attempt to load from network
@@ -688,7 +689,6 @@ async function createVcExamples() {
           const cborDiagnostic = cbor2.diagnose(cborldBytes, {
             pretty: true
           });
-          console.log("DIAGNOSE", cborDiagnostic);
 
           const mediaType =
             (verifiableCredentialProof.type
@@ -715,6 +715,72 @@ async function createVcExamples() {
         } catch(e) {
           console.error(
             'respec-vc error: Failed to generate CBOR-LD output.',
+            e, example.innerText);
+        }
+      });
+    }
+
+    /**
+     * Add a VC QR Code example tab.
+     *
+     * @global string verificationMethod
+     * @param {object} suite - Suite object.
+     * @param {string} tabText - Text to display on the tab.
+     * @param {string | undefined} key - Optional key to use for the proof.
+     */
+    async function addVcQrTab(suite, tabText, key) {
+      let verifiableCredentialProof;
+
+      if(key) {
+        suite.verificationMethod = 'did:key:' + key.publicKeyMultibase;
+      } else {
+        suite.verificationMethod = verificationMethod;
+      }
+
+      await addTab('vc-qr', `QR Code`, tabText, async () => {
+        // attach the proof
+        try {
+          verifiableCredentialProof = await attachProof({credential, suite});
+          const cborldBytes = await cborld.encode({
+            jsonldDocument: verifiableCredentialProof,
+            documentLoader
+          });
+          const jsonldDiagnostic =
+            JSON.stringify(verifiableCredentialProof, null, 2);
+          const header = (verifiableCredentialProof.type
+            .includes('VerifiablePresentation')) ? 'VP1-' : 'VC1-';
+
+          const {
+            version, payload, imageDataUrl
+          } = await vpqr.util.toQrCode({
+            header,
+            cborldBytes,
+            documentLoader,
+            moduleSize: 2,
+            margin: 16
+          });
+
+          const qrImage = imageDataUrl;
+          const qrText = payload;
+          return `
+            <strong>image/png</strong>
+            <br/><br/>
+            <img src="${qrImage}" /><br/>
+            QR Code version: ${version}<br/>
+            Error correction: Low<br/>
+            <hr>
+            <strong>QR Code Content (text)</strong>
+            <pre style="font-size: 75%"
+              >${qrText.match(/.{1,100}/g).join('\n')}
+            </pre>
+            <hr>
+            <strong>JSON-LD Diagnostic Mode</strong>
+            <pre style="font-size: 75%"
+              >${jsonldDiagnostic.match(/.{1,100}/g).join('\n')}}
+            </pre>`;
+        } catch(e) {
+          console.error(
+            'respec-vc error: Failed to generate QR Code output.',
             e, example.innerText);
         }
       });
@@ -761,6 +827,18 @@ async function createVcExamples() {
         }
       }
       await addCborldTab(ecdsaProof, 'cbor-ld', ecdsaKey);
+    }
+
+    if(hasTab('vc-qr')) {
+      let ecdsaProof;
+      let ecdsaKey;
+      for(const {proof, key, label} of exampleProofs) {
+        if(label === 'ecdsa') {
+          ecdsaProof = proof;
+          ecdsaKey = key;
+        }
+      }
+      await addVcQrTab(ecdsaProof, 'vc-qr', ecdsaKey);
     }
 
     // if(hasTab('vc-qr')) {
