@@ -167,6 +167,40 @@
 </section>
 
 <section>
+  <h1>QR Code Encoding Example</h1>
+  <p>This example shows use of <code>data-vc-tabs</code> to include VCs
+    encoded as QR Codes (and CBOR Diagnostic Output).</p>
+  <pre class="example nohighlight vc" title="A Verifiable Credential encoded as a QR Code"
+       data-vc-vm='https://example.edu/issuers/565049/keys/1'
+       data-vc-tabs="cbor-ld vc-qr">
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://w3id.org/identification/v1rc1"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "IdentificationDocumentCredential"
+  ],
+  "issuer": "did:web:utopia.example",
+  "validFrom": "2025-01-01T11:30:00Z",
+  "validUntil": "2026-01-01T11:30:00Z",
+  "credentialSubject": {
+    "type": "Person",
+    "name": "John Doe",
+    "image": "https://images.example/johndoe.jpg",
+    "identificationDocument": {
+      "type": "IdentificationDocument",
+      "name": "Utopia Student ID",
+      "documentIdentifier": "123456789",
+      "validUntil": "2026-01-01T11:30:00Z"
+    }
+  }
+}
+      </pre>
+</section>
+
+<section>
   <h1>File Hash Examples</h1>
   <p>
     This section demonstrates the hashing of remote files. Hashes for

@@ -1,5 +1,7 @@
 import * as bbs2023Cryptosuite from '@digitalbazaar/bbs-2023-cryptosuite';
 import * as Bls12381Multikey from '@digitalbazaar/bls12-381-multikey';
+import * as cbor2 from 'cbor2';
+import * as cborld from '@digitalbazaar/cborld';
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
 import * as ecdsaRdfc2019Cryptosuite from
   '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
@@ -40,6 +42,8 @@ const TAB_TYPES = [
   'jose',
   'sd-jwt',
   'cose',
+  'cbor-ld',
+  'vc-qr'
 ];
 // additional types: Ed25519Signature2020
 
@@ -65,7 +69,29 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
       document: context,
     };
   }
-  return defaultDocumentLoader(url);
+
+  // try the default document loader
+  try {
+    const context = await defaultDocumentLoader(url);
+    return context;
+  } catch(e) {
+    console.log(
+      'Warning: Do not load context files from the network in production.');
+    console.log('Warning: Loading context URL from network:', url);
+  }
+
+  // attempt to load from network
+  try {
+    const response = await fetch(url);
+    const document = await response.json();
+    return {
+      contextUrl: null,
+      documentUrl: url,
+      document,
+    };
+  } catch(e) {
+    console.error('Error: Failed to retrieve', url);
+  }
 });
 
 async function createBBSExampleProof() {
@@ -505,9 +531,9 @@ async function createVcExamples() {
   addVcExampleStyles();
 
   // process every example that needs a vc-proof
-  const vcProofExamples = document.querySelectorAll('.vc');
+  const vcExamples = document.querySelectorAll('.vc');
   let vcProofExampleIndex = 0;
-  for(const example of vcProofExamples) {
+  for(const example of vcExamples) {
     vcProofExampleIndex++;
 
     const verificationMethod = example.dataset?.vcVm ||
@@ -624,6 +650,76 @@ async function createVcExamples() {
       });
     }
 
+    /**
+     * Add a CBOR-LD example tab.
+     *
+     * @global string verificationMethod
+     * @param {object} suite - Suite object.
+     * @param {string} tabText - Text to display on the tab.
+     * @param {string | undefined} key - Optional key to use for the proof.
+     */
+    async function addCborldTab(suite, tabText, key) {
+      let verifiableCredentialProof;
+
+      if(key) {
+        suite.verificationMethod = 'did:key:' + key.publicKeyMultibase;
+      } else {
+        suite.verificationMethod = verificationMethod;
+      }
+
+      await addTab('cbor-ld', `CBOR-LD`, tabText, async () => {
+        // attach the proof
+        try {
+          verifiableCredentialProof = await attachProof({credential, suite});
+          const jsonldDiagnostic =
+            JSON.stringify(verifiableCredentialProof, null, 2);
+          const jsonldSize =
+            JSON.stringify(verifiableCredentialProof).length;
+
+          const cborldBytes = await cborld.encode({
+            jsonldDocument: verifiableCredentialProof,
+            documentLoader
+          });
+          const cborldSize = cborldBytes.length;
+          const cborldHex = Array.from(cborldBytes, byte =>
+            byte.toString(16).padStart(2, '0')).join('');
+          const percentage =
+            Math.floor(((jsonldSize - cborldSize) / jsonldSize) * 100);
+          const cborDiagnostic = cbor2.diagnose(cborldBytes, {
+            pretty: true
+          });
+          console.log("DIAGNOSE", cborDiagnostic);
+
+          const mediaType =
+            (verifiableCredentialProof.type
+              .includes('VerifiablePresentation')) ?
+              'application/vp' : 'application/vc';
+          return `
+            <strong>${mediaType}+cborld</strong>
+            <br/><br/>
+            ${cborldHex}
+            <br/><br/>
+            JSON-LD size: ${jsonldSize} bytes<br/>
+            CBOR-LD size: ${cborldSize} bytes<br/>
+            Compression : ${percentage}%<br/>
+            <hr>
+            <strong>${mediaType}</strong>
+            <pre style="font-size: 75%"
+              >${jsonldDiagnostic.match(/.{1,100}/g).join('\n')}
+            </pre>
+            <hr>
+            <strong>CBOR-LD Diagnostic Mode</strong>
+            <pre style="font-size: 75%"
+              >${cborDiagnostic.match(/.{1,100}/g).join('\n')}}
+            </pre>`;
+        } catch(e) {
+          console.error(
+            'respec-vc error: Failed to generate CBOR-LD output.',
+            e, example.innerText);
+        }
+      });
+    }
+
     function hasTab(identifier) {
       return tabTypes.indexOf(identifier) > -1;
     }
@@ -654,6 +750,22 @@ async function createVcExamples() {
     if(hasTab(suiteEd25519Signature2020.type)) {
       await addProofTab(suiteEd25519Signature2020, 'Ed25519Signature2020');
     }
+
+    if(hasTab('cbor-ld')) {
+      let ecdsaProof;
+      let ecdsaKey;
+      for(const {proof, key, label} of exampleProofs) {
+        if(label === 'ecdsa') {
+          ecdsaProof = proof;
+          ecdsaKey = key;
+        }
+      }
+      await addCborldTab(ecdsaProof, 'cbor-ld', ecdsaKey);
+    }
+
+    // if(hasTab('vc-qr')) {
+    //   await addVcQrcodeTab();
+    // }
 
     if(hasTab('jose')) {
       await addTab('jose', 'Secured with JOSE', 'jose',
