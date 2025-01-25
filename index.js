@@ -44,7 +44,7 @@ const TAB_TYPES = [
   'sd-jwt',
   'cose',
   'cbor-ld',
-  'vc-qr'
+  'qr'
 ];
 // additional types: Ed25519Signature2020
 
@@ -666,7 +666,7 @@ async function createVcExamples() {
         suite.verificationMethod = verificationMethod;
       }
 
-      await addTab('cbor-ld', `CBOR-LD`, tabText, async () => {
+      await addTab('Binary', `Encoded as CBOR-LD`, tabText, async () => {
         // attach the proof
         try {
           verifiableCredentialProof = await attachProof({credential, suite});
@@ -735,7 +735,7 @@ async function createVcExamples() {
         suite.verificationMethod = verificationMethod;
       }
 
-      await addTab('vc-qr', `QR Code`, tabText, async () => {
+      await addTab('QR Code', `Encoded as a QR Code`, tabText, async () => {
         // attach the proof
         try {
           verifiableCredentialProof = await attachProof({credential, suite});
@@ -824,10 +824,10 @@ async function createVcExamples() {
           ecdsaKey = key;
         }
       }
-      await addCborldTab(ecdsaProof, 'cbor-ld', ecdsaKey);
+      await addCborldTab(ecdsaProof, 'Binary', ecdsaKey);
     }
 
-    if(hasTab('vc-qr')) {
+    if(hasTab('qr')) {
       let ecdsaProof;
       let ecdsaKey;
       for(const {proof, key, label} of exampleProofs) {
@@ -836,12 +836,8 @@ async function createVcExamples() {
           ecdsaKey = key;
         }
       }
-      await addVcQrTab(ecdsaProof, 'vc-qr', ecdsaKey);
+      await addVcQrTab(ecdsaProof, 'QR Code', ecdsaKey);
     }
-
-    // if(hasTab('vc-qr')) {
-    //   await addVcQrcodeTab();
-    // }
 
     if(hasTab('jose')) {
       await addTab('jose', 'Secured with JOSE', 'jose',
