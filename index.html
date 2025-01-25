@@ -172,28 +172,38 @@
     encoded as QR Codes (and CBOR Diagnostic Output).</p>
   <pre class="example nohighlight vc" title="A Verifiable Credential encoded as a QR Code"
        data-vc-vm='https://example.edu/issuers/565049/keys/1'
-       data-vc-tabs="cbor-ld vc-qr">
+       data-vc-tabs="cbor-ld qr">
 {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
-    "https://w3id.org/identification/v1rc1"
+    "https://w3id.org/vdl/v2"
   ],
   "type": [
     "VerifiableCredential",
-    "IdentificationDocumentCredential"
+    "Iso18013DriversLicenseCredential"
   ],
-  "issuer": "did:web:utopia.example",
-  "validFrom": "2025-01-01T11:30:00Z",
-  "validUntil": "2026-01-01T11:30:00Z",
+  "issuer": "did:key:z6MkjxvA4FNrQUhr8f7xhdQuP1VPzErkcnfxsRaU5oFgy2E5",
+  "validFrom": "2023-11-15T10:00:00Z",
+  "validUntil": "2028-11-15T12:00:00Z",
+  "name": "Utopia Driver's License",
+  "image": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUg...kSuQmCC",
+  "description": "A license granting driving privileges in Utopia.",
   "credentialSubject": {
-    "type": "Person",
-    "name": "John Doe",
-    "image": "https://images.example/johndoe.jpg",
-    "identificationDocument": {
-      "type": "IdentificationDocument",
-      "name": "Utopia Student ID",
-      "documentIdentifier": "123456789",
-      "validUntil": "2026-01-01T11:30:00Z"
+    "id": "did:example:12347abcd",
+    "type": "LicensedDriver",
+    "driversLicense": {
+      "type": "Iso18013DriversLicense",
+      "document_number": "542426814",
+      "family_name": "TURNER",
+      "given_name": "SUSAN",
+      "portrait": "data:image/jpeg;base64,/9j/4AAQSkZJR...RSClooooP/2Q==",
+      "birth_date": "1998-08-28",
+      "issue_date": "2023-01-15T10:00:00Z",
+      "expiry_date": "2028-08-27T12:00:00Z",
+      "issuing_country": "UA",
+      "issuing_authority": "UADMV",
+      "un_distinguishing_sign": "UTA",
+      "sex": 2
     }
   }
 }
