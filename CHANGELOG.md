@@ -19,7 +19,7 @@
 ## 3.3.3 - 2024-08-07
 
 ### Added
-- Support rendering Enveloped Verifiable Presentations
+- Support rendering Enveloped Verifiable Presentations.
 
 ## 3.3.2 - 2024-07-05
 
