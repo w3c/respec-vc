@@ -11,6 +11,12 @@
 ### Fixed
 -
 
+## 3.4.0 - 2025-01-25
+
+### Added
+- Support for CBOR-LD tab
+- Support for QR Code tab
+
 ## 3.3.5 - 2024-09-18
 
 ### Fixed
