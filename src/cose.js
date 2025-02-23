@@ -98,9 +98,6 @@ export const getCoseExample = async (privateKey, messageJson) => {
   }
   const message = await getBinaryMessage(privateKey, messageType, messageJson);
   const messageHex = buf2hex(message);
-  const messageBuffer = Buffer.from(messageHex, 'hex');
-  const diagnostic =
-    await edn.render(messageBuffer, 'application/cbor-diagnostic');
 
   if(Array.isArray(messageJson.verifiableCredential) &&
     messageJson.verifiableCredential.length === 0) {
@@ -113,10 +110,6 @@ ${JSON.stringify(messageJson, null, 2)}
 
   return `
 ${contentHtml}
-<strong>application/cbor-diagnostic</strong>
-<div class="cose-text">
-<pre><code>${diagnostic.trim()}</code></pre>
-</div>
 <strong>${messageType.replace('+ld+cose', '+cose')}</strong>
 <div class="cose-text">
 ${messageHex}
