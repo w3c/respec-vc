@@ -11,6 +11,11 @@
 ### Fixed
 -
 
+## 3.4.1 - 2025-02-23
+
+### Changed
+- Removed half-baked COSESign1 diagnostic mode output.
+
 ## 3.4.0 - 2025-01-25
 
 ### Added
