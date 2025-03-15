@@ -76,6 +76,7 @@ Optional:
   }
 }
 </pre>
+```
 
 ### Set Verification Method
 
