@@ -109,7 +109,7 @@ method (e.g., a URL to a public key):
 
 It is possible to use semantic compression to highly compress VCs to 
 compact binary representations as small as 185 bytes. You can do 
-so by using the 'cbor-ld` option in `data-vc-tabs`. The output
+so by using the `cbor-ld` option in `data-vc-tabs`. The output
 will look like the following:
 
 ![image](https://github.com/user-attachments/assets/821c6841-f7db-44e4-99d6-132918fc5b1e)
