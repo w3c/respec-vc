@@ -1,5 +1,4 @@
 import * as cose from '@transmute/cose';
-import * as edn from '@transmute/edn';
 import {holder, issuer} from '@transmute/verifiable-credentials';
 
 function buf2hex(buffer) {

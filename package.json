@@ -37,7 +37,6 @@
     "@digitalbazaar/vpqr": "^5.1.0",
     "@noble/hashes": "^1.4.0",
     "@transmute/cose": "^0.1.1",
-    "@transmute/edn": "^0.0.5",
     "@transmute/verifiable-credentials": "^0.2.0",
     "cbor2": "^1.9.0",
     "ed25519-signature-2020-context": "^1.1.0",
