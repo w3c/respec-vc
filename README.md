@@ -103,6 +103,21 @@ method (e.g., a URL to a public key):
 </pre>
 ```
 
+# Generate Binary VCs and QR Codes
+
+It is possible to use semantic compression to highly compress VCs to 
+compact binary representations as small as 185 bytes. You can do 
+so by using the 'cbor-ld` option in `data-vc-tabs`. The output
+will look like the following:
+
+![image](https://github.com/user-attachments/assets/821c6841-f7db-44e4-99d6-132918fc5b1e)
+
+It is also possible to represent these binary representations using QR Codes.
+You can show a QR Code encoding of a VC by using the `qr` option in 
+`data-vc-tabs`:
+
+![image](https://github.com/user-attachments/assets/19259b8c-c193-486b-a0c3-f13fd0aba1e4)
+
 # Generate Cryptographic Hashes
 
 To use this extension, you must add the `vc-hash` class to an HTML element
