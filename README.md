@@ -49,6 +49,8 @@ On by default:
 * `jose` - https://w3c.github.io/vc-jose-cose/#with-jose
 
 Optional:
+* `cbor-ld` - https://json-ld.github.io/cbor-ld-spec/
+* `qr` - https://w3c-ccg.github.io/vc-barcodes/
 * `Ed25519Signature2020` - https://www.w3.org/TR/vc-di-eddsa/#the-ed25519signature2020-suite
 * `sd-jwt` - https://www.w3.org/TR/vc-jose-cose/#with-sd-jwt
 * `cose` - https://www.w3.org/TR/vc-jose-cose/#securing-with-cose
