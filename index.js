@@ -2,6 +2,7 @@ import * as bbs2023Cryptosuite from '@digitalbazaar/bbs-2023-cryptosuite';
 import * as Bls12381Multikey from '@digitalbazaar/bls12-381-multikey';
 import * as cbor2 from 'cbor2';
 import * as cborld from '@digitalbazaar/cborld';
+import * as didKey from '@digitalbazaar/did-method-key';
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
 import * as ecdsaRdfc2019Cryptosuite from
   '@digitalbazaar/ecdsa-rdfc-2019-cryptosuite';
@@ -20,6 +21,7 @@ import {getCoseHtml, getJoseHtml, getSdJwtHtml} from './src/html';
 import {sha3_256, sha3_384} from '@noble/hashes/sha3';
 import {base16} from 'multiformats/bases/base16';
 import {base58btc} from 'multiformats/bases/base58';
+import {CachedResolver} from '@digitalbazaar/did-io';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import ed25519Context from 'ed25519-signature-2020-context';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
@@ -94,6 +96,27 @@ const documentLoader = extendContextLoader(async function documentLoader(url) {
     console.error('Error: Failed to retrieve', url);
   }
 });
+
+// setup resolver
+const resolver = new CachedResolver();
+const didKeyDriver = didKey.driver();
+didKeyDriver.use({
+  multibaseMultikeyHeader: 'zDna',
+  fromMultibase: EcdsaMultikey.from
+});
+didKeyDriver.use({
+  multibaseMultikeyHeader: 'z82L',
+  fromMultibase: EcdsaMultikey.from
+});
+didKeyDriver.use({
+  multibaseMultikeyHeader: 'z6Mk',
+  fromMultibase: Ed25519Multikey.from
+});
+didKeyDriver.use({
+  multibaseMultikeyHeader: 'zUC7',
+  fromMultibase: Bls12381Multikey.from
+});
+resolver.use(didKeyDriver);
 
 async function createBBSExampleProof() {
   const key = await Bls12381Multikey.generateBbsKeyPair({
@@ -493,6 +516,23 @@ async function createVcExamples() {
         e, hashEntry);
       hashEntry.innerText = 'Error generating cryptographic hash for ' +
         hashUrl;
+    }
+  }
+
+  // process all 'did-key' entries
+  const didKeyExamples = document.querySelectorAll('.did-key');
+  for(const example of didKeyExamples) {
+    const did = example.dataset?.did;
+    try {
+      const didDoc = await resolver.get({did});
+      const fragmentRegex = new RegExp('\#.*"', 'g');
+      const didDocJson =
+        JSON.stringify(didDoc, null, 2).replaceAll(fragmentRegex, '#vm');
+      example.innerText = didDocJson;
+    } catch(error) {
+      example.innerText = 'Failed to generate did:key example. ' +
+        '(see console for details)';
+      console.error('Error generating DID Document for ' + did, error);
     }
   }
 
