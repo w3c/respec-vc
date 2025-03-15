@@ -11,6 +11,11 @@
 ### Fixed
 -
 
+## 3.4.2 - 2025-03-15
+
+### Added
+- Support for generation of did:key examples
+
 ## 3.4.1 - 2025-02-23
 
 ### Changed
