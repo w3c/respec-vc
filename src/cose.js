@@ -63,7 +63,7 @@ const getBinaryMessage = async (privateKey, messageType, messageJson) => {
   const byteSigner = {
     sign: async payload => {
       return signer.sign({
-        protectedHeader: new Map([[1, -35]]),
+        protectedHeader: new Map([[1, -9]]),
         unprotectedHeader: new Map(),
         payload,
       });
