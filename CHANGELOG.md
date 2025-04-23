@@ -11,6 +11,11 @@
 ### Fixed
 -
 
+## 3.4.3 - 2025-04-22
+
+### Fixed
+- Correct COSE signing algorithm to use -9 (ESP256)
+
 ## 3.4.2 - 2025-03-15
 
 ### Added
