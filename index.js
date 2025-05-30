@@ -719,7 +719,9 @@ async function createVcExamples() {
 
           const cborldBytes = await cborld.encode({
             jsonldDocument: verifiableCredentialProof,
-            documentLoader
+            documentLoader,
+            format: 'cbor-ld-1.0',
+            registryEntryId: 1
           });
           const cborldSize = cborldBytes.length;
           const cborldHex = Array.from(cborldBytes, byte =>
@@ -783,7 +785,9 @@ async function createVcExamples() {
           verifiableCredentialProof = await attachProof({credential, suite});
           const cborldBytes = await cborld.encode({
             jsonldDocument: verifiableCredentialProof,
-            documentLoader
+            documentLoader,
+            format: 'cbor-ld-1.0',
+            registryEntryId: 1
           });
           const jsonldDiagnostic =
             JSON.stringify(verifiableCredentialProof, null, 2);
@@ -796,6 +800,8 @@ async function createVcExamples() {
             header,
             cborldBytes,
             documentLoader,
+            format: 'cbor-ld-1.0',
+            registryEntryId: 1,
             moduleSize: 2,
             margin: 16
           });
