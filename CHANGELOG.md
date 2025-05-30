@@ -11,6 +11,11 @@
 ### Fixed
 -
 
+## 3.5.0 - 2025-05-30
+
+### Changed
+- Update to latest version of CBOR-LD and VPQR.
+
 ## 3.4.3 - 2025-04-22
 
 ### Fixed
