@@ -5,6 +5,7 @@
   "scripts": {
     "start": "http-server . -c-1",
     "build": "webpack",
+    "dev": "webpack --watch",
     "lint": "eslint --ext .cjs,.js ."
   },
   "repository": {
