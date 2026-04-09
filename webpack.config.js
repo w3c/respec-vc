@@ -10,7 +10,6 @@ module.exports = [{
       Buffer: ['buffer', 'Buffer'],
     }),
   ],
-  watch: true,
   resolve: {
     fallback: {
       buffer: require.resolve("buffer/"),
