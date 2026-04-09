@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false # Disable token persistence for security
       # Run `npm run build` to create `dist/` directory for release assets
       - name: Build project
-        run: npm ci && npm run build
+        run: npm install && npm run build
       # Add them to the current tag
       - name: Add `dist/` to release assets
         env:
