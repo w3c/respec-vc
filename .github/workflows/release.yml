@@ -1,0 +1,46 @@
+# This workflow creates a release when a new tag is pushed to the repository.
+# The release will be created with the tag name, and the body of the release
+# will include a list of changes.
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+' # Push events to matching semver (ex: 1.0.0)
+
+permissions: {}
+
+name: Create Release
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false # Disable token persistence for security
+      # Run `npm run build` to create `dist/` directory for release assets
+      - name: Build project
+        run: npm ci && npm run build
+      # Add them to the current tag
+      - name: Add `dist/` to release assets
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/
+          git commit -m "Add dist/ to release assets"
+          git push origin HEAD:${REF}
+      - name: Create Release
+        id: create_release
+        uses: comnoco/create-release@7dea6dc82ac9d97ced7a764aa82811451bba80e0 # v2.0.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false

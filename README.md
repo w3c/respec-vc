@@ -108,15 +108,15 @@ method (e.g., a URL to a public key):
 
 # Generate Binary VCs and QR Codes
 
-It is possible to use semantic compression to highly compress VCs to 
-compact binary representations as small as 185 bytes. You can do 
+It is possible to use semantic compression to highly compress VCs to
+compact binary representations as small as 185 bytes. You can do
 so by using the `cbor-ld` option in `data-vc-tabs`. The output
 will look like the following:
 
 ![image](https://github.com/user-attachments/assets/821c6841-f7db-44e4-99d6-132918fc5b1e)
 
 It is also possible to represent these binary representations using QR Codes.
-You can show a QR Code encoding of a VC by using the `qr` option in 
+You can show a QR Code encoding of a VC by using the `qr` option in
 `data-vc-tabs`:
 
 ![image](https://github.com/user-attachments/assets/19259b8c-c193-486b-a0c3-f13fd0aba1e4)
@@ -197,21 +197,8 @@ $ npm run build # build and watch index.js changes
 $ npm run start # serve this directory
 ```
 
-## Creating a Release
+## Releases
 
-NOTE: This release process is not ideal and is planned to be changed/imporved in future.
-
-To create a new release:
-
-1. Clear out `node_modules/` and `dist/`
-2. `git pull origin main`
-3. `git checkout -b VERSION` (where `VERSION` is something like `3.3.2`)
-4. `npm i`
-5. `npm run build`
-6. Test by running `npm run start` and ensure `index.html` loads without errors.
-7. `git add -f dist/main.js && git commit -a`
-6. `git tag VERSION`
-7. `git push --tags`
-
-**DO NOT merge the branch down to main.** All tagged releases are
-"headless" because they contain massive 7MB files.
+Releases are created by pushing a tag to the repository. The tag must match the
+following pattern: `[0-9]+.[0-9]+.[0-9]+` (e.g., `1.0.0`). The workflow does the
+rest.
