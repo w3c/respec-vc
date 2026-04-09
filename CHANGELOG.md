@@ -11,6 +11,12 @@
 ### Fixed
 -
 
+## 3.5.1 - 2026-04-09
+
+### Fixed
+- Fixed unique ID generation for example tab content.
+- Added alt text to QR code image for accessibility.
+
 ## 3.5.0 - 2025-05-30
 
 ### Changed
