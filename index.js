@@ -812,7 +812,7 @@ async function createVcExamples() {
           return `
             <strong>image/png</strong>
             <br/><br/>
-            <img src="${qrImage}" /><br/>
+            <img src="${qrImage}" alt="Verifiable Credential QR Code" /><br/>
             QR Code version: ${version}<br/>
             Error correction: Low<br/>
             <hr>
