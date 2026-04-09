@@ -620,7 +620,8 @@ async function createVcExamples() {
     async function addTab(suffix, labelText, tabText, callback) {
       const button = document.createElement('input');
       button.setAttribute('type', 'radio');
-      button.setAttribute('id', `vc-tab${vcProofExampleIndex}${suffix}`);
+      button.setAttribute('id',
+        `vc-tab${vcProofExampleIndex}${suffix.replace(' ', '-')}`);
       button.setAttribute('name', `vc-tabs${vcProofExampleIndex}`);
       if(tabbedContent.firstChild.tagName === 'INPUT') {
         // place this one last of the inputs
