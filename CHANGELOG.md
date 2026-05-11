@@ -11,7 +11,12 @@
 ### Fixed
 -
 
-## 3.5.1 - 2026-04-09
+## 3.5.2 - 2026-05-10
+
+### Fixed
+- Fix base-encoding for digestSRI hashes.
+
+## 3.5.1 - 2026-05-10
 
 ### Fixed
 - Fixed unique ID generation for example tab content.
