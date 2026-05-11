@@ -457,15 +457,11 @@ async function createVcExamples() {
     let encodedHash = null;
 
     // select the base encoder (default: base64-url with no padding)
-    let baseEncoder;
-    if(hashFormat.includes('sri')) {
-      baseEncoder = base64pad;
-    } else if(hashFormat.includes('base16')) {
-      baseEncoder = base16;
+    let multibaseEncoder = base64url;
+    if(hashFormat.includes('base16')) {
+      multibaseEncoder = base16;
     } else if(hashFormat.includes('base58btc')) {
-      baseEncoder = base58btc;
-    } else {
-      baseEncoder = base64url;
+      multibaseEncoder = base58btc;
     }
 
     // retrieve the file and generate the hash
@@ -486,25 +482,27 @@ async function createVcExamples() {
         }).join('');
       } else if(hashFormat.includes('sri')) {
         if(hashFormat.includes('sha2-256')) {
-          const mfHash = await sha2256Hasher.digest(hashData);
-          encodedHash = 'sha256-' + baseEncoder.encode(mfHash.digest);
+          const rawHash = new Uint8Array(
+            await crypto.subtle.digest('SHA-256', hashData));
+          encodedHash = 'sha256-' + Buffer.from(rawHash).toString('base64');
         } else if(hashFormat.includes('sha2-384')) {
-          const mfHash = await sha2384Hasher.digest(hashData);
-          encodedHash = 'sha384-' + baseEncoder.encode(mfHash.digest);
+          const rawHash = new Uint8Array(
+            await crypto.subtle.digest('SHA-384', hashData));
+          encodedHash = 'sha384-' + Buffer.from(rawHash).toString('base64');
         }
       } else if(hashFormat.includes('multihash')) {
         if(hashFormat.includes('sha2-256')) {
           const mfHash = await sha2256Hasher.digest(hashData).bytes;
-          encodedHash = baseEncoder.encode(mfHash);
+          encodedHash = multibaseEncoder.encode(mfHash);
         } else if(hashFormat.includes('sha2-384')) {
           const mfHash = await sha2384Hasher.digest(hashData).bytes;
-          encodedHash = baseEncoder.encode(mfHash);
+          encodedHash = multibaseEncoder.encode(mfHash);
         } else if(hashFormat.includes('sha3-256')) {
           const mfHash = await sha3256Hasher.digest(hashData).bytes;
-          encodedHash = baseEncoder.encode(mfHash);
+          encodedHash = multibaseEncoder.encode(mfHash);
         } else if(hashFormat.includes('sha3-384')) {
           const mfHash = await sha3384Hasher.digest(hashData).bytes;
-          encodedHash = baseEncoder.encode(mfHash);
+          encodedHash = multibaseEncoder.encode(mfHash);
         }
       }
 
